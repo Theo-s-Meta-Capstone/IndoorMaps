@@ -5,14 +5,24 @@
         ],
         "outDir": "dist",
         "lib": [
-            "es2020"
+            "ESNext"
         ],
-        "target": "es2020",
-        "module": "esnext",
+        "target": "ESNext",
+        "module": "ESNext",
         "moduleResolution": "node",
         "esModuleInterop": true,
         "types": [
             "node"
-        ]
+        ],
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "skipLibCheck": true, /* Skip type checking all .d.ts files. */
+        "jsx": "react-jsx",
+        "forceConsistentCasingInFileNames": true
+    },
+    "ts-node": {
+        "esm": true
     }
 }
