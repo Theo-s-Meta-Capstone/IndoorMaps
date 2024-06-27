@@ -7,7 +7,6 @@ import { SignInData } from "../src/types";
 class AuthService {
 
     static async register(data: Prisma.UserCreateInput) {
-        // const { email } = data;
         if (data.password == null) throw new Error('Password not valid')
         data.password = bcrypt.hashSync(data.password!, 8);
         let userFromDB = await context.prisma.user.create({
