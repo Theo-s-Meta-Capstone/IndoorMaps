@@ -1,26 +1,13 @@
 import './App.css'
-import { graphql, useLazyLoadQuery } from 'react-relay';
-
-const getAllUsers = graphql`
-  query AppQuery {
-    allUsers {
-      email
-    }
-  }
-`;
+import '@mantine/core/styles.css';
+import { MantineProvider } from '@mantine/core';
 
 
 function App() {
-  const data = useLazyLoadQuery(
-    getAllUsers,
-    {fetchPolicy: 'store-or-network'},
+  return (
+    <MantineProvider>{/* Your app here */}
+    </MantineProvider>
   );
-
- return (
-  <h1>
-      {JSON.stringify(data)}
-    </h1>
- );
 }
 
 export default App
