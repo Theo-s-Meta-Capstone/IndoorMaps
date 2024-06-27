@@ -11,7 +11,8 @@ import 'dotenv/config'
 const schema = await tq.buildSchema({
     resolvers: [UserResolver],
     // scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
-    validate: { forbidUnknownValues: false }
+    validate: { forbidUnknownValues: false },
+    emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
 })
 
 const server = new ApolloServer<Context>({ schema })
