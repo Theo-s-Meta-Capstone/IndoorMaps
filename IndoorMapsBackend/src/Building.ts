@@ -4,7 +4,7 @@ import { ObjectType, Field, ID } from 'type-graphql'
 @ObjectType()
 class Floor {
   @Field((type) => ID)
-  id: number
+  id: string
 
   @Field()
   title: string
@@ -18,7 +18,7 @@ class Floor {
 @ObjectType()
 export class Building {
   @Field((type) => ID)
-  id: number
+  id: string
 
   @Field()
   title: string

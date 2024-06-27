@@ -6,7 +6,7 @@ import {
   FetchFunction,
 } from "relay-runtime";
 
-const HTTP_ENDPOINT = "http://localhost:4000";
+const HTTP_ENDPOINT = "http://localhost:4000/graphql";
 
 const fetchFn: FetchFunction = async (request, variables) => {
   const resp = await fetch(HTTP_ENDPOINT, {
@@ -21,6 +21,7 @@ const fetchFn: FetchFunction = async (request, variables) => {
       query: request.text, // <-- The GraphQL document composed by Relay
       variables,
     }),
+    credentials: "include",
   });
 
   return await resp.json();

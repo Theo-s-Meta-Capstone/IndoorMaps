@@ -45,9 +45,9 @@ class LogedInUser {
     user: User
 }
 
-const convertToGraphQLUser = (userFromDB: DbUser, accessToken: string): User => {
+export const convertToGraphQLUser = (userFromDB: DbUser, accessToken: string): User => {
     const user: User = {
-        id: userFromDB.id,
+        id: "user"+userFromDB.id,
         name: userFromDB.name,
         email: userFromDB.email,
         token: accessToken,

@@ -10,6 +10,7 @@ import {
 } from 'type-graphql'
 import { Context } from './context.js'
 import { Building } from './Building.js'
+import { Building as DbBuilding, Floor } from '@prisma/client'
 import { GraphQLError } from 'graphql'
 @InputType()
 class BuildingUniqueInput {
@@ -25,8 +26,27 @@ class BuildingCreateInput {
     @Field()
     description: string
 
-    @Field({description: "the creater's user id"})
+    @Field({ description: "the creater's user id" })
     owner: number
+}
+
+interface DbBuildingWithFloors extends DbBuilding {
+    floors: Floor[]
+}
+
+const convertToGraphQLBuilding = (buildingFromDB: DbBuildingWithFloors): Building => {
+    const building: Building = {
+        id: "building" + buildingFromDB.id,
+        title: buildingFromDB.title,
+        description: buildingFromDB.description,
+        floors: buildingFromDB.floors.map((value: Floor) => {
+            return {
+                ...value,
+                id: "floor" + value.id.toString()
+            }
+        }),
+    }
+    return building;
 }
 
 @Resolver(Building)
@@ -54,16 +74,15 @@ export class BuildingResolver {
                     },
                 },
             },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                floors: true,
+            }
         });
 
-        const Building: Building = {
-            id: newBuilding.id,
-            title: newBuilding.title,
-            description: newBuilding.description,
-            // new buildings have no floors by defualt
-            floors: [],
-        }
-        return newBuilding as Building;
+        return convertToGraphQLBuilding(newBuilding);
     }
 
     @Query((returns) => Building)
@@ -89,7 +108,7 @@ export class BuildingResolver {
                 },
             });
         }
-        return dbBuilding;
+        return convertToGraphQLBuilding(dbBuilding);
     }
 
     @Query(() => [Building])

@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { User as DbUser} from '@prisma/client';
 import { User } from "../User"
 import { prisma } from '../context.js'
+import { convertToGraphQLUser } from '../UserResolver.js';
 
 const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET ? process.env.ACCESS_TOKEN_SECRET : "ACCESS_TOKEN_SECRET";
 export default {
@@ -55,14 +56,7 @@ export default {
                 if(!tokens.tokens.includes(token)){
                     return reject("JWT not valid")
                 }
-                const user: User = {
-                    id: userData.id,
-                    name: userData.name,
-                    email: userData.email,
-                    token: token,
-                    isEmailVerified: userData.isEmailVerified
-                }
-                resolve(user)
+                resolve(convertToGraphQLUser(userData, token))
             })
         })
     }

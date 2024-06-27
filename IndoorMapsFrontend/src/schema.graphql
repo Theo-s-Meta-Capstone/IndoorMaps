@@ -28,6 +28,11 @@ type Floor {
   title: String!
 }
 
+type LogedInUser {
+  isLogedIn: Boolean!
+  user: User
+}
+
 type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
   signinUser(data: UserLoginInput!): User!
@@ -38,6 +43,7 @@ type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getBuilding(data: BuildingUniqueInput!): Building!
+  getUserFromCookie: LogedInUser!
 }
 
 type User {

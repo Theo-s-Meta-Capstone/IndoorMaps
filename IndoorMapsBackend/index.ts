@@ -37,13 +37,15 @@ if (!process.env.FRONTEND_URL) {
     throw new Error("no frontend url provided")
 }
 
+console.log("serving data to frontend at " + process.env.FRONTEND_URL)
+
 app.use(
     '/graphql',
     cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL], credentials: true }),
     cookieParser(),
     express.json(),
     expressMiddleware(server, {
-        context: async ({ req }):Promise<Context> => ({ prisma: prisma, cookies: req.cookies.jwt }),
+        context: async ({ req }): Promise<Context> => ({ prisma: prisma, cookies: req.cookies.jwt }),
     }),
 );
 
