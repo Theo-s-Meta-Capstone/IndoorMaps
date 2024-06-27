@@ -8,7 +8,7 @@ import {
     InputType,
     Field,
 } from 'type-graphql'
-import { Context, context } from './context.js'
+import { Context } from './context.js'
 import { Building } from './Building.js'
 import { GraphQLError } from 'graphql'
 @InputType()
@@ -39,7 +39,7 @@ export class BuildingResolver {
 
         // TODO: only get the floors and areas if needed
         // Use prisma to get building
-        const newBuilding = await context.prisma.building.create({
+        const newBuilding = await ctx.prisma.building.create({
             data: {
                 title: data.title,
                 description: data.description,
@@ -71,7 +71,7 @@ export class BuildingResolver {
         @Arg('data') data: BuildingUniqueInput,
         @Ctx() ctx: Context,
     ): Promise<Building> {
-        const dbBuilding = await context.prisma.building.findUnique({
+        const dbBuilding = await ctx.prisma.building.findUnique({
             where: {
                 id: data.id,
             },

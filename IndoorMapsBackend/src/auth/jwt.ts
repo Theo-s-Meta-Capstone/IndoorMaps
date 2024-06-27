@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 import { User as DbUser} from '@prisma/client';
-import { User } from "../src/User"
-import { context } from '../src/context.js'
+import { User } from "../User"
+import { prisma } from '../context.js'
 
 const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET ? process.env.ACCESS_TOKEN_SECRET : "ACCESS_TOKEN_SECRET";
 export default {
@@ -13,7 +13,7 @@ export default {
                 if (err) {
                     reject(" InternalServerError")
                 }
-                await context.prisma.user.update({
+                await prisma.user.update({
                     where: {
                         id: payload.id,
                     },
@@ -41,7 +41,7 @@ export default {
                     return reject("unknown issue with payload data form jwt")
                 }
                 const userData = (payload as { payload: DbUser }).payload;
-                const tokens = await context.prisma.user.findUnique({
+                const tokens = await prisma.user.findUnique({
                     where: {
                         id: userData.id,
                     },

@@ -5,24 +5,15 @@ import {
     Mutation,
     Arg,
     Ctx,
-    FieldResolver,
-    Root,
-    Int,
     InputType,
     Field,
+    ObjectType,
 } from 'type-graphql'
 import { Context } from './context.js'
 import { User } from './User.js'
 import { User as DbUser} from '@prisma/client';
-import auth from '../auth/auth.js'
-@InputType()
-class UserUniqueInput {
-    @Field({ nullable: true })
-    id: number
-
-    @Field({ nullable: true })
-    email: string
-}
+import auth from './auth/auth.js'
+import { validateUser } from './auth/validateUser.js';
 
 @InputType()
 class UserCreateInput {
@@ -43,6 +34,15 @@ class UserLoginInput {
 
     @Field()
     password: string
+}
+
+@ObjectType()
+class LogedInUser {
+    @Field()
+    isLogedIn: boolean
+
+    @Field((type) => User, {nullable: true})
+    user: User
 }
 
 const convertToGraphQLUser = (userFromDB: DbUser, accessToken: string): User => {
@@ -81,4 +81,17 @@ export class UserResolver {
         return ctx.prisma.user.findMany()
     }
 
+    @Query(() => LogedInUser)
+    async getUserFromCookie(@Ctx() ctx: Context) {
+        const user = await validateUser(ctx.cookies);
+        if(!user) {
+            return {
+                isLogedIn: false,
+            }
+        }
+        return {
+            isLogedIn: true,
+            user: user,
+        }
+    }
 }

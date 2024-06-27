@@ -1,11 +1,16 @@
 import "reflect-metadata";
 import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import cookieParser from "cookie-parser"
 import { startStandaloneServer } from '@apollo/server/standalone';
 import * as tq from 'type-graphql'
-import { Context, context } from "./src/context.js";
+import { prisma, Context } from "./src/context.js";
 import { UserResolver } from "./src/UserResolver.js";
 import { BuildingResolver } from "./src/BuildingResolver.js";
-
 
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
@@ -17,15 +22,30 @@ const schema = await tq.buildSchema({
     emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
 })
 
-const server = new ApolloServer<Context>({ schema })
+const app = express();
+const httpServer = http.createServer(app);
+const server = new ApolloServer({
+    schema,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 
-// Passing an ApolloServer instance to the `startStandaloneServer` function:
-//  1. creates an Express app
-//  2. installs your ApolloServer instance as middleware
-//  3. prepares your app to handle incoming requests
-const { url } = await startStandaloneServer(server, { context: async () => context })
 
-console.log(`
-🚀 Server ready at: ${url}
-⭐️  See sample queries: http://pris.ly/e/ts/graphql-typegraphql#using-the-graphql-api`
-)
+});
+
+await server.start();
+
+if (!process.env.FRONTEND_URL) {
+    throw new Error("no frontend url provided")
+}
+
+app.use(
+    '/graphql',
+    cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL], credentials: true }),
+    cookieParser(),
+    express.json(),
+    expressMiddleware(server, {
+        context: async ({ req }):Promise<Context> => ({ prisma: prisma, cookies: req.cookies.jwt }),
+    }),
+);
+
+await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
+console.log(`🚀 Server ready at http://localhost:4000/graphql`);
