@@ -14,6 +14,7 @@ import { User } from './User.js'
 import { User as DbUser} from '@prisma/client';
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
+import { isContext } from 'vm';
 
 @InputType()
 class UserCreateInput {
@@ -45,12 +46,11 @@ class LogedInUser {
     user: User
 }
 
-export const convertToGraphQLUser = (userFromDB: DbUser, accessToken: string): User => {
+export const convertToGraphQLUser = (userFromDB: DbUser): User => {
     const user: User = {
         id: "user"+userFromDB.id,
         name: userFromDB.name,
         email: userFromDB.email,
-        token: accessToken,
         isEmailVerified: userFromDB.isEmailVerified
     }
     return user;
@@ -64,7 +64,8 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-        return convertToGraphQLUser(userFromDB, accessToken);
+        ctx.res.cookie("jwt", accessToken)
+        return convertToGraphQLUser(userFromDB);
     }
 
     @Mutation((returns) => User)
@@ -73,7 +74,8 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-        return convertToGraphQLUser(userFromDB, accessToken);
+        ctx.res.cookie("jwt", accessToken)
+        return convertToGraphQLUser(userFromDB);
     }
 
     @Query(() => [User])

@@ -51,7 +51,6 @@ type User {
   id: ID!
   isEmailVerified: Boolean!
   name: String!
-  token: String!
 }
 
 input UserCreateInput {

@@ -14,9 +14,6 @@ export class User {
   @Field()
   name: string
 
-  @Field()
-  token: string
-
   @Field({ defaultValue: false })
   isEmailVerified: boolean
 }

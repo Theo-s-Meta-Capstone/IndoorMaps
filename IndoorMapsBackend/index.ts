@@ -27,8 +27,6 @@ const httpServer = http.createServer(app);
 const server = new ApolloServer({
     schema,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-
-
 });
 
 await server.start();
@@ -45,7 +43,7 @@ app.use(
     cookieParser(),
     express.json(),
     expressMiddleware(server, {
-        context: async ({ req }): Promise<Context> => ({ prisma: prisma, cookies: req.cookies.jwt }),
+        context: async ({ req, res }): Promise<Context> => ({ prisma: prisma, cookies: req.cookies, res: res }),
     }),
 );
 

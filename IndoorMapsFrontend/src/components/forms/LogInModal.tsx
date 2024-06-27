@@ -27,7 +27,6 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
                 id
                 email
                 name
-                token
             }
         }
     `);
@@ -43,7 +42,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
                 },
                 onCompleted(data) {
                     // TODO: add error handling to this output
-                    console.log(data.signinUser.token);
+                    console.log(data.signinUser);
                     closeModal();
                 },
             });

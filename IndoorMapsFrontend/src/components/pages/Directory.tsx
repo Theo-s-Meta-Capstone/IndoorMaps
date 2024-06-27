@@ -14,6 +14,13 @@ const GetAllBuildings = graphql`
       title
       description
     }
+    getUserFromCookie {
+        isLogedIn
+        user {
+            name
+            email
+        }
+    }
   }
 `
 
@@ -57,7 +64,11 @@ function NameDisplay({ queryReference }: NameDisplayProps) {
         )
     })
 
-    return buildingListElements;
+    return <>
+    <div>{data.getUserFromCookie.isLogedIn ? "loged in" : "not loged in"}</div>
+    {data.getUserFromCookie.isLogedIn ? <div>{JSON.stringify(data.getUserFromCookie.user)}</div> : null}
+    {buildingListElements}
+    </>;
 }
 
 export default Directory;

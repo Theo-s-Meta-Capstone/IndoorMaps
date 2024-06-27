@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b3ebe47edf6ec7e01bfa8827d3a9d6aa>>
+ * @generated SignedSource<<19ea07dad7cfd9fc87561ef5a66fc9be>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,13 @@ export type DirectoryGetAllBuildingsQuery$data = {
     readonly id: string;
     readonly title: string;
   }>;
+  readonly getUserFromCookie: {
+    readonly isLogedIn: boolean;
+    readonly user: {
+      readonly email: string;
+      readonly name: string;
+    } | null | undefined;
+  };
 };
 export type DirectoryGetAllBuildingsQuery = {
   response: DirectoryGetAllBuildingsQuery$data;
@@ -23,47 +30,94 @@ export type DirectoryGetAllBuildingsQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "Building",
-    "kind": "LinkedField",
-    "name": "allBuildings",
-    "plural": true,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "id",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "title",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "description",
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  }
-];
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "Building",
+  "kind": "LinkedField",
+  "name": "allBuildings",
+  "plural": true,
+  "selections": [
+    (v0/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "title",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "description",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+},
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "isLogedIn",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "email",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
     "name": "DirectoryGetAllBuildingsQuery",
-    "selections": (v0/*: any*/),
+    "selections": [
+      (v1/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "LogedInUser",
+        "kind": "LinkedField",
+        "name": "getUserFromCookie",
+        "plural": false,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "user",
+            "plural": false,
+            "selections": [
+              (v3/*: any*/),
+              (v4/*: any*/)
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -72,19 +126,47 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "DirectoryGetAllBuildingsQuery",
-    "selections": (v0/*: any*/)
+    "selections": [
+      (v1/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "LogedInUser",
+        "kind": "LinkedField",
+        "name": "getUserFromCookie",
+        "plural": false,
+        "selections": [
+          (v2/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "user",
+            "plural": false,
+            "selections": [
+              (v3/*: any*/),
+              (v4/*: any*/),
+              (v0/*: any*/)
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
   },
   "params": {
-    "cacheID": "9a212d7877583a199d4ecfc6e5c61d1f",
+    "cacheID": "0505d9e216935db420e6302fafdc9699",
     "id": null,
     "metadata": {},
     "name": "DirectoryGetAllBuildingsQuery",
     "operationKind": "query",
-    "text": "query DirectoryGetAllBuildingsQuery {\n  allBuildings {\n    id\n    title\n    description\n  }\n}\n"
+    "text": "query DirectoryGetAllBuildingsQuery {\n  allBuildings {\n    id\n    title\n    description\n  }\n  getUserFromCookie {\n    isLogedIn\n    user {\n      name\n      email\n      id\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "7d424eacf6e742f6e8338b689a5af44e";
+(node as any).hash = "b12b01db4ccd10b05ed3849020e2df72";
 
 export default node;

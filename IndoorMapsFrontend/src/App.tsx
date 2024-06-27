@@ -1,6 +1,6 @@
 import './App.css'
 import '@mantine/core/styles.css';
-import { MantineProvider } from '@mantine/core';
+import { Button, MantineProvider } from '@mantine/core';
 import Directory from './components/pages/Directory';
 import UserButtons from './components/pageSections/UserButtons';
 import AuthButtons from './components/pageSections/AuthButtons';

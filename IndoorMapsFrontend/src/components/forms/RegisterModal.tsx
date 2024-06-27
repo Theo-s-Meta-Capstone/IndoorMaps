@@ -29,7 +29,6 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
                 id
                 email
                 name
-                token
             }
         }
     `);
@@ -46,7 +45,7 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
                 },
                 onCompleted(data) {
                     // TODO: add error handling to this output
-                    console.log(data.signupUser.token);
+                    console.log(data.signupUser);
                     closeModal();
                 },
             });

@@ -32,7 +32,7 @@ export default {
             })
         })
     },
-    verifyAccessToken(token: string): Promise<User> {
+    verifyAccessToken(token: string): Promise<[User, string]> {
         return new Promise((resolve, reject) => {
             jwt.verify(token, accessTokenSecret, async (err, payload) => {
                 if (err) {
@@ -56,7 +56,7 @@ export default {
                 if(!tokens.tokens.includes(token)){
                     return reject("JWT not valid")
                 }
-                resolve(convertToGraphQLUser(userData, token))
+                resolve([convertToGraphQLUser(userData), token])
             })
         })
     }
