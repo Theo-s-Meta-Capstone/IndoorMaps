@@ -28,9 +28,11 @@ model Floor {
 }
 
 model Building {
-  id      Int               @id @default(autoincrement())
-  floors  Floor[]
-  editors BuildingEditors[]
+  id          Int               @id @default(autoincrement())
+  title       String
+  description String
+  floors      Floor[]
+  editors     BuildingEditors[]
 }
 
 model Area {
