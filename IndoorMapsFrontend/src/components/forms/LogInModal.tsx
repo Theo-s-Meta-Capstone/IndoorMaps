@@ -8,9 +8,10 @@ interface Props {
     isOpen: boolean,
     closeModal: () => void,
     switchAuthAction: () => void,
+    refreshUserData: () => void,
 }
 
-const LogInModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
+const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
 
     const form = useForm({
@@ -43,6 +44,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction }: Props) => {
                 onCompleted(data) {
                     // TODO: add error handling to this output
                     console.log(data.signinUser);
+                    refreshUserData()
                     closeModal();
                 },
             });

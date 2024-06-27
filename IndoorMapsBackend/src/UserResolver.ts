@@ -10,7 +10,7 @@ import {
     ObjectType,
 } from 'type-graphql'
 import { Context } from './context.js'
-import { User } from './User.js'
+import { LogedInUser, User } from './User.js'
 import { User as DbUser} from '@prisma/client';
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
@@ -35,15 +35,6 @@ class UserLoginInput {
 
     @Field()
     password: string
-}
-
-@ObjectType()
-class LogedInUser {
-    @Field()
-    isLogedIn: boolean
-
-    @Field((type) => User, {nullable: true})
-    user: User
 }
 
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
