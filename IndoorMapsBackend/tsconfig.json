@@ -10,7 +10,6 @@
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "node",
-        "esModuleInterop": true,
         "types": [
             "node"
         ],
@@ -20,9 +19,12 @@
         "strictPropertyInitialization": false,
         "skipLibCheck": true, /* Skip type checking all .d.ts files. */
         "jsx": "react-jsx",
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
     },
     "ts-node": {
-        "esm": true
-    }
+        "files": true
+    },
+    "exclude": ["node_modules", "dist"]
+
 }
