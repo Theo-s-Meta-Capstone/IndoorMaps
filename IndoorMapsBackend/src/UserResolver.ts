@@ -56,6 +56,7 @@ export class UserResolver {
 
         const user: User = {
             id: userFromDB.id,
+            name: userFromDB.name,
             email: userFromDB.email,
             token: accessToken,
             isEmailVerified: userFromDB.isEmailVerified
@@ -73,6 +74,7 @@ export class UserResolver {
 
         const user: User = {
             id: userFromDB.id,
+            name: userFromDB.name,
             email: userFromDB.email,
             token: accessToken,
             isEmailVerified: userFromDB.isEmailVerified
