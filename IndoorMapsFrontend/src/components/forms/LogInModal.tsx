@@ -24,11 +24,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
 
     const [commit, isInFlight] = useMutation<LogInModalMutation>(graphql`
         mutation LogInModalMutation($input: UserLoginInput!) {
-            signinUser(data: $input) {
-                id
-                email
-                name
-            }
+            signinUser(data: $input) {}
         }
     `);
 
@@ -41,12 +37,13 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
                         password: values.password,
                     },
                 },
-                onCompleted(data) {
-                    // TODO: add error handling to this output
-                    console.log(data.signinUser);
+                onCompleted() {
                     refreshUserData()
                     closeModal();
                 },
+                onError(error) {
+                    setFormError(error.message);
+                }
             });
         } catch (error) {
             let errorMessage = (error as Error).message;
@@ -64,7 +61,6 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
                 blur: 3,
             }}
         >
-
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 {formError ?
                     <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
@@ -74,7 +70,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
                 <TextInput {...form.getInputProps('email')} autoComplete="email" label="Email" placeholder="zuck@meta.com" />
                 <PasswordInput {...form.getInputProps('password')} autoComplete="current-password" label="Password" placeholder="" />
                 <Group>
-                    <Button type="submit">Submit</Button>
+                    <Button disabled={isInFlight} type="submit">Submit</Button>
                     <Button onClick={switchAuthAction}>Sign Up instead</Button>
                 </Group>
             </form>

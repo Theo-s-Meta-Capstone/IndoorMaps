@@ -26,11 +26,7 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }
 
     const [commit, isInFlight] = useMutation<RegisterModalMutation>(graphql`
         mutation RegisterModalMutation($input: UserCreateInput!) {
-            signupUser(data: $input) {
-                id
-                email
-                name
-            }
+            signupUser(data: $input) {}
         }
     `);
 
@@ -44,12 +40,13 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }
                         name: values.name
                     },
                 },
-                onCompleted(data) {
-                    // TODO: add error handling to this output
-                    console.log(data.signupUser);
+                onCompleted() {
                     refreshUserData();
                     closeModal();
                 },
+                onError(error) {
+                    setFormError(error.message);
+                }
             });
         } catch (error) {
             let errorMessage = (error as Error).message;

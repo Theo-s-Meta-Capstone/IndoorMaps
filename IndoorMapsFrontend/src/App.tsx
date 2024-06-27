@@ -4,7 +4,7 @@ import { MantineProvider } from '@mantine/core';
 import Directory from './components/pages/Directory';
 import UserButtons from './components/pageSections/UserButtons';
 import AuthButtons from './components/pageSections/AuthButtons';
-import { PreloadedQuery, graphql, loadQuery, usePreloadedQuery, useQueryLoader } from 'react-relay';
+import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from 'react-relay';
 import { useEffect } from 'react';
 import React from 'react';
 import { AppMainQuery } from './__generated__/AppMainQuery.graphql';
