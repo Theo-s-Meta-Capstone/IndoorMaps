@@ -4,12 +4,14 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import * as tq from 'type-graphql'
 import { Context, context } from "./src/context.js";
 import { UserResolver } from "./src/UserResolver.js";
+import { BuildingResolver } from "./src/BuildingResolver.js";
+
 
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
 
 const schema = await tq.buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, BuildingResolver],
     // scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
     validate: { forbidUnknownValues: false },
     emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",

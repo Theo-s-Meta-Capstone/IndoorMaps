@@ -11,8 +11,8 @@ export class User {
   @IsEmail()
   email: string
 
-  @Field((type) => String, { nullable: true })
-  name?: string | null
+  @Field()
+  name: string
 
   @Field()
   token: string

@@ -57,6 +57,7 @@ export default {
                 }
                 const user: User = {
                     id: userData.id,
+                    name: userData.name,
                     email: userData.email,
                     token: token,
                     isEmailVerified: userData.isEmailVerified

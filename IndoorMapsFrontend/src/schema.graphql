@@ -3,20 +3,48 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Building {
+  description: String!
+  floors: [Floor!]!
+  id: ID!
+  title: String!
+}
+
+input BuildingCreateInput {
+  description: String!
+
+  """the creater's user id"""
+  owner: Float!
+  title: String!
+}
+
+input BuildingUniqueInput {
+  id: Float
+}
+
+type Floor {
+  description: String!
+  id: ID!
+  title: String!
+}
+
 type Mutation {
+  createBuilding(data: BuildingCreateInput!): Building!
+  signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
 }
 
 type Query {
+  allBuildings: [Building!]!
   allUsers: [User!]!
-  signinUser(data: UserLoginInput!): User!
+  getBuilding(data: BuildingUniqueInput!): Building!
 }
 
 type User {
   email: String!
   id: ID!
   isEmailVerified: Boolean!
-  name: String
+  name: String!
   token: String!
 }
 
