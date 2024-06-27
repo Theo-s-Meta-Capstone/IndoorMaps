@@ -13,6 +13,7 @@ import {
 } from 'type-graphql'
 import { Context } from './context.js'
 import { User } from './User.js'
+import { User as DbUser} from '@prisma/client';
 import auth from '../auth/auth.js'
 @InputType()
 class UserUniqueInput {
@@ -44,6 +45,17 @@ class UserLoginInput {
     password: string
 }
 
+const convertToGraphQLUser = (userFromDB: DbUser, accessToken: string): User => {
+    const user: User = {
+        id: userFromDB.id,
+        name: userFromDB.name,
+        email: userFromDB.email,
+        token: accessToken,
+        isEmailVerified: userFromDB.isEmailVerified
+    }
+    return user;
+}
+
 @Resolver(User)
 export class UserResolver {
     @Mutation((returns) => User)
@@ -51,35 +63,17 @@ export class UserResolver {
         @Arg('data') data: UserCreateInput,
         @Ctx() ctx: Context,
     ): Promise<User> {
-
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-
-        const user: User = {
-            id: userFromDB.id,
-            name: userFromDB.name,
-            email: userFromDB.email,
-            token: accessToken,
-            isEmailVerified: userFromDB.isEmailVerified
-        }
-        return user;
+        return convertToGraphQLUser(userFromDB, accessToken);
     }
 
-    @Query((returns) => User)
+    @Mutation((returns) => User)
     async signinUser(
         @Arg('data') data: UserLoginInput,
         @Ctx() ctx: Context,
     ): Promise<User> {
-
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-
-        const user: User = {
-            id: userFromDB.id,
-            name: userFromDB.name,
-            email: userFromDB.email,
-            token: accessToken,
-            isEmailVerified: userFromDB.isEmailVerified
-        }
-        return user;
+        return convertToGraphQLUser(userFromDB, accessToken);
     }
 
     @Query(() => [User])
