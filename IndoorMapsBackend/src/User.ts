@@ -20,8 +20,8 @@ export class User {
 
 @ObjectType()
 export class LogedInUser {
-  @Field((type) => ID, { defaultValue: "LogedInUser" })
-  id: string
+  @Field((type) => ID)
+  id: string;
 
   @Field()
   isLogedIn: boolean

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b3d7ea8f2b05289af6210a0738c5fdd0>>
+ * @generated SignedSource<<b5a74511a049433c9bff0cf4070f1d6c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,7 +19,9 @@ export type RegisterModalMutation$variables = {
 };
 export type RegisterModalMutation$data = {
   readonly signupUser: {
+    readonly email: string;
     readonly id: string;
+    readonly name: string;
   };
 };
 export type RegisterModalMutation = {
@@ -56,6 +58,20 @@ v1 = [
         "kind": "ScalarField",
         "name": "id",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "email",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -79,16 +95,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "40a66c9b7e81300c9bde2a44ecfcfb1a",
+    "cacheID": "d8551685d9f2ae698d1ef80df304fda3",
     "id": null,
     "metadata": {},
     "name": "RegisterModalMutation",
     "operationKind": "mutation",
-    "text": "mutation RegisterModalMutation(\n  $input: UserCreateInput!\n) {\n  signupUser(data: $input) {\n    id\n  }\n}\n"
+    "text": "mutation RegisterModalMutation(\n  $input: UserCreateInput!\n) {\n  signupUser(data: $input) {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8baca6b509a5b6acfa71b87e126d9632";
+(node as any).hash = "83b7827de6d6971753d942049b4594b5";
 
 export default node;

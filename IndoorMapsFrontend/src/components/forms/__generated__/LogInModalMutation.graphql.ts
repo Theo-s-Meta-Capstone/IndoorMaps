@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<768d853d7f6600de970caf48d3380c52>>
+ * @generated SignedSource<<97b335cde385027b38111d914a06b382>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -18,7 +18,9 @@ export type LogInModalMutation$variables = {
 };
 export type LogInModalMutation$data = {
   readonly signinUser: {
+    readonly email: string;
     readonly id: string;
+    readonly name: string;
   };
 };
 export type LogInModalMutation = {
@@ -55,6 +57,20 @@ v1 = [
         "kind": "ScalarField",
         "name": "id",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "email",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -78,16 +94,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "03fc8f68b3b6523d8dd0340cc3ad4ed8",
+    "cacheID": "0835290ff4bb2808ac98938bbdbbf5da",
     "id": null,
     "metadata": {},
     "name": "LogInModalMutation",
     "operationKind": "mutation",
-    "text": "mutation LogInModalMutation(\n  $input: UserLoginInput!\n) {\n  signinUser(data: $input) {\n    id\n  }\n}\n"
+    "text": "mutation LogInModalMutation(\n  $input: UserLoginInput!\n) {\n  signinUser(data: $input) {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "b25f2e50045c656f5e91c80a53384435";
+(node as any).hash = "2c66b45feae69d16b8a0e57cc806f21f";
 
 export default node;

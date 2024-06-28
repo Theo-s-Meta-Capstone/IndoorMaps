@@ -65,12 +65,14 @@ export class UserResolver {
     @Query(() => LogedInUser)
     async getUserFromCookie(@Ctx() ctx: Context) {
         const user = await validateUser(ctx.cookies);
-        if(!user) {
+        if (!user) {
             return {
-                isLogedIn: false,
+                id:"LogedInUser",
+                isLogedIn: false
             }
         }
         return {
+            id:"LogedInUser",
             isLogedIn: true,
             user: user,
         }

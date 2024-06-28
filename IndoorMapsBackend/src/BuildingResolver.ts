@@ -12,6 +12,7 @@ import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
 import { Building } from './Building.js'
 import { convertToGraphQLBuilding } from './utils/typeConversions.js'
+
 @InputType()
 class BuildingUniqueInput {
     @Field({ nullable: true })
