@@ -16,6 +16,8 @@ import { convertToGraphQLUser } from './utils/typeConversions.js'
 import { GraphQLError } from 'graphql'
 import jwt from './auth/jwt.js'
 
+const oneMonthInMilliseconds = 43800 * 60 * 1000;
+
 @InputType()
 class UserCreateInput {
     @Field()
@@ -45,17 +47,16 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-        ctx.res.cookie("jwt", accessToken)
+        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
-
     @Mutation((returns) => User)
     async signinUser(
         @Arg('data') data: UserLoginInput,
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-        ctx.res.cookie("jwt", accessToken)
+        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
 
