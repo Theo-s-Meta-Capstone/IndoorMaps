@@ -39,6 +39,7 @@ jobs:
       # Environment variables used by the the vite project script to create a new PostgreSQL table.
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres?schema=public
+        FRONTEND_URL: "http://localhost:5173"
     # Installs npm packages, builds the vite project
     - name: Frontend run
       run: |
