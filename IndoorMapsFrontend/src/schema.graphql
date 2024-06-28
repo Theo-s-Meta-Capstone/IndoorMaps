@@ -36,6 +36,7 @@ type LogedInUser {
 
 type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
+  signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
 }
@@ -45,6 +46,10 @@ type Query {
   allUsers: [User!]!
   getBuilding(data: BuildingUniqueInput!): Building!
   getUserFromCookie: LogedInUser!
+}
+
+type SignedOutSuccess {
+  success: Boolean!
 }
 
 type User {

@@ -23,5 +23,4 @@ export const validateUser = async (cookies: Context["cookies"]): Promise<User | 
         console.error("issue with validateUser")
         return null;
     }
-
 }

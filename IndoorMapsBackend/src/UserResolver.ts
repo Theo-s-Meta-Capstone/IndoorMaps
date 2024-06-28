@@ -9,10 +9,12 @@ import {
     Field,
 } from 'type-graphql'
 import { Context } from './context.js'
-import { LogedInUser, User } from './User.js'
+import { LogedInUser, SignedOutSuccess, User } from './User.js'
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
 import { convertToGraphQLUser } from './utils/typeConversions.js'
+import { GraphQLError } from 'graphql'
+import jwt from './auth/jwt.js'
 
 @InputType()
 class UserCreateInput {
@@ -55,6 +57,24 @@ export class UserResolver {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
         ctx.res.cookie("jwt", accessToken)
         return convertToGraphQLUser(userFromDB);
+    }
+
+    @Mutation((returns) => SignedOutSuccess)
+    async signOut(
+        @Ctx() ctx: Context,
+    ): Promise<SignedOutSuccess> {
+        if(!ctx.cookies || !ctx.cookies.jwt){
+            throw new GraphQLError('No user signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        await jwt.deleteAccessToken(ctx.cookies.jwt);
+        ctx.res.clearCookie("jwt")
+        return {
+            success: true
+        };
     }
 
     @Query(() => [User])
