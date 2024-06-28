@@ -129,7 +129,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             cookie
           ]).send(getUserQuery);
         expect(response.error).toEqual(false);
-        console.log(response.body.data);
         expect(response.body.data?.getUserFromCookie.id).toEqual("LogedInUser");
         expect(response.body.data?.getUserFromCookie.isLogedIn).toEqual(true);
         expect(response.body.data?.getUserFromCookie.user.name).toEqual(testUserName);
@@ -162,7 +161,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             cookie
           ]).send(getUserQuery);
         expect(response.error).toEqual(false);
-        console.log(response.body.data);
         expect(response.body.data?.getUserFromCookie.id).toEqual("LogedInUser");
         expect(response.body.data?.getUserFromCookie.isLogedIn).toEqual(false);
     });

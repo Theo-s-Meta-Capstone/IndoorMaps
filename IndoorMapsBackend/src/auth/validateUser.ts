@@ -1,3 +1,4 @@
+import { isInstance } from "class-validator";
 import { User } from "../User.js";
 import { Context } from "../context.js";
 import { verifyAccessToken } from "./jwt.js";
@@ -17,6 +18,10 @@ export const validateUser = async (cookies: Context["cookies"]): Promise<User | 
         return userData
     }
     catch (e) {
+        //Invalid cookie JWT
+        if(e  == "JWT not valid"){
+            return null;
+        }
         console.error(e)
         console.error("issue with validateUser")
         return null;
