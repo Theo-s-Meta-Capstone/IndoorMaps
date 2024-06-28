@@ -26,7 +26,9 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }
 
     const [commit, isInFlight] = useMutation<RegisterModalMutation>(graphql`
         mutation RegisterModalMutation($input: UserCreateInput!) {
-            signupUser(data: $input) {}
+            signupUser(data: $input) {
+                id
+            }
         }
     `);
 

@@ -29,6 +29,7 @@ type Floor {
 }
 
 type LogedInUser {
+  id: ID!
   isLogedIn: Boolean!
   user: User
 }

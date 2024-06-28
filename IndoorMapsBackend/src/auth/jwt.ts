@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { User as DbUser} from '@prisma/client';
 import { User } from "../User"
 import { prisma } from '../context.js'
-import { convertToGraphQLUser } from '../UserResolver.js';
+import { convertToGraphQLUser } from '../utils/typeConversions.js';
 
 const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET ? process.env.ACCESS_TOKEN_SECRET : "ACCESS_TOKEN_SECRET";
 export default {

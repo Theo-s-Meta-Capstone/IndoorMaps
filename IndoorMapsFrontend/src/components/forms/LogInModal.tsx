@@ -24,7 +24,9 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
 
     const [commit, isInFlight] = useMutation<LogInModalMutation>(graphql`
         mutation LogInModalMutation($input: UserLoginInput!) {
-            signinUser(data: $input) {}
+            signinUser(data: $input) {
+                id
+            }
         }
     `);
 

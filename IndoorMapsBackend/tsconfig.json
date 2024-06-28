@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "rootDirs": [
-            "src"
+            "*"
         ],
         "outDir": "dist",
         "lib": [
@@ -20,7 +20,7 @@
         "skipLibCheck": true, /* Skip type checking all .d.ts files. */
         "jsx": "react-jsx",
         "forceConsistentCasingInFileNames": true,
-        "esModuleInterop": true,
+        "esModuleInterop": true
     },
     "ts-node": {
         "files": true

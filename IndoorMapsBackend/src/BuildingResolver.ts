@@ -9,9 +9,9 @@ import {
     Field,
 } from 'type-graphql'
 import { Context } from './context.js'
-import { Building } from './Building.js'
-import { Building as DbBuilding, Floor } from '@prisma/client'
 import { GraphQLError } from 'graphql'
+import { Building } from './Building.js'
+import { convertToGraphQLBuilding } from './utils/typeConversions.js'
 @InputType()
 class BuildingUniqueInput {
     @Field({ nullable: true })
@@ -28,25 +28,6 @@ class BuildingCreateInput {
 
     @Field({ description: "the creater's user id" })
     owner: number
-}
-
-interface DbBuildingWithFloors extends DbBuilding {
-    floors: Floor[]
-}
-
-const convertToGraphQLBuilding = (buildingFromDB: DbBuildingWithFloors): Building => {
-    const building: Building = {
-        id: "building" + buildingFromDB.id,
-        title: buildingFromDB.title,
-        description: buildingFromDB.description,
-        floors: buildingFromDB.floors.map((value: Floor) => {
-            return {
-                ...value,
-                id: "floor" + value.id.toString()
-            }
-        }),
-    }
-    return building;
 }
 
 @Resolver(Building)

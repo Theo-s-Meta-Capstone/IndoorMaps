@@ -3,18 +3,6 @@ import { ObjectType, Field, ID } from 'type-graphql'
 import { IsEmail } from 'class-validator'
 
 @ObjectType()
-export class LogedInUser {
-    @Field((type) => ID,  { defaultValue: "LogedInUser" })
-    id: string
-
-    @Field()
-    isLogedIn: boolean
-
-    @Field((type) => User, {nullable: true})
-    user: User
-}
-
-@ObjectType()
 export class User {
   @Field((type) => ID)
   id: string
@@ -28,4 +16,16 @@ export class User {
 
   @Field({ defaultValue: false })
   isEmailVerified: boolean
+}
+
+@ObjectType()
+export class LogedInUser {
+  @Field((type) => ID, { defaultValue: "LogedInUser" })
+  id: string
+
+  @Field()
+  isLogedIn: boolean
+
+  @Field((type) => User, { nullable: true })
+  user: User
 }

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<19ea07dad7cfd9fc87561ef5a66fc9be>>
+ * @generated SignedSource<<d616ce702f681a2c08b889bc9ba5cf9b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -150,19 +150,20 @@ return {
               (v0/*: any*/)
             ],
             "storageKey": null
-          }
+          },
+          (v0/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "0505d9e216935db420e6302fafdc9699",
+    "cacheID": "3dd5bd25bc546394fe9d7d13f8eb3e13",
     "id": null,
     "metadata": {},
     "name": "DirectoryGetAllBuildingsQuery",
     "operationKind": "query",
-    "text": "query DirectoryGetAllBuildingsQuery {\n  allBuildings {\n    id\n    title\n    description\n  }\n  getUserFromCookie {\n    isLogedIn\n    user {\n      name\n      email\n      id\n    }\n  }\n}\n"
+    "text": "query DirectoryGetAllBuildingsQuery {\n  allBuildings {\n    id\n    title\n    description\n  }\n  getUserFromCookie {\n    isLogedIn\n    user {\n      name\n      email\n      id\n    }\n    id\n  }\n}\n"
   }
 };
 })();

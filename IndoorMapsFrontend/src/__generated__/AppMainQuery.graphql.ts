@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<cdf1dc251645eb9a51a992d5c2c2c228>>
+ * @generated SignedSource<<6666aaf5b96946bd195340a60c91333c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -44,6 +44,13 @@ v2 = {
   "args": null,
   "kind": "ScalarField",
   "name": "email",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
   "storageKey": null
 };
 return {
@@ -107,28 +114,23 @@ return {
             "selections": [
               (v1/*: any*/),
               (v2/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              }
+              (v3/*: any*/)
             ],
             "storageKey": null
-          }
+          },
+          (v3/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "3e1b68ad54a7b3a5eb88f95849185aab",
+    "cacheID": "53157047f68687f0db075d88ad078241",
     "id": null,
     "metadata": {},
     "name": "AppMainQuery",
     "operationKind": "query",
-    "text": "query AppMainQuery {\n  getUserFromCookie {\n    isLogedIn\n    user {\n      name\n      email\n      id\n    }\n  }\n}\n"
+    "text": "query AppMainQuery {\n  getUserFromCookie {\n    isLogedIn\n    user {\n      name\n      email\n      id\n    }\n    id\n  }\n}\n"
   }
 };
 })();

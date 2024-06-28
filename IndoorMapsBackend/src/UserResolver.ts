@@ -7,14 +7,12 @@ import {
     Ctx,
     InputType,
     Field,
-    ObjectType,
 } from 'type-graphql'
 import { Context } from './context.js'
 import { LogedInUser, User } from './User.js'
-import { User as DbUser} from '@prisma/client';
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
-import { isContext } from 'vm';
+import { convertToGraphQLUser } from './utils/typeConversions.js'
 
 @InputType()
 class UserCreateInput {
@@ -35,16 +33,6 @@ class UserLoginInput {
 
     @Field()
     password: string
-}
-
-export const convertToGraphQLUser = (userFromDB: DbUser): User => {
-    const user: User = {
-        id: "user"+userFromDB.id,
-        name: userFromDB.name,
-        email: userFromDB.email,
-        isEmailVerified: userFromDB.isEmailVerified
-    }
-    return user;
 }
 
 @Resolver(User)
