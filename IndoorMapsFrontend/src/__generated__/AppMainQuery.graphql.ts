@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6666aaf5b96946bd195340a60c91333c>>
+ * @generated SignedSource<<35a70d541adaf08073d674c9a0e64a81>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,6 +15,7 @@ export type AppMainQuery$data = {
     readonly isLogedIn: boolean;
     readonly user: {
       readonly email: string;
+      readonly id: string;
       readonly name: string;
     } | null | undefined;
   };
@@ -36,21 +37,33 @@ v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
 },
 v2 = {
   "alias": null,
   "args": null,
-  "kind": "ScalarField",
-  "name": "email",
-  "storageKey": null
-},
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
+  "concreteType": "User",
+  "kind": "LinkedField",
+  "name": "user",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "email",
+      "storageKey": null
+    },
+    (v1/*: any*/)
+  ],
   "storageKey": null
 };
 return {
@@ -69,19 +82,7 @@ return {
         "plural": false,
         "selections": [
           (v0/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "user",
-            "plural": false,
-            "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
-            ],
-            "storageKey": null
-          }
+          (v2/*: any*/)
         ],
         "storageKey": null
       }
@@ -104,21 +105,8 @@ return {
         "plural": false,
         "selections": [
           (v0/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "user",
-            "plural": false,
-            "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/),
-              (v3/*: any*/)
-            ],
-            "storageKey": null
-          },
-          (v3/*: any*/)
+          (v2/*: any*/),
+          (v1/*: any*/)
         ],
         "storageKey": null
       }
@@ -135,6 +123,6 @@ return {
 };
 })();
 
-(node as any).hash = "e6c6ce98bff6a114c460b597c9612b96";
+(node as any).hash = "59d8f25e9385c580cf501cd44f56150a";
 
 export default node;

@@ -29,3 +29,9 @@ export class LogedInUser {
   @Field((type) => User, { nullable: true })
   user: User
 }
+
+@ObjectType()
+export class SignedOutSuccess {
+  @Field()
+  success: boolean
+}
