@@ -6,11 +6,10 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import cookieParser from "cookie-parser"
-import { startStandaloneServer } from '@apollo/server/standalone';
 import * as tq from 'type-graphql'
-import { prisma, Context } from "./src/context.js";
-import { UserResolver } from "./src/UserResolver.js";
-import { BuildingResolver } from "./src/BuildingResolver.js";
+import { prisma, Context } from "./context.js";
+import { UserResolver } from "./UserResolver.js";
+import { BuildingResolver } from "./BuildingResolver.js";
 
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
