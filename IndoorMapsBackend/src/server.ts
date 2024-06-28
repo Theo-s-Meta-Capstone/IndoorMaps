@@ -17,6 +17,9 @@ import 'dotenv/config'
 const app = express();
 export const httpServer = http.createServer(app);
 
+/**
+ * the main function is to avoid running awaits at the top level of the file (but this is not necesary in the more recent versions of JavaScript)
+ */
 async function main() {
     const schema = await tq.buildSchema({
         resolvers: [UserResolver, BuildingResolver],

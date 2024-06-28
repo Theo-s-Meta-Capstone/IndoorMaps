@@ -14,7 +14,7 @@ import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
 import { convertToGraphQLUser } from './utils/typeConversions.js'
 import { GraphQLError } from 'graphql'
-import jwt from './auth/jwt.js'
+import { deleteAccessToken } from './auth/jwt.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -71,7 +71,7 @@ export class UserResolver {
                 },
             });
         }
-        await jwt.deleteAccessToken(ctx.cookies.jwt);
+        await deleteAccessToken(ctx.cookies.jwt);
         ctx.res.clearCookie("jwt")
         return {
             success: true

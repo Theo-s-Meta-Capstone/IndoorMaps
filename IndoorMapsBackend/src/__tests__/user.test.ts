@@ -10,7 +10,6 @@ const date = new Date();
 const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
 const testUserName = "testUser" + testDate;
 
-
 describe('Testing the GraphQL server by running a HttpServer', () => {
     let url = "";
 
