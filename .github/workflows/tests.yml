@@ -1,0 +1,47 @@
+name: Builds and Tests (with real postgres db)
+on: push
+
+jobs:
+  # Label of the runner job
+  runner-job:
+    # You must use a Linux environment when using service containers or container jobs
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    steps:
+    # downloads a local copy of the github repo
+    - uses: actions/checkout@v4
+    # Installs npm packages, builds the node project, runs the jest tests
+    - name: Backend run
+      run: |
+          cd IndoorMapsBackend
+          npm ci
+          npx prisma migrate deploy
+          npm run compile
+          npm test
+      # Environment variables used by the the vite project script to create a new PostgreSQL table.
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres?schema=public
+    # Installs npm packages, builds the vite project
+    - name: Frontend run
+      run: |
+          cd IndoorMapsFrontend
+          npm ci
+          npm run build
