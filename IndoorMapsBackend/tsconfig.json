@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "rootDirs": [
+            "*"
+        ],
+        "outDir": "dist",
+        "lib": [
+            "ESNext"
+        ],
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "types": [
+            "node"
+        ],
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "skipLibCheck": true, /* Skip type checking all .d.ts files. */
+        "jsx": "react-jsx",
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true
+    },
+    "ts-node": {
+        "files": true,
+        "esm": true
+    },
+    "exclude": ["node_modules", "dist"]
+
+}

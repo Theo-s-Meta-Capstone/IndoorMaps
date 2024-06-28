@@ -1,0 +1,42 @@
+import bcrypt from 'bcryptjs'
+import { Prisma } from "@prisma/client";
+import jwt from "./jwt.js"
+import { prisma } from '../context.js'
+import { SignInData } from "../types.js";
+
+class AuthService {
+
+    static async register(data: Prisma.UserCreateInput) {
+        if (data.password == null) throw new Error('Password not valid')
+        data.password = bcrypt.hashSync(data.password!, 8);
+        let userFromDB = await prisma.user.create({
+            data
+        });
+
+        const accessToken = await jwt.signAccessToken(userFromDB);
+
+        return { userFromDB, accessToken };
+    }
+    static async login(data: SignInData) {
+        const { email, password } = data;
+        const userFromDB = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        });
+        if (!userFromDB) {
+            throw new Error('User not registered')
+        }
+        const checkPassword = bcrypt.compareSync(password, userFromDB.password!)
+        if (!checkPassword) throw new Error('Email address or password not valid')
+        userFromDB.password = null
+        const accessToken = await jwt.signAccessToken(userFromDB)
+        return { userFromDB, accessToken }
+    }
+    static async all() {
+        const allUsers = await prisma.user.findMany();
+        return allUsers;
+    }
+}
+
+export default AuthService;
