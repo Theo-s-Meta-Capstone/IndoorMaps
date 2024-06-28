@@ -14,34 +14,36 @@ import { BuildingResolver } from "./BuildingResolver.js";
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
 
-const schema = await tq.buildSchema({
-    resolvers: [UserResolver, BuildingResolver],
-    // scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
-    validate: { forbidUnknownValues: false },
-    emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
-})
-
 const app = express();
 export const httpServer = http.createServer(app);
-const server = new ApolloServer({
-    schema,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
 
-await server.start();
+async function main() {
+    const schema = await tq.buildSchema({
+        resolvers: [UserResolver, BuildingResolver],
+        // scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
+        validate: { forbidUnknownValues: false },
+        emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
+    })
+    const server = new ApolloServer({
+        schema,
+        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    });
 
-if (!process.env.FRONTEND_URL) {
-    throw new Error("no frontend url provided")
+    await server.start();
+
+    if (!process.env.FRONTEND_URL) {
+        throw new Error("no frontend url provided")
+    }
+
+    app.use(
+        '/graphql',
+        cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL], credentials: true }),
+        cookieParser(),
+        express.json(),
+        expressMiddleware(server, {
+            context: async ({ req, res }): Promise<Context> => ({ prisma: prisma, cookies: req.cookies, res: res }),
+        }),
+    );
 }
 
-console.log("serving data to frontend at " + process.env.FRONTEND_URL)
-
-app.use(
-    '/graphql',
-    cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL], credentials: true }),
-    cookieParser(),
-    express.json(),
-    expressMiddleware(server, {
-        context: async ({ req, res }): Promise<Context> => ({ prisma: prisma, cookies: req.cookies, res: res }),
-    }),
-);
+main();
