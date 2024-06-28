@@ -26,6 +26,6 @@ export class Building {
   @Field()
   description: string
 
-  @Field((type) => [Floor])
+  @Field((type) => [Floor]!)
   floors: Floor[]
 }

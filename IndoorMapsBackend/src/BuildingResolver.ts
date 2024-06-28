@@ -7,6 +7,7 @@ import {
     Ctx,
     InputType,
     Field,
+    Int
 } from 'type-graphql'
 import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
@@ -27,7 +28,7 @@ class BuildingCreateInput {
     @Field()
     description: string
 
-    @Field({ description: "the creater's user id" })
+    @Field((type) => Int, { description: "the creater's user id" })
     owner: number
 }
 
@@ -38,7 +39,6 @@ export class BuildingResolver {
         @Arg('data') data: BuildingCreateInput,
         @Ctx() ctx: Context,
     ): Promise<Building> {
-
         // TODO: only get the floors and areas if needed
         // Use prisma to get building
         const newBuilding = await ctx.prisma.building.create({
@@ -95,7 +95,15 @@ export class BuildingResolver {
 
     @Query(() => [Building])
     async allBuildings(@Ctx() ctx: Context) {
-        return ctx.prisma.building.findMany()
+        const buildings = await ctx.prisma.building.findMany({
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                floors: true,
+            }
+        });
+        return buildings.map((building) => convertToGraphQLBuilding(building))
     }
 
 }

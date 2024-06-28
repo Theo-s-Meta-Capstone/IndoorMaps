@@ -23,7 +23,6 @@ export const httpServer = http.createServer(app);
 async function main() {
     const schema = await tq.buildSchema({
         resolvers: [UserResolver, BuildingResolver],
-        // scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
         validate: { forbidUnknownValues: false },
         emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
     })
