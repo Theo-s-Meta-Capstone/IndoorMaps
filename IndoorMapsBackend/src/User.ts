@@ -1,6 +1,12 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID } from 'type-graphql'
+import { ObjectType, Field, ID, InterfaceType, Directive } from 'type-graphql'
 import { IsEmail } from 'class-validator'
+
+@InterfaceType()
+abstract class Node {
+  @Field(type => ID)
+  id: string;
+}
 
 @ObjectType()
 export class User {
@@ -20,9 +26,8 @@ export class User {
 
 @ObjectType()
 export class LogedInUser {
-  @Field((type) => ID)
+  @Field(type => ID)
   id: string;
-
   @Field()
   isLogedIn: boolean
 
