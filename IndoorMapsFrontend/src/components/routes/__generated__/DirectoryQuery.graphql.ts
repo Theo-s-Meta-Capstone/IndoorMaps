@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a751c67810909534666a7853bb2c8c9e>>
+ * @generated SignedSource<<afa8f9b6427836a437b6ba47dbc20fec>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,8 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type DirectoryGetAllBuildingsQuery$variables = Record<PropertyKey, never>;
-export type DirectoryGetAllBuildingsQuery$data = {
+export type DirectoryQuery$variables = Record<PropertyKey, never>;
+export type DirectoryQuery$data = {
   readonly allBuildings: ReadonlyArray<{
     readonly " $fragmentSpreads": FragmentRefs<"BuildingItemFragment">;
   }>;
@@ -19,9 +19,9 @@ export type DirectoryGetAllBuildingsQuery$data = {
     readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "UserDataDisplayFragment">;
   };
 };
-export type DirectoryGetAllBuildingsQuery = {
-  response: DirectoryGetAllBuildingsQuery$data;
-  variables: DirectoryGetAllBuildingsQuery$variables;
+export type DirectoryQuery = {
+  response: DirectoryQuery$data;
+  variables: DirectoryQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -37,7 +37,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "DirectoryGetAllBuildingsQuery",
+    "name": "DirectoryQuery",
     "selections": [
       {
         "alias": null,
@@ -84,7 +84,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "DirectoryGetAllBuildingsQuery",
+    "name": "DirectoryQuery",
     "selections": [
       {
         "alias": null,
@@ -160,16 +160,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "db8f8bee3e6467119ad98f5f1da065ff",
+    "cacheID": "0e36bee59de3a73d1209ee00b8d1ecc4",
     "id": null,
     "metadata": {},
-    "name": "DirectoryGetAllBuildingsQuery",
+    "name": "DirectoryQuery",
     "operationKind": "query",
-    "text": "query DirectoryGetAllBuildingsQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "3fee420301e5caa79488b491cddaa285";
+(node as any).hash = "583068ab3cc114315212143123bf6033";
 
 export default node;

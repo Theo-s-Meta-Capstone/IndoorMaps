@@ -1,15 +1,15 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import type { DirectoryGetAllBuildingsQuery } from "./__generated__/DirectoryGetAllBuildingsQuery.graphql";
 import ListOfBuildings from "./Directory/ListOfBuildings";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "./Directory/UserDataDisplay";
+import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 
 type Props = {
 
 }
-const GetAllBuildings = graphql`
-    query DirectoryGetAllBuildingsQuery {
+const DirectoryQuery = graphql`
+    query DirectoryQuery {
     allBuildings {
         ...BuildingItemFragment
     }
@@ -24,8 +24,8 @@ const Directory = ({ }: Props) => {
     const [
         queryReference,
         loadQuery,
-    ] = useQueryLoader<DirectoryGetAllBuildingsQuery>(
-        GetAllBuildings,
+    ] = useQueryLoader<DirectoryQuery>(
+        DirectoryQuery,
     );
 
     useEffect(() => {
@@ -45,11 +45,11 @@ const Directory = ({ }: Props) => {
 }
 
 type DirectoryBodyContainerProps = {
-    queryReference: PreloadedQuery<DirectoryGetAllBuildingsQuery>
+    queryReference: PreloadedQuery<DirectoryQuery>
 }
 
 function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
-    const data = usePreloadedQuery(GetAllBuildings, queryReference);
+    const data = usePreloadedQuery(DirectoryQuery, queryReference);
     return (
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
