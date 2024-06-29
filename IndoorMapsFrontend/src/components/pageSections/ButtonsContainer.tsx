@@ -1,25 +1,32 @@
-import { PreloadedQuery, useMutation, usePreloadedQuery } from "react-relay";
+import { useFragment, useMutation } from "react-relay";
 import { graphql } from "relay-runtime";
-import { AppMainQuery } from "../../__generated__/AppMainQuery.graphql";
-import { GetCurrentUser } from "../../App";
 import { ButtonsContainerMutation } from "./__generated__/ButtonsContainerMutation.graphql";
 import UserButtons from "./UserButtons";
 import AuthButtons from "./AuthButtons";
 import { useState } from "react";
+import { ButtonsContainerFragment$key } from "./__generated__/ButtonsContainerFragment.graphql";
+
+const ButtonsUserFragment = graphql`
+  fragment ButtonsContainerFragment on LogedInUser{
+    id
+    isLogedIn
+    user {
+      id
+      email
+      name
+    }
+  }
+`;
 
 type UserButtonsProps = {
-  queryReference: PreloadedQuery<AppMainQuery>,
-  loadQuery: any,
+  getUserFromCookie: ButtonsContainerFragment$key
 }
 
-function ButtonsContainer({ queryReference, loadQuery }: UserButtonsProps) {
+function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
   const [signOutFormError, setSignOutFormError] = useState<string | null>(null);
-  const data = usePreloadedQuery(GetCurrentUser, queryReference);
+  const data = useFragment(ButtonsUserFragment, getUserFromCookie);
   const refreshUserData = () => {
-    loadQuery(
-      {},
-      { fetchPolicy: 'network-only' },
-    );
+
   }
   const [commit] = useMutation<ButtonsContainerMutation>(graphql`
         mutation ButtonsContainerMutation {
@@ -44,9 +51,9 @@ function ButtonsContainer({ queryReference, loadQuery }: UserButtonsProps) {
       setSignOutFormError(errorMessage);
     }
   };
-  if (data.getUserFromCookie.isLogedIn && data.getUserFromCookie.user) {
+  if (data.isLogedIn && data.user) {
     return (
-      <UserButtons user={data.getUserFromCookie.user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
+      <UserButtons user={data.user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
     )
   }
   return (<AuthButtons refreshUserData={refreshUserData} />)

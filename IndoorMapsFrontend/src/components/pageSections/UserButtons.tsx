@@ -1,8 +1,7 @@
 import { Button, Group, Notification } from "@mantine/core";
-import { AppMainQuery$data } from "../../__generated__/AppMainQuery.graphql";
 
 type Props = {
-    user: AppMainQuery$data["getUserFromCookie"]["user"]
+    user: any
     logout: () => void;
     formError: string | null;
     closeFormError: () => void;

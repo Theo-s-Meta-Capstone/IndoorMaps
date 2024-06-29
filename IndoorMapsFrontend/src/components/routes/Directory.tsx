@@ -1,8 +1,9 @@
-import { Group } from "@mantine/core";
-import React, { useEffect } from "react";
-import { graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import type { PreloadedQuery } from 'react-relay';
+import { Suspense, useEffect } from "react";
+import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import type { DirectoryGetAllBuildingsQuery } from "./__generated__/DirectoryGetAllBuildingsQuery.graphql";
+import ListOfBuildings from "./Directory/ListOfBuildings";
+import ButtonsContainer from "../pageSections/ButtonsContainer";
+import UserDataDisplay from "./Directory/UserDataDisplay";
 
 type Props = {
 
@@ -10,18 +11,13 @@ type Props = {
 const GetAllBuildings = graphql`
     query DirectoryGetAllBuildingsQuery {
     allBuildings {
-      id
-      title
-      description
+        ...BuildingItemFragment
     }
     getUserFromCookie {
-        isLogedIn
-        user {
-            name
-            email
-        }
+        ...ButtonsContainerFragment,
+        ...UserDataDisplayFragment
     }
-  }
+}
 `
 
 const Directory = ({ }: Props) => {
@@ -36,39 +32,31 @@ const Directory = ({ }: Props) => {
         loadQuery({});
     }, []);
 
+    if (queryReference == null) {
+        return <div>Loading...</div>
+    }
+
     return (
-        <>
-            <React.Suspense fallback="Loading">
-                {queryReference != null
-                    ? <NameDisplay queryReference={queryReference} />
-                    : null
-                }
-            </React.Suspense>
-        </>
+        <Suspense fallback="Loading">
+            <DirectoryBodyContainer queryReference={queryReference} />
+        </Suspense>
+
     )
 }
 
-type NameDisplayProps = {
+type DirectoryBodyContainerProps = {
     queryReference: PreloadedQuery<DirectoryGetAllBuildingsQuery>
 }
 
-function NameDisplay({ queryReference }: NameDisplayProps) {
+function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
     const data = usePreloadedQuery(GetAllBuildings, queryReference);
-
-    const buildingListElements = data.allBuildings.map((building, i) => {
-        return (
-            <Group key={i}>
-                <h2>{building.title}</h2>
-                <p>{building.description}</p>
-            </Group>
-        )
-    })
-
-    return <>
-    <div>{data.getUserFromCookie.isLogedIn ? "loged in" : "not loged in"}</div>
-    {data.getUserFromCookie.isLogedIn ? <div>{JSON.stringify(data.getUserFromCookie.user)}</div> : null}
-    {buildingListElements}
-    </>;
+    return (
+        <>
+            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <ListOfBuildings buildings={data.allBuildings} />
+        </>
+    )
 }
 
 export default Directory;
