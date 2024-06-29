@@ -1,7 +1,7 @@
 import './App.css'
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
-import Directory from './components/pages/Directory';
+import Directory from './components/routes/Directory';
 import { graphql, useQueryLoader } from 'react-relay';
 import { useEffect } from 'react';
 import React from 'react';
