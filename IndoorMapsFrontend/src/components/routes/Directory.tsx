@@ -29,11 +29,11 @@ const Directory = () => {
     }, []);
 
     if (queryReference == null) {
-        return <div>Loading...</div>
+        return <div>Waiting for useEffect</div>
     }
 
     return (
-        <Suspense fallback="Loading">
+        <Suspense fallback="Loading GraphQL">
             <DirectoryBodyContainer queryReference={queryReference} />
         </Suspense>
 

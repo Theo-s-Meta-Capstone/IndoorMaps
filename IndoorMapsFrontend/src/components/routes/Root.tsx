@@ -29,8 +29,8 @@ const Root = () => {
         <div>
             <h1>Welcome to IndoorMaps</h1>
             <Link to="/directory">Directory</Link>
-            {queryReference == null ? <div>Loading...</div> :
-                <Suspense fallback="Loading">
+            {queryReference == null ? <div>Waiting for useEffect</div> :
+                <Suspense fallback="Loading GraphQL">
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
