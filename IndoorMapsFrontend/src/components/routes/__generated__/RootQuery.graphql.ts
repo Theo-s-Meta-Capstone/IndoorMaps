@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<758f62a32646d2a2945e0f8a00a8855f>>
+ * @generated SignedSource<<dfcbb115d26d5f2d0160639077a6a774>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,9 +12,6 @@ import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type RootQuery$variables = Record<PropertyKey, never>;
 export type RootQuery$data = {
-  readonly allBuildings: ReadonlyArray<{
-    readonly " $fragmentSpreads": FragmentRefs<"BuildingItemFragment">;
-  }>;
   readonly getUserFromCookie: {
     readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "UserDataDisplayFragment">;
   };
@@ -39,22 +36,6 @@ return {
     "metadata": null,
     "name": "RootQuery",
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Building",
-        "kind": "LinkedField",
-        "name": "allBuildings",
-        "plural": true,
-        "selections": [
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "BuildingItemFragment"
-          }
-        ],
-        "storageKey": null
-      },
       {
         "alias": null,
         "args": null,
@@ -86,32 +67,6 @@ return {
     "kind": "Operation",
     "name": "RootQuery",
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Building",
-        "kind": "LinkedField",
-        "name": "allBuildings",
-        "plural": true,
-        "selections": [
-          (v0/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "title",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "description",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
       {
         "alias": null,
         "args": null,
@@ -160,16 +115,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d66e53235fda1c0ea7d21c60814de054",
+    "cacheID": "37a04d35deae97040df7c45a44dcf8ab",
     "id": null,
     "metadata": {},
     "name": "RootQuery",
     "operationKind": "query",
-    "text": "query RootQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query RootQuery {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "376944e62f476834f544682cdb36ce92";
+(node as any).hash = "38663dbbb3c185a6d29d3aeef9c5bf14";
 
 export default node;

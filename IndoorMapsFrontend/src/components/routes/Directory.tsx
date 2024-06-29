@@ -5,10 +5,7 @@ import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "./Directory/UserDataDisplay";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 
-type Props = {
-
-}
-const DirectoryQuery = graphql`
+const DirectoryPageQuery = graphql`
     query DirectoryQuery {
     allBuildings {
         ...BuildingItemFragment
@@ -17,15 +14,14 @@ const DirectoryQuery = graphql`
         ...ButtonsContainerFragment,
         ...UserDataDisplayFragment
     }
-}
-`
+}`
 
-const Directory = ({ }: Props) => {
+const Directory = () => {
     const [
         queryReference,
         loadQuery,
     ] = useQueryLoader<DirectoryQuery>(
-        DirectoryQuery,
+        DirectoryPageQuery,
     );
 
     useEffect(() => {
@@ -49,7 +45,7 @@ type DirectoryBodyContainerProps = {
 }
 
 function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
-    const data = usePreloadedQuery(DirectoryQuery, queryReference);
+    const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
     return (
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
