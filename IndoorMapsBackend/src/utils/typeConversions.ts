@@ -6,6 +6,7 @@ import { Building as DbBuilding, Floor } from '@prisma/client'
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
     const user: User = {
         id: "user"+userFromDB.id,
+        databaseId: userFromDB.id,
         name: userFromDB.name,
         email: userFromDB.email,
         isEmailVerified: userFromDB.isEmailVerified

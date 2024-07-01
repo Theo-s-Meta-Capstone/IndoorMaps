@@ -54,6 +54,8 @@ type SignedOutSuccess {
 }
 
 type User {
+  buildingsWithEditPerms: [Building!]!
+  databaseId: Float!
   email: String!
   id: ID!
   isEmailVerified: Boolean!

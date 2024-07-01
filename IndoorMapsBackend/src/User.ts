@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID, InterfaceType, Directive } from 'type-graphql'
+import { ObjectType, Field, ID, InterfaceType } from 'type-graphql'
 import { IsEmail } from 'class-validator'
 
 @InterfaceType()
@@ -12,6 +12,9 @@ abstract class Node {
 export class User {
   @Field((type) => ID)
   id: string
+
+  @Field()
+  databaseId: number
 
   @Field()
   @IsEmail()

@@ -7,14 +7,17 @@ import {
     Ctx,
     InputType,
     Field,
+    FieldResolver,
+    Root,
 } from 'type-graphql'
 import { Context } from './context.js'
 import { LogedInUser, SignedOutSuccess, User } from './User.js'
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
-import { convertToGraphQLUser } from './utils/typeConversions.js'
-import { GraphQLError } from 'graphql'
+import { convertToGraphQLBuilding, convertToGraphQLUser } from './utils/typeConversions.js'
+import { GraphQLError, findBreakingChanges } from 'graphql'
 import { deleteAccessToken } from './auth/jwt.js'
+import { Building } from './Building.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -41,13 +44,48 @@ class UserLoginInput {
 
 @Resolver(User)
 export class UserResolver {
+    @FieldResolver((type) => [Building]!)
+    async buildingsWithEditPerms(
+        @Root() user: User,
+        @Ctx() ctx: Context,
+    ) {
+        //TODO: invistage why using findUnique throws a error
+        const userWithBuildings = await ctx.prisma.user.findFirst({
+            where: {
+                id: user.databaseId
+            },
+            include: {
+                buildings: {
+                    include: {
+                        building: {
+                            include: {
+                                floors: true
+                            }
+                        },
+                    },
+                },
+            },
+        });
+        if (!userWithBuildings) {
+            throw new GraphQLError('User not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        // Buildings are stored using a join table so that buildings can have multiple editors, so the returned object is the join table object
+        // that is why below there needs to be buildingEditorJoinRow.building
+        const buildings = userWithBuildings.buildings;
+        return buildings.map((buildingEditorJoinRow) => convertToGraphQLBuilding(buildingEditorJoinRow.building))
+    }
+
     @Mutation((returns) => User)
     async signupUser(
         @Arg('data') data: UserCreateInput,
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
     @Mutation((returns) => User)
@@ -56,7 +94,7 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
 
@@ -64,7 +102,7 @@ export class UserResolver {
     async signOut(
         @Ctx() ctx: Context,
     ): Promise<SignedOutSuccess> {
-        if(!ctx.cookies || !ctx.cookies.jwt){
+        if (!ctx.cookies || !ctx.cookies.jwt) {
             throw new GraphQLError('No user signed in', {
                 extensions: {
                     code: 'BAD_USER_INPUT',
@@ -88,12 +126,12 @@ export class UserResolver {
         const user = await validateUser(ctx.cookies);
         if (!user) {
             return {
-                id:"LogedInUser",
+                id: "LogedInUser",
                 isLogedIn: false
             }
         }
         return {
-            id:"LogedInUser",
+            id: "LogedInUser",
             isLogedIn: true,
             user: user,
         }
