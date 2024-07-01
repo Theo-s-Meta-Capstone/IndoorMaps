@@ -7,12 +7,16 @@ import {
     Ctx,
     InputType,
     Field,
-    Int
+    Int,
+    FieldResolver,
+    Root
 } from 'type-graphql'
 import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
-import { Building } from './Building.js'
+import { Building, Floor } from './Building.js'
 import { convertToGraphQLBuilding } from './utils/typeConversions.js'
+import { Floor as DbFloor } from '@prisma/client'
+
 
 @InputType()
 class BuildingUniqueInput {
@@ -34,6 +38,35 @@ class BuildingCreateInput {
 
 @Resolver(Building)
 export class BuildingResolver {
+    @FieldResolver((type) => [Floor]!)
+    async floors(
+        @Root() building: Building,
+        @Ctx() ctx: Context,
+    ) {
+        //TODO: investigate why using findUnique throws a error
+        const dbFloors = await ctx.prisma.building.findFirst({
+            where: {
+                id: building.databaseId
+            },
+            select: {
+                floors: true
+            }
+        });
+        if (!dbFloors) {
+            throw new GraphQLError('Building not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        return dbFloors.floors.map((value: DbFloor) => {
+            return {
+                ...value,
+                id: "floor" + value.id.toString()
+            }
+        })
+    }
+
     @Mutation((returns) => Building)
     async createBuilding(
         @Arg('data') data: BuildingCreateInput,
