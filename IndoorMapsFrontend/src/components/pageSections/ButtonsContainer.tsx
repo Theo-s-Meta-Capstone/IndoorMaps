@@ -23,14 +23,9 @@ const ButtonsUserFragment = graphql`
 const refreshQuery = graphql`
   query ButtonsContainerGetUserFromCookieQuery {
   getUserFromCookie {
-    id
-    isLogedIn
-    user {
-      id
-      email
-      name
-      isEmailVerified
-    }
+    ...ButtonsContainerFragment,
+    ...UserDataDisplayFragment,
+    ...ListOfConnectedBuildingsUserDataDisplayFragment
   }
 }
 `;

@@ -5,6 +5,7 @@ import Directory from './components/routes/Directory';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from './components/routes/Root';
 import BuildingViewer from './components/routes/BuildingViewer';
+import BuildingEditor from './components/routes/BuildingEditor';
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "building/:buildingId/viewer",
     element: <BuildingViewer />,
+  },
+  {
+    path: "building/:buildingId/editor",
+    element: <BuildingEditor />,
   },
 ]);
 

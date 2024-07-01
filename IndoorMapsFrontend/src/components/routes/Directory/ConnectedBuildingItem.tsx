@@ -26,7 +26,7 @@ function ConnectedBuildingItem({ buildingWithPerms }: ConnectedBuildingItemProps
         buildingWithPerms,
     );
     return (
-        <Link to={`/building/${data.building.databaseId}/viewer`}>
+        <Link to={`/building/${data.building.databaseId}/editor`}>
             <Group key={data.id} >
                 <h2>{data.building.title}</h2>
                 <p>{data.building.title}</p>
