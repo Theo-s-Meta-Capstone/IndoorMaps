@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Cookies from "js-cookie"
 
 /**
  * A wrapper for useState<boolean>, commonly used to show modals and to removed the need for close modal handlers

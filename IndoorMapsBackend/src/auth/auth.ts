@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs'
 import { Prisma } from "@prisma/client";
-import jwt from "./jwt.js"
 import { prisma } from '../context.js'
 import { SignInData } from "../types.js";
+import { signAccessToken } from './jwt.js';
 
 class AuthService {
 
@@ -13,7 +13,7 @@ class AuthService {
             data
         });
 
-        const accessToken = await jwt.signAccessToken(userFromDB);
+        const accessToken = await signAccessToken(userFromDB);
 
         return { userFromDB, accessToken };
     }
@@ -30,7 +30,7 @@ class AuthService {
         const checkPassword = bcrypt.compareSync(password, userFromDB.password!)
         if (!checkPassword) throw new Error('Email address or password not valid')
         userFromDB.password = null
-        const accessToken = await jwt.signAccessToken(userFromDB)
+        const accessToken = await signAccessToken(userFromDB)
         return { userFromDB, accessToken }
     }
     static async all() {

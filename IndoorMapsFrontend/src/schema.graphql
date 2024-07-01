@@ -14,7 +14,7 @@ input BuildingCreateInput {
   description: String!
 
   """the creater's user id"""
-  owner: Float!
+  owner: Int!
   title: String!
 }
 
