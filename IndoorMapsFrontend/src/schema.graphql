@@ -4,6 +4,7 @@
 # -----------------------------------------------
 
 type Building {
+  databaseId: Float!
   description: String!
   floors: [Floor!]!
   id: ID!
@@ -20,6 +21,18 @@ input BuildingCreateInput {
 
 input BuildingUniqueInput {
   id: Float
+}
+
+type BuildingWithPerms {
+  building: Building!
+  editorLevel: EditorLevel!
+  id: ID!
+}
+
+enum EditorLevel {
+  editor
+  owner
+  viewer
 }
 
 type Floor {
@@ -53,6 +66,8 @@ type SignedOutSuccess {
 }
 
 type User {
+  BuildingWithPerms: [BuildingWithPerms!]!
+  databaseId: Float!
   email: String!
   id: ID!
   isEmailVerified: Boolean!

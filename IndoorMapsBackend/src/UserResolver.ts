@@ -7,12 +7,14 @@ import {
     Ctx,
     InputType,
     Field,
+    FieldResolver,
+    Root,
 } from 'type-graphql'
 import { Context } from './context.js'
-import { LogedInUser, SignedOutSuccess, User } from './User.js'
+import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from './User.js'
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
-import { convertToGraphQLUser } from './utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLUser } from './utils/typeConversions.js'
 import { GraphQLError } from 'graphql'
 import { deleteAccessToken } from './auth/jwt.js'
 
@@ -41,13 +43,54 @@ class UserLoginInput {
 
 @Resolver(User)
 export class UserResolver {
+    @FieldResolver((type) => [BuildingWithPerms]!)
+    async BuildingWithPerms(
+        @Root() user: User,
+        @Ctx() ctx: Context,
+    ) {
+        //TODO: investigate why using findUnique throws a error
+        const userWithBuildings = await ctx.prisma.user.findFirst({
+            where: {
+                id: user.databaseId
+            },
+            include: {
+                buildings: {
+                    select: {
+                        id: true,
+                        editorLevel: true,
+                        building: {
+                            include: {
+                                floors: true
+                            }
+                        },
+                    },
+                },
+            },
+        });
+        if (!userWithBuildings) {
+            throw new GraphQLError('User not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        const buildingEditorJoinRows = userWithBuildings.buildings;
+        return buildingEditorJoinRows.map((buildingEditorJoinRow) => {
+            return {
+                id: "buildingEditor" + buildingEditorJoinRow.id,
+                editorLevel: buildingEditorJoinRow.editorLevel,
+                building: convertToGraphQLBuilding(buildingEditorJoinRow.building)
+            }
+        })
+    }
+
     @Mutation((returns) => User)
     async signupUser(
         @Arg('data') data: UserCreateInput,
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
     @Mutation((returns) => User)
@@ -56,7 +99,7 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-        ctx.res.cookie("jwt", accessToken,{ maxAge: oneMonthInMilliseconds, httpOnly: true });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true });
         return convertToGraphQLUser(userFromDB);
     }
 
@@ -64,7 +107,7 @@ export class UserResolver {
     async signOut(
         @Ctx() ctx: Context,
     ): Promise<SignedOutSuccess> {
-        if(!ctx.cookies || !ctx.cookies.jwt){
+        if (!ctx.cookies || !ctx.cookies.jwt) {
             throw new GraphQLError('No user signed in', {
                 extensions: {
                     code: 'BAD_USER_INPUT',
@@ -80,7 +123,7 @@ export class UserResolver {
 
     @Query(() => [User])
     async allUsers(@Ctx() ctx: Context) {
-        return ctx.prisma.user.findMany()
+        return (await ctx.prisma.user.findMany()).map((dbUser) => convertToGraphQLUser(dbUser));
     }
 
     @Query(() => LogedInUser)
@@ -88,12 +131,12 @@ export class UserResolver {
         const user = await validateUser(ctx.cookies);
         if (!user) {
             return {
-                id:"LogedInUser",
+                id: "LogedInUser",
                 isLogedIn: false
             }
         }
         return {
-            id:"LogedInUser",
+            id: "LogedInUser",
             isLogedIn: true,
             user: user,
         }

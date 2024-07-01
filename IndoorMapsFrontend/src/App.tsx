@@ -1,47 +1,35 @@
 import './App.css'
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
-import Directory from './components/pages/Directory';
-import { graphql, useQueryLoader } from 'react-relay';
-import { useEffect } from 'react';
-import React from 'react';
-import { AppMainQuery } from './__generated__/AppMainQuery.graphql';
-import ButtonsContainer from './components/pageSections/ButtonsContainer';
+import Directory from './components/routes/Directory';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Root from './components/routes/Root';
+import BuildingViewer from './components/routes/BuildingViewer';
+import BuildingEditor from './components/routes/BuildingEditor';
 
-export const GetCurrentUser = graphql`
-    query AppMainQuery {
-    getUserFromCookie {
-        isLogedIn
-        user {
-            name
-            email
-            id
-        }
-    }
-  }
-`
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+  },
+  {
+    path: "directory",
+    element: <Directory />,
+  },
+  {
+    path: "building/:buildingId/viewer",
+    element: <BuildingViewer />,
+  },
+  {
+    path: "building/:buildingId/editor",
+    element: <BuildingEditor />,
+  },
+]);
 
 function App() {
-
-  const [
-    queryReference,
-    loadQuery,
-  ] = useQueryLoader<AppMainQuery>(
-    GetCurrentUser,
-  );
-
-  useEffect(() => {
-    loadQuery({});
-  }, []);
-
   return (
     <MantineProvider>
-      {queryReference ?
-        <React.Suspense fallback="Loading">
-          <ButtonsContainer loadQuery={loadQuery} queryReference={queryReference} />
-        </React.Suspense>
-        : null}
-      <Directory />
+      <RouterProvider router={router} />
     </MantineProvider>
   );
 }

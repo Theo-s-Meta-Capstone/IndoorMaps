@@ -23,9 +23,3 @@ export const useBooleanState = (initalValue: boolean) => {
 
     return [booleanValue, setFalse, setTrue] as const;
 }
-
-
-// js-cookie is based on https://medium.com/@sergeyleschev/react-custom-hook-usecookie-ca8a7a6e89d7#:~:text=The%20useCookie%20hook%20allows%20you,to%20the%20default%20value%20provided.
-export const useAuth = () => {
-
-}

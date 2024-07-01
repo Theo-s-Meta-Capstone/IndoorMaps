@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { ObjectType, Field, ID } from 'type-graphql'
 
 @ObjectType()
-class Floor {
+export class Floor {
   @Field((type) => ID)
   id: string
 
@@ -21,11 +21,11 @@ export class Building {
   id: string
 
   @Field()
+  databaseId: number
+
+  @Field()
   title: string
 
   @Field()
   description: string
-
-  @Field((type) => [Floor]!)
-  floors: Floor[]
 }
