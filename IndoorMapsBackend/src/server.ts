@@ -16,6 +16,7 @@ import 'dotenv/config'
 
 const app = express();
 export const httpServer = http.createServer(app);
+const BUILD_PREVIEW_URL = "http://localhost:4173";
 
 /**
  * the main function is to avoid running awaits at the top level of the file (but this is not necesary in the more recent versions of JavaScript)
@@ -39,7 +40,7 @@ async function main() {
 
     app.use(
         '/graphql',
-        cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL], credentials: true }),
+        cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL, BUILD_PREVIEW_URL], credentials: true }),
         cookieParser(),
         express.json(),
         expressMiddleware(server, {

@@ -2,7 +2,7 @@ import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "./Directory/UserDataDisplay";
+import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 
 const DirectoryPageQuery = graphql`

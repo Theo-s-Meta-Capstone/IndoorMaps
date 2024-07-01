@@ -3,7 +3,7 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import { Link } from "react-router-dom";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "./Directory/UserDataDisplay";
+import UserDataDisplay from "../pageSections/UserDataDisplay";
 
 const RootPageQuery = graphql`
     query RootQuery {
