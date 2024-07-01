@@ -4,6 +4,7 @@
 # -----------------------------------------------
 
 type Building {
+  databaseId: Float!
   description: String!
   floors: [Floor!]!
   id: ID!

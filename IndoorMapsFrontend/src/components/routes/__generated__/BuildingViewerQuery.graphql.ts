@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8ec3d30ced8b9f65e58811370101c2af>>
+ * @generated SignedSource<<278422cfa6772e54aa5a2f3d41b0ff3e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,18 +10,15 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type DirectoryQuery$variables = Record<PropertyKey, never>;
-export type DirectoryQuery$data = {
-  readonly allBuildings: ReadonlyArray<{
-    readonly " $fragmentSpreads": FragmentRefs<"BuildingItemFragment">;
-  }>;
+export type BuildingViewerQuery$variables = Record<PropertyKey, never>;
+export type BuildingViewerQuery$data = {
   readonly getUserFromCookie: {
     readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "UserDataDisplayFragment">;
   };
 };
-export type DirectoryQuery = {
-  response: DirectoryQuery$data;
-  variables: DirectoryQuery$variables;
+export type BuildingViewerQuery = {
+  response: BuildingViewerQuery$data;
+  variables: BuildingViewerQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -37,24 +34,8 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "DirectoryQuery",
+    "name": "BuildingViewerQuery",
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Building",
-        "kind": "LinkedField",
-        "name": "allBuildings",
-        "plural": true,
-        "selections": [
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "BuildingItemFragment"
-          }
-        ],
-        "storageKey": null
-      },
       {
         "alias": null,
         "args": null,
@@ -84,41 +65,8 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "DirectoryQuery",
+    "name": "BuildingViewerQuery",
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Building",
-        "kind": "LinkedField",
-        "name": "allBuildings",
-        "plural": true,
-        "selections": [
-          (v0/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "title",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "description",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "databaseId",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      },
       {
         "alias": null,
         "args": null,
@@ -167,16 +115,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "079afb3850effe4d236ca25217c9adac",
+    "cacheID": "a87d096c3ccf1b6e6ff8dbf64a0a829e",
     "id": null,
     "metadata": {},
-    "name": "DirectoryQuery",
+    "name": "BuildingViewerQuery",
     "operationKind": "query",
-    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n  databaseId\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query BuildingViewerQuery {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "583068ab3cc114315212143123bf6033";
+(node as any).hash = "7fad2c20972198ac785d762e4888c5ff";
 
 export default node;
