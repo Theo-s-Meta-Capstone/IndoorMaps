@@ -20,6 +20,7 @@ interface DbBuildingWithFloors extends DbBuilding {
 export const convertToGraphQLBuilding = (buildingFromDB: DbBuildingWithFloors): Building => {
     const building: Building = {
         id: "building" + buildingFromDB.id,
+        databaseId: buildingFromDB.id,
         title: buildingFromDB.title,
         description: buildingFromDB.description,
         floors: buildingFromDB.floors.map((value: Floor) => {

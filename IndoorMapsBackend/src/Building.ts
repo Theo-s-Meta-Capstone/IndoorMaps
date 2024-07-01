@@ -21,6 +21,9 @@ export class Building {
   id: string
 
   @Field()
+  databaseId: number
+
+  @Field()
   title: string
 
   @Field()
