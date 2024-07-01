@@ -6,7 +6,9 @@ import {
   FetchFunction,
 } from "relay-runtime";
 
-const HTTP_ENDPOINT = import.meta.env.BACKEND_GRAPHQL_URL || "http://localhost:4000/graphql";
+const HTTP_ENDPOINT = import.meta.env.VITE_BACKEND_GRAPHQL_URL;
+
+console.log(HTTP_ENDPOINT)
 
 const fetchFn: FetchFunction = async (request, variables) => {
   const resp = await fetch(HTTP_ENDPOINT, {
