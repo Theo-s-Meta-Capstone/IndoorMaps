@@ -6,7 +6,6 @@ type ListOfBuildingsProps = {
 }
 
 function ListOfBuildings({ buildings }: ListOfBuildingsProps) {
-
     const buildingListElements = buildings.map((building, i) => {
         return(<BuildingItem key={i} building={building} />)
     })

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<12f3f5945b38de2c0e1d12a4f7efc1ff>>
+ * @generated SignedSource<<748917c4fc6ac6752b74583a7731c014>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,6 +17,8 @@ export type ListOfConnectedBuildingsUserDataDisplayFragment$data = {
     readonly BuildingWithPerms: ReadonlyArray<{
       readonly " $fragmentSpreads": FragmentRefs<"ConnectedBuildingItemFragment">;
     }>;
+    readonly id: string;
+    readonly " $fragmentSpreads": FragmentRefs<"CreateBuildingModalUserDataFormFragment">;
   } | null | undefined;
   readonly " $fragmentType": "ListOfConnectedBuildingsUserDataDisplayFragment";
 };
@@ -25,19 +27,21 @@ export type ListOfConnectedBuildingsUserDataDisplayFragment$key = {
   readonly " $fragmentSpreads": FragmentRefs<"ListOfConnectedBuildingsUserDataDisplayFragment">;
 };
 
-const node: ReaderFragment = {
+const node: ReaderFragment = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
   "name": "ListOfConnectedBuildingsUserDataDisplayFragment",
   "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
+    (v0/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -53,6 +57,12 @@ const node: ReaderFragment = {
       "name": "user",
       "plural": false,
       "selections": [
+        (v0/*: any*/),
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "CreateBuildingModalUserDataFormFragment"
+        },
         {
           "alias": null,
           "args": null,
@@ -76,7 +86,8 @@ const node: ReaderFragment = {
   "type": "LogedInUser",
   "abstractKey": null
 };
+})();
 
-(node as any).hash = "18aa88c5e6b0c1c3cfb3c02ef128b45b";
+(node as any).hash = "5f881e320c72a0d9ca8a502520467c1f";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<97a32d79c86376817f23cf4c8c0eec19>>
+ * @generated SignedSource<<c9cc629310af2fe15e57cd9672e08ce1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -166,6 +166,7 @@ return {
                 "name": "name",
                 "storageKey": null
               },
+              (v3/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -209,12 +210,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "2d30646f5ee7604b2512bf9893ffb99a",
+    "cacheID": "a5e2acde4b94ae84ba20504fe13b5969",
     "id": null,
     "metadata": {},
     "name": "DirectoryQuery",
     "operationKind": "query",
-    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    ...ListOfConnectedBuildingsUserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n  databaseId\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment ConnectedBuildingItemFragment on BuildingWithPerms {\n  id\n  editorLevel\n  building {\n    id\n    databaseId\n    title\n    description\n  }\n}\n\nfragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    BuildingWithPerms {\n      ...ConnectedBuildingItemFragment\n      id\n    }\n    id\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    ...ListOfConnectedBuildingsUserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n  databaseId\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment ConnectedBuildingItemFragment on BuildingWithPerms {\n  id\n  editorLevel\n  building {\n    id\n    databaseId\n    title\n    description\n  }\n}\n\nfragment CreateBuildingModalUserDataFormFragment on User {\n  id\n  databaseId\n}\n\nfragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    ...CreateBuildingModalUserDataFormFragment\n    BuildingWithPerms {\n      ...ConnectedBuildingItemFragment\n      id\n    }\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();

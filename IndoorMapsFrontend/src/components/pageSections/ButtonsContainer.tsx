@@ -39,7 +39,6 @@ function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
   const data = useFragment(ButtonsUserFragment, getUserFromCookie);
   const environment = useRelayEnvironment();
 
-
   const refreshUserData = () => {
     loadQuery(
       environment,
