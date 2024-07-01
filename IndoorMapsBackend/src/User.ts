@@ -1,6 +1,7 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID, InterfaceType } from 'type-graphql'
+import { ObjectType, Field, ID, InterfaceType, registerEnumType } from 'type-graphql'
 import { IsEmail } from 'class-validator'
+import { Building } from './Building.js';
 
 @InterfaceType()
 abstract class Node {
@@ -31,6 +32,7 @@ export class User {
 export class LogedInUser {
   @Field(type => ID)
   id: string;
+
   @Field()
   isLogedIn: boolean
 
@@ -42,4 +44,26 @@ export class LogedInUser {
 export class SignedOutSuccess {
   @Field()
   success: boolean
+}
+
+enum EditorLevel {
+  viewer = "viewer",
+  editor = "editor",
+  owner = "owner"
+}
+
+registerEnumType(EditorLevel, {
+  name: "EditorLevel",
+});
+
+@ObjectType()
+export class BuildingWithPerms {
+  @Field(type => ID)
+  id: string;
+
+  @Field(type => EditorLevel)
+  editorLevel: EditorLevel
+
+  @Field(type => Building)
+  building: Building
 }

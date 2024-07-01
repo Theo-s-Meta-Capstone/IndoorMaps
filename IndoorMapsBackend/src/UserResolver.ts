@@ -11,13 +11,14 @@ import {
     Root,
 } from 'type-graphql'
 import { Context } from './context.js'
-import { LogedInUser, SignedOutSuccess, User } from './User.js'
+import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from './User.js'
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLUser } from './utils/typeConversions.js'
 import { GraphQLError, findBreakingChanges } from 'graphql'
 import { deleteAccessToken } from './auth/jwt.js'
 import { Building } from './Building.js'
+import { EditorLevel } from '@prisma/client'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -44,19 +45,21 @@ class UserLoginInput {
 
 @Resolver(User)
 export class UserResolver {
-    @FieldResolver((type) => [Building]!)
-    async buildingsWithEditPerms(
+    @FieldResolver((type) => [BuildingWithPerms]!)
+    async BuildingEditor(
         @Root() user: User,
         @Ctx() ctx: Context,
     ) {
-        //TODO: invistage why using findUnique throws a error
+        //TODO: investigate why using findUnique throws a error
         const userWithBuildings = await ctx.prisma.user.findFirst({
             where: {
                 id: user.databaseId
             },
             include: {
                 buildings: {
-                    include: {
+                    select: {
+                        id: true,
+                        editorLevel: true,
                         building: {
                             include: {
                                 floors: true
@@ -73,10 +76,14 @@ export class UserResolver {
                 },
             });
         }
-        // Buildings are stored using a join table so that buildings can have multiple editors, so the returned object is the join table object
-        // that is why below there needs to be buildingEditorJoinRow.building
-        const buildings = userWithBuildings.buildings;
-        return buildings.map((buildingEditorJoinRow) => convertToGraphQLBuilding(buildingEditorJoinRow.building))
+        const buildingEditorJoinRows = userWithBuildings.buildings;
+        return buildingEditorJoinRows.map((buildingEditorJoinRow) => {
+            return {
+                id: "buildingEditor" + buildingEditorJoinRow.id,
+                editorLevel: buildingEditorJoinRow.editorLevel,
+                building: convertToGraphQLBuilding(buildingEditorJoinRow.building)
+            }
+        })
     }
 
     @Mutation((returns) => User)
@@ -118,7 +125,7 @@ export class UserResolver {
 
     @Query(() => [User])
     async allUsers(@Ctx() ctx: Context) {
-        return ctx.prisma.user.findMany()
+        return (await ctx.prisma.user.findMany()).map((dbUser) => convertToGraphQLUser(dbUser));
     }
 
     @Query(() => LogedInUser)

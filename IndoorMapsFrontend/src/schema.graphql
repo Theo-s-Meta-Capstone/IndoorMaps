@@ -23,6 +23,18 @@ input BuildingUniqueInput {
   id: Float
 }
 
+type BuildingWithPerms {
+  building: Building!
+  editorLevel: EditorLevel!
+  id: ID!
+}
+
+enum EditorLevel {
+  editor
+  owner
+  viewer
+}
+
 type Floor {
   description: String!
   id: ID!
@@ -54,7 +66,7 @@ type SignedOutSuccess {
 }
 
 type User {
-  buildingsWithEditPerms: [Building!]!
+  BuildingEditor: [BuildingWithPerms!]!
   databaseId: Float!
   email: String!
   id: ID!
