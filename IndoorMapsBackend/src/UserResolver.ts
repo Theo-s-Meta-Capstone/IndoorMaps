@@ -15,10 +15,8 @@ import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from './User.j
 import auth from './auth/auth.js'
 import { validateUser } from './auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLUser } from './utils/typeConversions.js'
-import { GraphQLError, findBreakingChanges } from 'graphql'
+import { GraphQLError } from 'graphql'
 import { deleteAccessToken } from './auth/jwt.js'
-import { Building } from './Building.js'
-import { EditorLevel } from '@prisma/client'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -46,7 +44,7 @@ class UserLoginInput {
 @Resolver(User)
 export class UserResolver {
     @FieldResolver((type) => [BuildingWithPerms]!)
-    async BuildingEditor(
+    async BuildingWithPerms(
         @Root() user: User,
         @Ctx() ctx: Context,
     ) {

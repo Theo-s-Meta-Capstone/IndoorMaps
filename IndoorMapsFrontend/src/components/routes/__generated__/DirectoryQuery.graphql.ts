@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8ec3d30ced8b9f65e58811370101c2af>>
+ * @generated SignedSource<<97a32d79c86376817f23cf4c8c0eec19>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,7 +16,7 @@ export type DirectoryQuery$data = {
     readonly " $fragmentSpreads": FragmentRefs<"BuildingItemFragment">;
   }>;
   readonly getUserFromCookie: {
-    readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "UserDataDisplayFragment">;
+    readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "ListOfConnectedBuildingsUserDataDisplayFragment" | "UserDataDisplayFragment">;
   };
 };
 export type DirectoryQuery = {
@@ -30,6 +30,27 @@ var v0 = {
   "args": null,
   "kind": "ScalarField",
   "name": "id",
+  "storageKey": null
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "title",
+  "storageKey": null
+},
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "description",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "databaseId",
   "storageKey": null
 };
 return {
@@ -72,6 +93,11 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "UserDataDisplayFragment"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "ListOfConnectedBuildingsUserDataDisplayFragment"
           }
         ],
         "storageKey": null
@@ -95,27 +121,9 @@ return {
         "plural": true,
         "selections": [
           (v0/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "title",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "description",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "databaseId",
-            "storageKey": null
-          }
+          (v1/*: any*/),
+          (v2/*: any*/),
+          (v3/*: any*/)
         ],
         "storageKey": null
       },
@@ -157,6 +165,40 @@ return {
                 "kind": "ScalarField",
                 "name": "name",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "BuildingWithPerms",
+                "kind": "LinkedField",
+                "name": "BuildingWithPerms",
+                "plural": true,
+                "selections": [
+                  (v0/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "editorLevel",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Building",
+                    "kind": "LinkedField",
+                    "name": "building",
+                    "plural": false,
+                    "selections": [
+                      (v0/*: any*/),
+                      (v3/*: any*/),
+                      (v1/*: any*/),
+                      (v2/*: any*/)
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
               }
             ],
             "storageKey": null
@@ -167,16 +209,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "079afb3850effe4d236ca25217c9adac",
+    "cacheID": "2d30646f5ee7604b2512bf9893ffb99a",
     "id": null,
     "metadata": {},
     "name": "DirectoryQuery",
     "operationKind": "query",
-    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n  databaseId\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query DirectoryQuery {\n  allBuildings {\n    ...BuildingItemFragment\n    id\n  }\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    ...ListOfConnectedBuildingsUserDataDisplayFragment\n    id\n  }\n}\n\nfragment BuildingItemFragment on Building {\n  id\n  title\n  description\n  databaseId\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment ConnectedBuildingItemFragment on BuildingWithPerms {\n  id\n  editorLevel\n  building {\n    id\n    databaseId\n    title\n    description\n  }\n}\n\nfragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    BuildingWithPerms {\n      ...ConnectedBuildingItemFragment\n      id\n    }\n    id\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "583068ab3cc114315212143123bf6033";
+(node as any).hash = "698c87f77dfb201fbbb9cdf444d30a72";
 
 export default node;

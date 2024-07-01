@@ -66,7 +66,7 @@ type SignedOutSuccess {
 }
 
 type User {
-  BuildingEditor: [BuildingWithPerms!]!
+  BuildingWithPerms: [BuildingWithPerms!]!
   databaseId: Float!
   email: String!
   id: ID!

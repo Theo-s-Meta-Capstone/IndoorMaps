@@ -4,6 +4,7 @@ import ListOfBuildings from "./Directory/ListOfBuildings";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
+import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
 
 const DirectoryPageQuery = graphql`
     query DirectoryQuery {
@@ -12,7 +13,8 @@ const DirectoryPageQuery = graphql`
     }
     getUserFromCookie {
         ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment
+        ...UserDataDisplayFragment,
+        ...ListOfConnectedBuildingsUserDataDisplayFragment
     }
 }`
 
@@ -50,6 +52,7 @@ function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps)
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
             <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <ListOfConnectedBuildings getUserFromCookie={data.getUserFromCookie}/>
             <ListOfBuildings buildings={data.allBuildings} />
         </>
     )
