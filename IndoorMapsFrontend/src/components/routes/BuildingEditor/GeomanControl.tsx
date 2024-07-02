@@ -4,9 +4,7 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 interface Props extends L.ControlOptions {
-    position: L.ControlPosition;
-    drawCircle?: boolean;
-    oneBlock?: boolean;
+
 }
 
 let geoManOptions: Props;
@@ -23,10 +21,13 @@ const Geoman = L.Control.extend({
         map.pm.addControls({
             drawPolyline: false,
             drawRectangle: false,
-            drawMarker: true,
+            drawMarker: false,
             drawCircleMarker: true,
-            ...geoManOptions
+            position: "topright",
+            drawCircle: false,
+            oneBlock: true,
         });
+
     },
 });
 

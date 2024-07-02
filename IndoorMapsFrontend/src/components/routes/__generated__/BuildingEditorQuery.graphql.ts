@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5e8bb88abafa079d89276f7f20d0cb17>>
+ * @generated SignedSource<<529d0d21e4d80797cfc04175f0d035ff>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,7 +21,7 @@ export type BuildingEditorQuery$data = {
     readonly " $fragmentSpreads": FragmentRefs<"BuildingEditorBodyFragment">;
   };
   readonly getUserFromCookie: {
-    readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment" | "UserDataDisplayFragment">;
+    readonly " $fragmentSpreads": FragmentRefs<"ButtonsContainerFragment">;
   };
 };
 export type BuildingEditorQuery = {
@@ -84,11 +84,6 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "ButtonsContainerFragment"
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "UserDataDisplayFragment"
           }
         ],
         "storageKey": null
@@ -227,16 +222,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4e65d435c8307d8fb94d1a4a24a1beef",
+    "cacheID": "975f47edf249bf22f9067bcc01181013",
     "id": null,
     "metadata": {},
     "name": "BuildingEditorQuery",
     "operationKind": "query",
-    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    address\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    address\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "bc4729ec8a4f8af4af351f0ee70047ab";
+(node as any).hash = "53fb01775100a411c8b74a9e808bbefa";
 
 export default node;

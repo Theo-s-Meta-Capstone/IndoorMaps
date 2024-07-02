@@ -2,7 +2,6 @@ import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { Link, useParams } from "react-router-dom";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 
@@ -10,7 +9,6 @@ const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment
     }
     getBuilding(data: $data) {
         ...BuildingEditorBodyFragment
@@ -61,7 +59,6 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     return (
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
             <BuildingEditorBody buildingFromParent={data.getBuilding} />
         </>
     )
