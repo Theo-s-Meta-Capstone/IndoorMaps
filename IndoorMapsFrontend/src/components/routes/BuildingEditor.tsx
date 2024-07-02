@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
+import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery {
@@ -51,6 +52,7 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
             <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <BuildingEditorBody />
         </>
     )
 }

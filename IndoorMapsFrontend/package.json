@@ -11,16 +11,20 @@
     "relay": "relay-compiler --watch"
   },
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.17.0",
     "@mantine/core": "^7.11.0",
     "@mantine/form": "^7.11.0",
     "@mantine/hooks": "^7.11.0",
+    "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1",
     "react-relay": "^17.0.0",
     "react-router-dom": "^6.24.0",
     "relay-runtime": "^17.0.0"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.12",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
