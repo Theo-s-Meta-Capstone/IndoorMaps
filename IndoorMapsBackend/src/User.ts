@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID, InterfaceType, registerEnumType } from 'type-graphql'
+import { ObjectType, Field, ID, InterfaceType, registerEnumType, Int } from 'type-graphql'
 import { IsEmail } from 'class-validator'
 import { Building } from './Building.js';
 
@@ -48,6 +48,15 @@ export class MutationResult {
 
 @ObjectType()
 export class SignedOutSuccess extends MutationResult {
+}
+
+@ObjectType()
+export class NewFloorResult extends MutationResult {
+  @Field(type => Int)
+  databaseId: number
+
+  @Field(type => Int)
+  buildingDatabaseId: number
 }
 
 enum EditorLevel {

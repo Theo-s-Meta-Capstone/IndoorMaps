@@ -15,15 +15,21 @@ import {
 import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
 import { Building, Floor } from './Building.js'
-import { convertToGraphQLBuilding } from './utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLFloor } from './utils/typeConversions.js'
 import { Floor as DbFloor } from '@prisma/client'
 import { validateUser } from './auth/validateUser.js'
-import { MutationResult } from './User.js'
+import { NewFloorResult } from './User.js'
 
 
 @InputType()
 class BuildingUniqueInput {
-    @Field({ nullable: true })
+    @Field()
+    id: number
+}
+
+@InputType()
+class FloorUniqueInput {
+    @Field(type => Int)
     id: number
 }
 
@@ -77,12 +83,7 @@ export class BuildingResolver {
                 },
             });
         }
-        return dbFloors.floors.map((value: DbFloor) => {
-            return {
-                ...value,
-                id: "floor" + value.id.toString()
-            }
-        })
+        return dbFloors.floors.map((value: DbFloor) => convertToGraphQLFloor(value))
     }
 
     @Mutation((returns) => Building)
@@ -128,11 +129,11 @@ export class BuildingResolver {
         return convertToGraphQLBuilding(newBuilding);
     }
 
-    @Mutation((returns) => MutationResult)
+    @Mutation((returns) => NewFloorResult)
     async createFloor(
         @Arg('data') data: FloorCreateInput,
         @Ctx() ctx: Context,
-    ): Promise<MutationResult> {
+    ): Promise<NewFloorResult> {
         const user = await validateUser(ctx.cookies);
         if (!user) {
             throw new GraphQLError('User not signed in', {
@@ -141,7 +142,7 @@ export class BuildingResolver {
                 },
             });
         }
-        await ctx.prisma.floor.create({
+        const newFloor = await ctx.prisma.floor.create({
             data: {
                 title: data.title,
                 description: data.description,
@@ -153,7 +154,11 @@ export class BuildingResolver {
             },
         });
 
-        return { success: true };
+        return {
+            success: true,
+            databaseId: newFloor.id,
+            buildingDatabaseId: data.buildingDatabseId
+        };
     }
 
     @Query((returns) => Building)
@@ -182,6 +187,26 @@ export class BuildingResolver {
             });
         }
         return convertToGraphQLBuilding(dbBuilding);
+    }
+
+    @Query((returns) => Floor)
+    async getFloor(
+        @Arg('data') data: FloorUniqueInput,
+        @Ctx() ctx: Context,
+    ): Promise<Floor> {
+        const dbFloor = await ctx.prisma.floor.findUnique({
+            where: {
+                id: data.id,
+            }
+        })
+        if (!dbFloor) {
+            throw new GraphQLError('Floor not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        return convertToGraphQLFloor(dbFloor);
     }
 
     @Query(() => [Building])

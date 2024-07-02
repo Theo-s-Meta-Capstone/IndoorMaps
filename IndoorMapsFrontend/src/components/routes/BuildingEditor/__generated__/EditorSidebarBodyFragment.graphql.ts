@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a1e796e2d43a787e428e41ba20289a76>>
+ * @generated SignedSource<<165c10bcfd0b7bd14b71ce7e102f6757>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,10 +14,9 @@ export type EditorSidebarBodyFragment$data = {
   readonly address: string;
   readonly databaseId: number;
   readonly floors: ReadonlyArray<{
-    readonly description: string;
+    readonly databaseId: number;
     readonly id: string;
-    readonly shape: string | null | undefined;
-    readonly title: string;
+    readonly " $fragmentSpreads": FragmentRefs<"FloorListItemFragment">;
   }>;
   readonly id: string;
   readonly startPos: {
@@ -44,7 +43,7 @@ v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "title",
+  "name": "databaseId",
   "storageKey": null
 };
 return {
@@ -54,14 +53,14 @@ return {
   "name": "EditorSidebarBodyFragment",
   "selections": [
     (v0/*: any*/),
+    (v1/*: any*/),
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "databaseId",
+      "name": "title",
       "storageKey": null
     },
-    (v1/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -105,18 +104,9 @@ return {
         (v0/*: any*/),
         (v1/*: any*/),
         {
-          "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "description",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "shape",
-          "storageKey": null
+          "kind": "FragmentSpread",
+          "name": "FloorListItemFragment"
         }
       ],
       "storageKey": null
@@ -127,6 +117,6 @@ return {
 };
 })();
 
-(node as any).hash = "a4256f56a4f544cced5a95b7be1ca73f";
+(node as any).hash = "94bc162ac2702792b9a25ce0edfa9533";
 
 export default node;

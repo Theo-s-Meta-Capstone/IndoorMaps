@@ -20,7 +20,7 @@ input BuildingCreateInput {
 }
 
 input BuildingUniqueInput {
-  id: Float
+  id: Float!
 }
 
 type BuildingWithPerms {
@@ -49,6 +49,10 @@ input FloorCreateInput {
   title: String!
 }
 
+input FloorUniqueInput {
+  id: Int!
+}
+
 type LatLng {
   lat: Float!
   lon: Float!
@@ -62,13 +66,15 @@ type LogedInUser {
 
 type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
-  createFloor(data: FloorCreateInput!): MutationResult!
+  createFloor(data: FloorCreateInput!): NewFloorResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
 }
 
-type MutationResult {
+type NewFloorResult {
+  buildingDatabaseId: Int!
+  databaseId: Int!
   success: Boolean!
 }
 
@@ -76,6 +82,7 @@ type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getBuilding(data: BuildingUniqueInput!): Building!
+  getFloor(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!
 }
 

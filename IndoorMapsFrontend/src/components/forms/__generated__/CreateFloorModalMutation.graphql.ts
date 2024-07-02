@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<423b5016d5e1593c52e762bf7e981470>>
+ * @generated SignedSource<<605026d91df28de3063aac639576b207>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,7 +19,7 @@ export type CreateFloorModalMutation$variables = {
 };
 export type CreateFloorModalMutation$data = {
   readonly createFloor: {
-    readonly success: boolean;
+    readonly buildingDatabaseId: number;
   };
 };
 export type CreateFloorModalMutation = {
@@ -45,7 +45,7 @@ v1 = [
         "variableName": "input"
       }
     ],
-    "concreteType": "MutationResult",
+    "concreteType": "NewFloorResult",
     "kind": "LinkedField",
     "name": "createFloor",
     "plural": false,
@@ -54,7 +54,7 @@ v1 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "success",
+        "name": "buildingDatabaseId",
         "storageKey": null
       }
     ],
@@ -79,16 +79,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "87a096c15fd73211dffd66b35c01867a",
+    "cacheID": "1a75970a35a1661ee5eb56fdfc7309c6",
     "id": null,
     "metadata": {},
     "name": "CreateFloorModalMutation",
     "operationKind": "mutation",
-    "text": "mutation CreateFloorModalMutation(\n  $input: FloorCreateInput!\n) {\n  createFloor(data: $input) {\n    success\n  }\n}\n"
+    "text": "mutation CreateFloorModalMutation(\n  $input: FloorCreateInput!\n) {\n  createFloor(data: $input) {\n    buildingDatabaseId\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8fd791659e40919da41540bce45c4025";
+(node as any).hash = "223705df3dd25f875df16280b1cbb4eb";
 
 export default node;

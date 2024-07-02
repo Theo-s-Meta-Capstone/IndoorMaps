@@ -4,6 +4,7 @@ import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { useParams } from "react-router-dom";
 import { CreateFloorModalMutation } from "./__generated__/CreateFloorModalMutation.graphql";
+import { useRefreshRelayCache } from "../../hooks";
 
 interface Props {
     isOpen: boolean,
@@ -12,7 +13,8 @@ interface Props {
 
 const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
-    let { buildingId } = useParams();
+    const [, refreshBuildingData] = useRefreshRelayCache();
+    const { buildingId } = useParams();
 
     const form = useForm({
         mode: 'controlled',
@@ -25,7 +27,7 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
     const [commit, isInFlight] = useMutation<CreateFloorModalMutation>(graphql`
         mutation CreateFloorModalMutation($input: FloorCreateInput!) {
             createFloor(data: $input) {
-                success
+                buildingDatabaseId
             }
         }
     `);
@@ -44,7 +46,8 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
                         description: values.description,
                     },
                 },
-                onCompleted() {
+                onCompleted(data) {
+                    refreshBuildingData(data.createFloor.buildingDatabaseId);
                     closeModal();
                 },
                 onError(error) {

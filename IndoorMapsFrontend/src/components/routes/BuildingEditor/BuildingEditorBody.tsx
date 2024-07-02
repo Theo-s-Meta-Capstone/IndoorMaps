@@ -36,21 +36,17 @@ interface Props {
 const BuildingEditorBody = ({ buildingFromParent }: Props) => {
     const buildingData = useFragment(BuildingEditorFragment, buildingFromParent);
     const startingPosition = L.latLng(buildingData.startPos.lat, buildingData.startPos.lon);
-    const mapStyle = { height: '50vh', width: '100%', padding: 0, zIndex: 50 };
-    const [editMode, setEditMode] = useState("floor");
+    const mapStyle = { height: '70vh', width: '100%', padding: 0, zIndex: 50 };
+    // const [editMode, setEditMode] = useState("floor");
 
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
 
     const [map, setMap] = useState<L.Map | null>(null);
 
-    const printLayers = () => {
-        if (!map) return
-        console.log(map.pm.getGeomanLayers().filter((layer) => (layer instanceof L.Polygon)).map((layer: any) => (layer as L.Polygon).toGeoJSON()))
-    };
-
     const onShapeEdit = (event: L.LeafletEvent) => {
         if (!map) return;
+        console.log(event.layer.toGeoJSON)
         console.log(map.pm.getGeomanLayers(true))
         console.log(map.pm.getGeomanDrawLayers(true));
     }

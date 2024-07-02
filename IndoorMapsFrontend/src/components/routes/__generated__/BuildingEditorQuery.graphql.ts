@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<306693e050de72b5f4c3a1cfce3dbfb4>>
+ * @generated SignedSource<<4c473a1edb2a5f7b1ad4167d93c672cf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,7 +11,7 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type BuildingUniqueInput = {
-  id?: number | null | undefined;
+  id: number;
 };
 export type BuildingEditorQuery$variables = {
   data: BuildingUniqueInput;
@@ -52,6 +52,13 @@ v2 = {
   "storageKey": null
 },
 v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "databaseId",
+  "storageKey": null
+},
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -161,14 +168,8 @@ return {
         "plural": false,
         "selections": [
           (v2/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "databaseId",
-            "storageKey": null
-          },
           (v3/*: any*/),
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -211,6 +212,7 @@ return {
             "selections": [
               (v2/*: any*/),
               (v3/*: any*/),
+              (v4/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -234,12 +236,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e23d14139097a2890c7d04904eeb47c8",
+    "cacheID": "f97b43e1bbbc031e9fe88df45f72d427",
     "id": null,
     "metadata": {},
     "name": "BuildingEditorQuery",
     "operationKind": "query",
-    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  ...EditorSidebarBodyFragment\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    description\n    shape\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment EditorSidebarBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    description\n    shape\n  }\n}\n"
+    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  ...EditorSidebarBodyFragment\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    description\n    shape\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment EditorSidebarBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    databaseId\n    ...FloorListItemFragment\n  }\n}\n\nfragment FloorListItemFragment on Floor {\n  databaseId\n  id\n  title\n  description\n  shape\n}\n"
   }
 };
 })();
