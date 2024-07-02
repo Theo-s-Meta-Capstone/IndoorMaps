@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<529d0d21e4d80797cfc04175f0d035ff>>
+ * @generated SignedSource<<c16fd27f4907220e97e514797608160d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -222,12 +222,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "975f47edf249bf22f9067bcc01181013",
+    "cacheID": "f4913cce60baf53b56398c573ae34a5e",
     "id": null,
     "metadata": {},
     "name": "BuildingEditorQuery",
     "operationKind": "query",
-    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    address\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query BuildingEditorQuery(\n  $data: BuildingUniqueInput!\n) {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    id\n  }\n  getBuilding(data: $data) {\n    ...BuildingEditorBodyFragment\n    id\n  }\n}\n\nfragment BuildingEditorBodyFragment on Building {\n  ...EditorSidebarBodyFragment\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    address\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment EditorSidebarBodyFragment on Building {\n  id\n  databaseId\n  title\n  startPos {\n    lat\n    lon\n  }\n  address\n  floors {\n    id\n    title\n    address\n  }\n}\n"
   }
 };
 })();

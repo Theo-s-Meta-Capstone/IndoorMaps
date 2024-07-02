@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9b4620417f18152e5da906c7c6859203>>
+ * @generated SignedSource<<e968a1958e484e02b47aedc3e4220921>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type BuildingEditorBodyFragment$data = {
+export type EditorSidebarBodyFragment$data = {
   readonly address: string;
   readonly databaseId: number;
   readonly floors: ReadonlyArray<{
@@ -24,12 +24,11 @@ export type BuildingEditorBodyFragment$data = {
     readonly lon: number;
   };
   readonly title: string;
-  readonly " $fragmentSpreads": FragmentRefs<"EditorSidebarBodyFragment">;
-  readonly " $fragmentType": "BuildingEditorBodyFragment";
+  readonly " $fragmentType": "EditorSidebarBodyFragment";
 };
-export type BuildingEditorBodyFragment$key = {
-  readonly " $data"?: BuildingEditorBodyFragment$data;
-  readonly " $fragmentSpreads": FragmentRefs<"BuildingEditorBodyFragment">;
+export type EditorSidebarBodyFragment$key = {
+  readonly " $data"?: EditorSidebarBodyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"EditorSidebarBodyFragment">;
 };
 
 const node: ReaderFragment = (function(){
@@ -58,13 +57,8 @@ return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "BuildingEditorBodyFragment",
+  "name": "EditorSidebarBodyFragment",
   "selections": [
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "EditorSidebarBodyFragment"
-    },
     (v0/*: any*/),
     {
       "alias": null,
@@ -120,6 +114,6 @@ return {
 };
 })();
 
-(node as any).hash = "2f81b3e8f02040e9f1a42fedafd49e61";
+(node as any).hash = "76ac80ad1ea6b8b82548c55252ca5db0";
 
 export default node;

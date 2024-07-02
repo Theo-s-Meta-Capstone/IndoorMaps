@@ -11,6 +11,7 @@ import EditorSidebar from "./EditorSidebar";
 const BuildingEditorFragment = graphql`
   fragment BuildingEditorBodyFragment on Building
   {
+    ...EditorSidebarBodyFragment
     id
     databaseId
     title
@@ -108,7 +109,7 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
                 />
                 <GeomanControl />
             </MapContainer>
-            <EditorSidebar />
+            <EditorSidebar buildingFromParent={buildingData}/>
         </main>
     )
 }
