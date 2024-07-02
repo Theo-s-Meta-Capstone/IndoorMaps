@@ -7,10 +7,13 @@ import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 
 const BuildingEditorPageQuery = graphql`
-    query BuildingEditorQuery {
+    query BuildingEditorQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
         ...UserDataDisplayFragment
+    }
+    getBuilding(data: $data) {
+        ...BuildingEditorBodyFragment
     }
 }`
 
@@ -25,7 +28,14 @@ const BuildingEditor = () => {
     );
 
     useEffect(() => {
-        loadQuery({});
+        if(buildingId == null) {
+            return;
+        }
+        loadQuery({
+            "data": {
+                id: parseInt(buildingId)
+            }
+        });
     }, []);
 
     return (
@@ -52,7 +62,7 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
         <>
             <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
             <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
-            <BuildingEditorBody />
+            <BuildingEditorBody buildingFromParent={data.getBuilding} />
         </>
     )
 }

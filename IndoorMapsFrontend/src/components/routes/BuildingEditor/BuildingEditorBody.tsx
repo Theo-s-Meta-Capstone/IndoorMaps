@@ -3,13 +3,37 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { GeomanControl } from "./GeomanControl";
+import { graphql, useFragment } from "react-relay";
+import { BuildingEditorBodyFragment$key } from "./__generated__/BuildingEditorBodyFragment.graphql";
+
+const BuildingEditorFragment = graphql`
+  fragment BuildingEditorBodyFragment on Building
+  {
+    id
+    databaseId
+    title
+    startPos {
+      lat
+      lon
+    }
+    address
+    floors {
+      id
+      title
+      address
+    }
+  }
+`;
 
 interface Props {
+    buildingFromParent: BuildingEditorBodyFragment$key;
 }
 
-const BuildingEditorBody = ({ }: Props) => {
-    const washingtonDC = L.latLng(38.9072, -77.0369);
+const BuildingEditorBody = ({ buildingFromParent }: Props) => {
+    const buildingData = useFragment(BuildingEditorFragment, buildingFromParent);
+    const startingPosition = L.latLng(buildingData.startPos.lat, buildingData.startPos.lon);
     const mapStyle = { height: '50vh', width: '100%', padding: 0 };
+    const [editMode, setEditMode] = useState("floor");
 
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
@@ -22,12 +46,22 @@ const BuildingEditorBody = ({ }: Props) => {
         }
     };
 
+    const onShapeEdit = (event: L.LeafletEvent) => {
+        console.log(event);
+        console.log(event.layer.toGeoJSON());
+    }
+
+    const onShapeCreate = (event: L.LeafletEvent) => {
+        console.log(event);
+        console.log(event.layer.toGeoJSON());
+
+        event.layer.on('pm:edit', onShapeEdit)
+    }
+
     const setUpMapBuilder = () => {
         if(!map || mapIsSetUp) return;
         setMapIsSetUp(true)
-        map.on('pm:create', function (e) {
-            console.log(e);
-        });
+        map.on('pm:create', onShapeCreate);
     }
 
     useEffect(() => {
@@ -38,8 +72,8 @@ const BuildingEditorBody = ({ }: Props) => {
         <>
         <button onClick={() => printLayers()}>Log layers</button>
         <MapContainer
-            center={washingtonDC}
-            zoom={21}
+            center={startingPosition}
+            zoom={19}
             zoomSnap={0.5}
             zoomControl={false}
             style={mapStyle}

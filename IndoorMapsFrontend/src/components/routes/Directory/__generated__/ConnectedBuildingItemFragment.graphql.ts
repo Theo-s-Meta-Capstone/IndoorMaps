@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1b7de7d4b642e965894a793e526a754c>>
+ * @generated SignedSource<<7f649cd48d01f182900e218943188267>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,8 +13,8 @@ export type EditorLevel = "editor" | "owner" | "viewer" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type ConnectedBuildingItemFragment$data = {
   readonly building: {
+    readonly address: string;
     readonly databaseId: number;
-    readonly description: string;
     readonly id: string;
     readonly title: string;
   };
@@ -76,7 +76,7 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "description",
+          "name": "address",
           "storageKey": null
         }
       ],
@@ -88,6 +88,6 @@ return {
 };
 })();
 
-(node as any).hash = "51e41ea9adfa1468f85461f17a8b18c1";
+(node as any).hash = "6ce2edcc40cbe7839a450a22ac88a1b8";
 
 export default node;

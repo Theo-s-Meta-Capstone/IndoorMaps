@@ -1,6 +1,6 @@
 import { User } from '../User.js'
 import { User as DbUser} from '@prisma/client';
-import { Building } from '../Building.js'
+import { Building, LatLng } from '../Building.js'
 import { Building as DbBuilding, Floor } from '@prisma/client'
 
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
@@ -19,7 +19,8 @@ export const convertToGraphQLBuilding = (buildingFromDB: DbBuilding): Building =
         id: "building" + buildingFromDB.id,
         databaseId: buildingFromDB.id,
         title: buildingFromDB.title,
-        description: buildingFromDB.description,
+        address: buildingFromDB.address,
+        startPos: new LatLng(buildingFromDB.startLat, buildingFromDB.startLon)
     }
     return building;
 }

@@ -7,7 +7,7 @@ const BuildingFragment = graphql`
   fragment BuildingItemFragment on Building {
     id
     title
-    description
+    address
     databaseId
   }
 `;
@@ -25,7 +25,7 @@ function BuildingItem({ building }: BuildingItemProps) {
         <Link to={`/building/${data.databaseId}/viewer`}>
             <Group key={data.id} >
                 <h2>{data.title}</h2>
-                <p>{data.description}</p>
+                <p>{data.address}</p>
             </Group>
         </Link>
     )

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<50c7468445ac1d5fe61a4665c97d5c83>>
+ * @generated SignedSource<<afab3fad3c739b8e17b28158566f4086>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,8 +10,10 @@
 
 import { ConcreteRequest, Mutation } from 'relay-runtime';
 export type BuildingCreateInput = {
-  description: string;
+  address: string;
   owner: number;
+  startLat: number;
+  startLon: number;
   title: string;
 };
 export type CreateBuildingModalMutation$variables = {

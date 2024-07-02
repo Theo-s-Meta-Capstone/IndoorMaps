@@ -21,6 +21,10 @@ const Geoman = L.Control.extend({
         if (!map.pm) return;
 
         map.pm.addControls({
+            drawPolyline: false,
+            drawRectangle: false,
+            drawMarker: true,
+            drawCircleMarker: true,
             ...geoManOptions
         });
     },

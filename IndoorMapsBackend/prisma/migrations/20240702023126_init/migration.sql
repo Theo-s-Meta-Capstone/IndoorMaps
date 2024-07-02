@@ -19,6 +19,7 @@ CREATE TABLE "Floor" (
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "buildingId" INTEGER NOT NULL,
+    "shape" JSONB NOT NULL,
 
     CONSTRAINT "Floor_pkey" PRIMARY KEY ("id")
 );
@@ -27,7 +28,9 @@ CREATE TABLE "Floor" (
 CREATE TABLE "Building" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "startLat" DOUBLE PRECISION NOT NULL,
+    "startLon" DOUBLE PRECISION NOT NULL,
 
     CONSTRAINT "Building_pkey" PRIMARY KEY ("id")
 );
@@ -37,6 +40,7 @@ CREATE TABLE "Area" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "shape" JSONB NOT NULL,
     "traversable" BOOLEAN NOT NULL,
     "category" TEXT NOT NULL,
     "floorId" INTEGER NOT NULL,

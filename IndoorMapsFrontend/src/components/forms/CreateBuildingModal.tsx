@@ -48,7 +48,9 @@ const CreateBuildingModal = ({ isOpen, closeModal, userData }: Props) => {
                 variables: {
                     input: {
                         title: values.buildingName,
-                        description: values.address,
+                        address: values.address,
+                        startLat: parseFloat(values.startingPosition.split(', ')[0]),
+                        startLon: parseFloat(values.startingPosition.split(', ')[1]),
                         owner: user.databaseId
                     },
                 },
@@ -83,7 +85,7 @@ const CreateBuildingModal = ({ isOpen, closeModal, userData }: Props) => {
                     : null}
                 <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
-                <TextInput {...form.getInputProps('startingPosition')} label="Starting Position" placeholder="47.57975292676628, -122.38632782878642" />
+                <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>

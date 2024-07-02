@@ -1,5 +1,19 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID } from 'type-graphql'
+import { ObjectType, Field, ID, Float, Int } from 'type-graphql'
+
+@ObjectType()
+export class LatLng {
+  constructor(lat: number, lon: number) {
+    this.lat = lat;
+    this.lon = lon
+  }
+  @Field(type => Float)
+  lat: number
+
+  @Field(type => Float)
+  lon: number
+}
+
 
 @ObjectType()
 export class Floor {
@@ -10,9 +24,7 @@ export class Floor {
   title: string
 
   @Field()
-  description: string
-
-  // TODO: Add Area
+  address: string
 }
 
 @ObjectType()
@@ -20,12 +32,15 @@ export class Building {
   @Field((type) => ID)
   id: string
 
-  @Field()
+  @Field(type => Int)
   databaseId: number
 
   @Field()
   title: string
 
+  @Field(type => LatLng)
+  startPos: LatLng
+
   @Field()
-  description: string
+  address: string
 }

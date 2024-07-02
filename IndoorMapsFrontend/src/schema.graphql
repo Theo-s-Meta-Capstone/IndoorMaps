@@ -4,18 +4,21 @@
 # -----------------------------------------------
 
 type Building {
-  databaseId: Float!
-  description: String!
+  address: String!
+  databaseId: Int!
   floors: [Floor!]!
   id: ID!
+  startPos: LatLng!
   title: String!
 }
 
 input BuildingCreateInput {
-  description: String!
+  address: String!
 
   """the creater's user id"""
   owner: Int!
+  startLat: Float!
+  startLon: Float!
   title: String!
 }
 
@@ -36,9 +39,14 @@ enum EditorLevel {
 }
 
 type Floor {
-  description: String!
+  address: String!
   id: ID!
   title: String!
+}
+
+type LatLng {
+  lat: Float!
+  lon: Float!
 }
 
 type LogedInUser {

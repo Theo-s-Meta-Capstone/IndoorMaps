@@ -9,7 +9,8 @@ import {
     Field,
     Int,
     FieldResolver,
-    Root
+    Root,
+    Float
 } from 'type-graphql'
 import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
@@ -30,7 +31,13 @@ class BuildingCreateInput {
     title: string
 
     @Field()
-    description: string
+    address: string
+
+    @Field(tyep => Float)
+    startLat: number
+
+    @Field(tyep => Float)
+    startLon: number
 
     @Field((type) => Int, { description: "the creater's user id" })
     owner: number
@@ -77,7 +84,9 @@ export class BuildingResolver {
         const newBuilding = await ctx.prisma.building.create({
             data: {
                 title: data.title,
-                description: data.description,
+                address: data.address,
+                startLat: data.startLat,
+                startLon: data.startLon,
                 editors: {
                     create: {
                         editorLevel: "owner",
@@ -92,7 +101,9 @@ export class BuildingResolver {
             select: {
                 id: true,
                 title: true,
-                description: true,
+                address: true,
+                startLat: true,
+                startLon: true,
                 floors: true,
             }
         });
@@ -112,7 +123,9 @@ export class BuildingResolver {
             select: {
                 id: true,
                 title: true,
-                description: true,
+                address: true,
+                startLat: true,
+                startLon: true,
                 floors: true,
             }
         })
@@ -132,7 +145,9 @@ export class BuildingResolver {
             select: {
                 id: true,
                 title: true,
-                description: true,
+                address: true,
+                startLat: true,
+                startLon: true,
                 floors: true,
             }
         });
