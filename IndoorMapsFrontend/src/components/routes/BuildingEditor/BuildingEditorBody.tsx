@@ -23,7 +23,8 @@ const BuildingEditorFragment = graphql`
     floors {
       id
       title
-      address
+      description
+      shape
     }
   }
 `;
@@ -35,7 +36,7 @@ interface Props {
 const BuildingEditorBody = ({ buildingFromParent }: Props) => {
     const buildingData = useFragment(BuildingEditorFragment, buildingFromParent);
     const startingPosition = L.latLng(buildingData.startPos.lat, buildingData.startPos.lon);
-    const mapStyle = { height: '50vh', width: '100%', padding: 0 };
+    const mapStyle = { height: '50vh', width: '100%', padding: 0, zIndex: 50 };
     const [editMode, setEditMode] = useState("floor");
 
     // Used to ensure the map is only set up once

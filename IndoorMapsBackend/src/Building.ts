@@ -20,11 +20,17 @@ export class Floor {
   @Field((type) => ID)
   id: string
 
+  @Field(type => Int)
+  databaseId: number
+
   @Field()
   title: string
 
   @Field()
-  address: string
+  description: string
+
+  @Field({ nullable: true })
+  shape?: string
 }
 
 @ObjectType()

@@ -14,9 +14,6 @@ type Building {
 
 input BuildingCreateInput {
   address: String!
-
-  """the creater's user id"""
-  owner: Int!
   startLat: Float!
   startLon: Float!
   title: String!
@@ -39,8 +36,16 @@ enum EditorLevel {
 }
 
 type Floor {
-  address: String!
+  databaseId: Int!
+  description: String!
   id: ID!
+  shape: String
+  title: String!
+}
+
+input FloorCreateInput {
+  buildingDatabseId: Int!
+  description: String!
   title: String!
 }
 
@@ -57,9 +62,14 @@ type LogedInUser {
 
 type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
+  createFloor(data: FloorCreateInput!): MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+}
+
+type MutationResult {
+  success: Boolean!
 }
 
 type Query {

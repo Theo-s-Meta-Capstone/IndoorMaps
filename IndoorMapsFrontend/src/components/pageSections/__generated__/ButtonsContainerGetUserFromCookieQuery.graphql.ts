@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<acdde192e73e28f7ae7ecfd58d4f8665>>
+ * @generated SignedSource<<eb4598ad083cdd1ab85ae95bd2ec2e6b>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,13 +27,6 @@ var v0 = {
   "args": null,
   "kind": "ScalarField",
   "name": "id",
-  "storageKey": null
-},
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "databaseId",
   "storageKey": null
 };
 return {
@@ -118,7 +111,6 @@ return {
                 "name": "name",
                 "storageKey": null
               },
-              (v1/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -144,7 +136,13 @@ return {
                     "plural": false,
                     "selections": [
                       (v0/*: any*/),
-                      (v1/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "databaseId",
+                        "storageKey": null
+                      },
                       {
                         "alias": null,
                         "args": null,
@@ -174,12 +172,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9faf8e6d13a01ff675013c0688822ee4",
+    "cacheID": "c76027c30611df33d794391f74d5d8fd",
     "id": null,
     "metadata": {},
     "name": "ButtonsContainerGetUserFromCookieQuery",
     "operationKind": "query",
-    "text": "query ButtonsContainerGetUserFromCookieQuery {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    ...ListOfConnectedBuildingsUserDataDisplayFragment\n    id\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment ConnectedBuildingItemFragment on BuildingWithPerms {\n  id\n  editorLevel\n  building {\n    id\n    databaseId\n    title\n    address\n  }\n}\n\nfragment CreateBuildingModalUserDataFormFragment on User {\n  id\n  databaseId\n}\n\nfragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    ...CreateBuildingModalUserDataFormFragment\n    BuildingWithPerms {\n      ...ConnectedBuildingItemFragment\n      id\n    }\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
+    "text": "query ButtonsContainerGetUserFromCookieQuery {\n  getUserFromCookie {\n    ...ButtonsContainerFragment\n    ...UserDataDisplayFragment\n    ...ListOfConnectedBuildingsUserDataDisplayFragment\n    id\n  }\n}\n\nfragment ButtonsContainerFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n\nfragment ConnectedBuildingItemFragment on BuildingWithPerms {\n  id\n  editorLevel\n  building {\n    id\n    databaseId\n    title\n    address\n  }\n}\n\nfragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    BuildingWithPerms {\n      ...ConnectedBuildingItemFragment\n      id\n    }\n  }\n}\n\nfragment UserDataDisplayFragment on LogedInUser {\n  id\n  isLogedIn\n  user {\n    id\n    email\n    name\n  }\n}\n"
   }
 };
 })();

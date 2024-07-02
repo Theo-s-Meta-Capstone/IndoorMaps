@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9b4620417f18152e5da906c7c6859203>>
+ * @generated SignedSource<<f645ae9978eb8e46de44dc81fa49466c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,8 +14,9 @@ export type BuildingEditorBodyFragment$data = {
   readonly address: string;
   readonly databaseId: number;
   readonly floors: ReadonlyArray<{
-    readonly address: string;
+    readonly description: string;
     readonly id: string;
+    readonly shape: string | null | undefined;
     readonly title: string;
   }>;
   readonly id: string;
@@ -45,13 +46,6 @@ v1 = {
   "args": null,
   "kind": "ScalarField",
   "name": "title",
-  "storageKey": null
-},
-v2 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "address",
   "storageKey": null
 };
 return {
@@ -99,7 +93,13 @@ return {
       ],
       "storageKey": null
     },
-    (v2/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "address",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": null,
@@ -110,7 +110,20 @@ return {
       "selections": [
         (v0/*: any*/),
         (v1/*: any*/),
-        (v2/*: any*/)
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "description",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "shape",
+          "storageKey": null
+        }
       ],
       "storageKey": null
     }
@@ -120,6 +133,6 @@ return {
 };
 })();
 
-(node as any).hash = "2f81b3e8f02040e9f1a42fedafd49e61";
+(node as any).hash = "c253c45ba8e7a54bead2b7381bac2d61";
 
 export default node;

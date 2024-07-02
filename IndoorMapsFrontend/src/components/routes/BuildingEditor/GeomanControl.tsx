@@ -3,16 +3,10 @@ import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
-interface Props extends L.ControlOptions {
-
-}
-
-let geoManOptions: Props;
 
 const Geoman = L.Control.extend({
-    initialize(options: Props) {
-        geoManOptions = options;
-        L.setOptions(this, options);
+    initialize() {
+        L.setOptions(this, {});
     },
 
     addTo(map: L.Map) {
@@ -31,8 +25,8 @@ const Geoman = L.Control.extend({
     },
 });
 
-const createGeomanInstance = (props: Props) => {
-    return new Geoman(props);
+const createGeomanInstance = () => {
+    return new Geoman();
 };
 
 export const GeomanControl = createControlComponent(createGeomanInstance);

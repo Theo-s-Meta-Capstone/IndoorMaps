@@ -1,28 +1,18 @@
 import { Button, Modal, TextInput, Notification, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { useState } from "react";
-import { graphql, useFragment, useMutation } from "react-relay";
+import { graphql, useMutation } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
-import { CreateBuildingModalUserDataFormFragment$key } from "./__generated__/CreateBuildingModalUserDataFormFragment.graphql";
 import { useNavigate } from "react-router-dom";
-
-const CreateBuildingModalUserDataFragment = graphql`
-fragment CreateBuildingModalUserDataFormFragment on User {
-    id,
-    databaseId
-}
-`;
 
 interface Props {
     isOpen: boolean,
     closeModal: () => void,
-    userData: CreateBuildingModalUserDataFormFragment$key,
 }
 
-const CreateBuildingModal = ({ isOpen, closeModal, userData }: Props) => {
+const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const user = useFragment(CreateBuildingModalUserDataFragment, userData);
 
     const form = useForm({
         mode: 'controlled',
@@ -51,7 +41,6 @@ const CreateBuildingModal = ({ isOpen, closeModal, userData }: Props) => {
                         address: values.address,
                         startLat: parseFloat(values.startingPosition.split(', ')[0]),
                         startLon: parseFloat(values.startingPosition.split(', ')[1]),
-                        owner: user.databaseId
                     },
                 },
                 onCompleted(data) {

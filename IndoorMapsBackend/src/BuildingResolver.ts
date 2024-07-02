@@ -17,6 +17,8 @@ import { GraphQLError } from 'graphql'
 import { Building, Floor } from './Building.js'
 import { convertToGraphQLBuilding } from './utils/typeConversions.js'
 import { Floor as DbFloor } from '@prisma/client'
+import { validateUser } from './auth/validateUser.js'
+import { MutationResult } from './User.js'
 
 
 @InputType()
@@ -33,14 +35,23 @@ class BuildingCreateInput {
     @Field()
     address: string
 
-    @Field(tyep => Float)
+    @Field(type => Float)
     startLat: number
 
-    @Field(tyep => Float)
+    @Field(type => Float)
     startLon: number
+}
 
-    @Field((type) => Int, { description: "the creater's user id" })
-    owner: number
+@InputType()
+class FloorCreateInput {
+    @Field()
+    title: string
+
+    @Field()
+    description: string
+
+    @Field(type => Int)
+    buildingDatabseId: number
 }
 
 @Resolver(Building)
@@ -79,8 +90,14 @@ export class BuildingResolver {
         @Arg('data') data: BuildingCreateInput,
         @Ctx() ctx: Context,
     ): Promise<Building> {
-        // TODO: only get the floors and areas if needed
-        // Use prisma to get building
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
         const newBuilding = await ctx.prisma.building.create({
             data: {
                 title: data.title,
@@ -92,7 +109,7 @@ export class BuildingResolver {
                         editorLevel: "owner",
                         user: {
                             connect: {
-                                id: data.owner,
+                                id: user.databaseId,
                             },
                         },
                     },
@@ -109,6 +126,34 @@ export class BuildingResolver {
         });
 
         return convertToGraphQLBuilding(newBuilding);
+    }
+
+    @Mutation((returns) => MutationResult)
+    async createFloor(
+        @Arg('data') data: FloorCreateInput,
+        @Ctx() ctx: Context,
+    ): Promise<MutationResult> {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        await ctx.prisma.floor.create({
+            data: {
+                title: data.title,
+                description: data.description,
+                building: {
+                    connect: {
+                        id: data.buildingDatabseId,
+                    },
+                },
+            },
+        });
+
+        return { success: true };
     }
 
     @Query((returns) => Building)

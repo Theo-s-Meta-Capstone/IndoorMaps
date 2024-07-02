@@ -41,9 +41,13 @@ export class LogedInUser {
 }
 
 @ObjectType()
-export class SignedOutSuccess {
+export class MutationResult {
   @Field()
   success: boolean
+}
+
+@ObjectType()
+export class SignedOutSuccess extends MutationResult {
 }
 
 enum EditorLevel {

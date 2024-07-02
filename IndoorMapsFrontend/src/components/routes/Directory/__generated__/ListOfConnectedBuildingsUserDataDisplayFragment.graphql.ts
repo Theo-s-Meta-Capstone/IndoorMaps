@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<748917c4fc6ac6752b74583a7731c014>>
+ * @generated SignedSource<<2eda7a6fbd6f1a05e2e9794a39be1569>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -18,7 +18,6 @@ export type ListOfConnectedBuildingsUserDataDisplayFragment$data = {
       readonly " $fragmentSpreads": FragmentRefs<"ConnectedBuildingItemFragment">;
     }>;
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"CreateBuildingModalUserDataFormFragment">;
   } | null | undefined;
   readonly " $fragmentType": "ListOfConnectedBuildingsUserDataDisplayFragment";
 };
@@ -59,11 +58,6 @@ return {
       "selections": [
         (v0/*: any*/),
         {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "CreateBuildingModalUserDataFormFragment"
-        },
-        {
           "alias": null,
           "args": null,
           "concreteType": "BuildingWithPerms",
@@ -88,6 +82,6 @@ return {
 };
 })();
 
-(node as any).hash = "5f881e320c72a0d9ca8a502520467c1f";
+(node as any).hash = "bf9f216abc82df86f024935ab27aa219";
 
 export default node;
