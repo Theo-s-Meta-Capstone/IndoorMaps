@@ -16,7 +16,7 @@ const BuildingEditorPageQuery = graphql`
 }`
 
 const BuildingEditor = () => {
-    let { buildingId } = useParams();
+    const { buildingId } = useParams();
 
     const [
         queryReference,

@@ -51,7 +51,7 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
                 }
             });
         } catch (error) {
-            let errorMessage = (error as Error).message;
+            const errorMessage = (error as Error).message;
             setFormError(errorMessage);
         }
     };

@@ -14,7 +14,7 @@ const BuildingViewerPageQuery = graphql`
 }`
 
 const BuildingViewer = () => {
-    let { buildingId } = useParams();
+    const { buildingId } = useParams();
 
     const [
         queryReference,

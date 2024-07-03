@@ -65,7 +65,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         }
       });
     } catch (error) {
-      let errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message;
       setFormError(errorMessage);
     }
   };
@@ -149,7 +149,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     if (!currentFloorRef.shape) {
       setWhetherBuildingOrEntrenceMapping(false);
     } else {
-      let geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
+      const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
       floor.addData(geoJson);
       floor.addTo(map)
       floor.getLayers().map((layer) => {
