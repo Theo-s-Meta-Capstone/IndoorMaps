@@ -111,13 +111,6 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     handleFloorShapeUpdate()
   }
 
-  useEffect(() => {
-    if (buildingData.floors.length !== 0) {
-      setCurrentFloor(buildingData.floors[0].databaseId)
-    }
-
-  }, [])
-
   const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
     if (!floorPolygonExists) {
       map.pm.enableDraw('Polygon');
@@ -130,6 +123,12 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     map.pm.Toolbar.setButtonDisabled("Polygon", floorPolygonExists);
     map.pm.Toolbar.setButtonDisabled("Entrances", !floorPolygonExists);
   }
+
+  useEffect(() => {
+    if (buildingData.floors.length !== 0) {
+      setCurrentFloor(buildingData.floors[0].databaseId)
+    }
+  }, [buildingData.floors])
 
   useEffect(() => {
     if (currentFloor === null) {
