@@ -2,11 +2,12 @@ import { graphql, useFragment, useMutation } from "react-relay";
 import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBodyFragment.graphql";
 import CreateFloorModal from "../../forms/CreateFloorModal";
 import { useBooleanState, useRefreshRelayCache } from "../../../hooks";
-import { Button, ScrollArea, Tooltip, Notification } from "@mantine/core";
+import { Button, ScrollArea, Tooltip } from "@mantine/core";
 import FloorListItem from "./FloorListItem";
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
 import { EditorSidebarFloorMutation, EditorSidebarFloorMutation$variables } from "./__generated__/EditorSidebarFloorMutation.graphql";
+import FormErrorNotification from "../../forms/FormErrorNotification";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -167,12 +168,8 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
 
   return (
     <aside className="EditorSidebar">
-      {formError ?
-        <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-          {formError}
-        </Notification>
-        : null}
-      <h1>Editor Sidebar</h1>
+      <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
+      <h2>Editor Sidebar</h2>
       <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
         <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
       </Tooltip>

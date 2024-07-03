@@ -1,9 +1,10 @@
-import { Button, Modal, TextInput, Notification, Group } from "@mantine/core";
+import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
+import FormErrorNotification from "./FormErrorNotification";
 
 interface Props {
     isOpen: boolean,
@@ -67,11 +68,7 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
             }}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
-                {formError ?
-                    <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-                        {formError}
-                    </Notification>
-                    : null}
+                <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
                 <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
