@@ -110,6 +110,8 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
     }
 
     const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
+        // this line needs to be above map.pm.enableDraw or a bug occurs where the ploygon vertex placer doesn't follow the mouse
+        map.clearAllEventListeners();
         if (!floorPolygonExists) {
             map.pm.enableDraw('Polygon');
         } else {
@@ -117,7 +119,6 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
         }
         // Before moving this eventlisner here, creating shapes was using an old version of the state
         // This code runs everytime the floor is changed so the onShapeCreate always is referenceing the proper version of currentFloor
-        map.clearAllEventListeners();
         map.on('pm:create', onShapeCreate);
         map.pm.Toolbar.setButtonDisabled("Polygon", floorPolygonExists);
         map.pm.Toolbar.setButtonDisabled("Entrances", !floorPolygonExists);
