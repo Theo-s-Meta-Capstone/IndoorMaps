@@ -22,6 +22,8 @@ export const useBooleanState = (initalValue: boolean) => {
         setBooleanValue(true);
     }
 
+    // Const Assertion stops typescript from widing type
+    // Read more https://medium.com/@taitasciore/const-assertions-and-type-narrowing-widening-in-typescript-72005b201f28
     return [booleanValue, setFalse, setTrue] as const;
 }
 

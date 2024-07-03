@@ -15,12 +15,6 @@ const FloorSidebarFragment = graphql`
   {
     id
     databaseId
-    title
-    startPos {
-      lat
-      lon
-    }
-    address
     floors {
       id
       databaseId
@@ -37,7 +31,6 @@ interface Props {
     floor: L.GeoJSON;
     setCurrentFloor: (floor: number) => void;
 }
-
 
 const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrentFloor }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
@@ -160,7 +153,6 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
 
     return (
         <>
-
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Editor Sidebar</h2>
             <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">

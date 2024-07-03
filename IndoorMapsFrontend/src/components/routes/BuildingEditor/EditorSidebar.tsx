@@ -3,6 +3,9 @@ import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBody
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
 import FloorSidebar from "./FloorSidebar";
+import { useBooleanState } from "../../../hooks";
+import AreaSidebar from "./AreaSidebar";
+import { Button, Group } from "@mantine/core";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -34,6 +37,7 @@ const floor = L.geoJSON();
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);
   const [currentFloor, setCurrentFloor] = useState<number | null>(null);
+  const [isAreaSidebarOpen, handleCloseAreaSidebar, handleOpenAreaSidebar] = useBooleanState(false);
 
   const handleFloorChange = (newFloor: number) => {
     setCurrentFloor(newFloor);
@@ -47,7 +51,15 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
 
   return (
     <aside className="EditorSidebar">
-      <FloorSidebar setCurrentFloor={handleFloorChange} floor={floor} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+      <Group justify="space-between">
+        <Button onClick={handleCloseAreaSidebar} disabled={!isAreaSidebarOpen}>Add + Edit Floors</Button>
+        <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
+      </Group>
+      {isAreaSidebarOpen ?
+        <AreaSidebar />
+        :
+        <FloorSidebar setCurrentFloor={handleFloorChange} floor={floor} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+      }
     </aside>
   )
 }
