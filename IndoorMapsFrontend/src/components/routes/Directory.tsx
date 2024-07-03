@@ -27,6 +27,7 @@ const Directory = () => {
         DirectoryPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
     useEffect(() => {
         loadQuery({});
     }, []);

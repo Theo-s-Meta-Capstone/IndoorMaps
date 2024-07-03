@@ -36,7 +36,7 @@ type UserButtonsProps = {
 
 function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
   const [signOutFormError, setSignOutFormError] = useState<string | null>(null);
-  const data = useFragment(ButtonsUserFragment, getUserFromCookie);
+  const { isLogedIn, user } = useFragment(ButtonsUserFragment, getUserFromCookie);
   const environment = useRelayEnvironment();
 
   const refreshUserData = () => {
@@ -70,9 +70,9 @@ function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
       setSignOutFormError(errorMessage);
     }
   };
-  if (data.isLogedIn && data.user) {
+  if (isLogedIn && user) {
     return (
-      <UserButtons user={data.user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
+      <UserButtons user={user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
     )
   }
   return (<AuthButtons refreshUserData={refreshUserData} />)

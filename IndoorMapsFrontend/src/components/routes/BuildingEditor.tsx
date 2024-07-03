@@ -25,6 +25,7 @@ const BuildingEditor = () => {
         BuildingEditorPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
     useEffect(() => {
         if (buildingId == null) {
             return;

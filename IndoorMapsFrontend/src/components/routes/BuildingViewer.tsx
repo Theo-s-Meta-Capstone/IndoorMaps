@@ -23,6 +23,8 @@ const BuildingViewer = () => {
         BuildingViewerPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
+    // TODO: load the correct building based off the params
     useEffect(() => {
         loadQuery({});
     }, []);
