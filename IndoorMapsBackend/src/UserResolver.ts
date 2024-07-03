@@ -90,7 +90,7 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
-        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none" });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
         return convertToGraphQLUser(userFromDB);
     }
     @Mutation((returns) => User)
@@ -99,7 +99,7 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.login({ email: data.email, password: data.password });
-        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none" });
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
         return convertToGraphQLUser(userFromDB);
     }
 
