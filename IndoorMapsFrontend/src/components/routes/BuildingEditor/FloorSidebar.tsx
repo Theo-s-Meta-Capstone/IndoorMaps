@@ -104,7 +104,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
 
     const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
         // this line needs to be above map.pm.enableDraw or a bug occurs where the ploygon vertex placer doesn't follow the mouse
-        map.clearAllEventListeners();
+        map.removeEventListener("pm:create");
         if (!floorPolygonExists) {
             map.pm.enableDraw('Polygon');
         } else {
