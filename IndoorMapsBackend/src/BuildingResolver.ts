@@ -18,7 +18,7 @@ import { Building, Floor } from './Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from './utils/typeConversions.js'
 import { Floor as DbFloor } from '@prisma/client'
 import { validateUser } from './auth/validateUser.js'
-import { NewFloorResult } from './User.js'
+import { NewFloorResult, User } from './User.js'
 
 
 @InputType()
@@ -79,6 +79,25 @@ class FloorCreateInput {
     buildingDatabseId: number
 }
 
+/**
+ * Gets the user data if there is a valided user cooked associated with the request
+ * otherwise throws an error
+ * useful for protected mutation/queries
+ * @param cookies the Req cookies
+ * @returns Promise<User> if there isn't a valid user, throws a GraphQLError
+ */
+const getUserOrThrowError = async (cookies: Context["cookies"]): Promise<User> => {
+    const user = await validateUser(cookies);
+    if (!user) {
+        throw new GraphQLError('User not signed in', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    return user;
+}
+
 @Resolver(Building)
 export class BuildingResolver {
     @FieldResolver((type) => [Floor]!)
@@ -110,14 +129,8 @@ export class BuildingResolver {
         @Arg('data') data: BuildingCreateInput,
         @Ctx() ctx: Context,
     ): Promise<Building> {
-        const user = await validateUser(ctx.cookies);
-        if (!user) {
-            throw new GraphQLError('User not signed in', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        const user = await getUserOrThrowError(ctx.cookies);
+
         const newBuilding = await ctx.prisma.building.create({
             data: {
                 title: data.title,
@@ -144,14 +157,7 @@ export class BuildingResolver {
         @Arg('data') data: FloorCreateInput,
         @Ctx() ctx: Context,
     ): Promise<NewFloorResult> {
-        const user = await validateUser(ctx.cookies);
-        if (!user) {
-            throw new GraphQLError('User not signed in', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        const user = await getUserOrThrowError(ctx.cookies);
         const newFloor = await ctx.prisma.floor.create({
             data: {
                 title: data.title,
@@ -176,14 +182,7 @@ export class BuildingResolver {
         @Arg('data') data: FloorModifyInput,
         @Ctx() ctx: Context,
     ): Promise<NewFloorResult> {
-        const user = await validateUser(ctx.cookies);
-        if (!user) {
-            throw new GraphQLError('User not signed in', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        const user = await getUserOrThrowError(ctx.cookies);
         const updatedFloor = await ctx.prisma.floor.update({
             where: {
                 id: data.id
