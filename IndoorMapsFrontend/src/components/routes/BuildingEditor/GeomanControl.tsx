@@ -16,10 +16,11 @@ const Geoman = L.Control.extend({
             drawPolyline: false,
             drawRectangle: false,
             drawMarker: false,
-            drawCircleMarker: true,
             position: "topright",
             drawCircle: false,
             oneBlock: true,
+            drawCircleMarker: false,
+            drawText: false
         });
 
     },

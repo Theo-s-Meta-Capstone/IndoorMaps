@@ -48,7 +48,7 @@ class FloorModifyInput extends FloorUniqueInput {
     description?: string
 
     // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
-    @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape"})
+    @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape" })
     newShape?: NewShape
 }
 
@@ -93,8 +93,12 @@ export class BuildingResolver {
             },
             select: {
                 floors: true
+            },
+            orderBy: {
+                id: 'desc',
             }
         });
+        console.log(dbFloors)
         if (!dbFloors) {
             throw new GraphQLError('Building not found', {
                 extensions: {

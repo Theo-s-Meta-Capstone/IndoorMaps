@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d97512af4d5dfe96103be7210f7f4975>>
+ * @generated SignedSource<<b743fc8acd9eaae3b9c04f1861dd917d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -23,9 +23,7 @@ export type EditorSidebarFloorMutation$variables = {
 };
 export type EditorSidebarFloorMutation$data = {
   readonly modifyFloor: {
-    readonly buildingDatabaseId: number;
     readonly databaseId: number;
-    readonly success: boolean;
   };
 };
 export type EditorSidebarFloorMutation = {
@@ -60,21 +58,7 @@ v1 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "success",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
         "name": "databaseId",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "buildingDatabaseId",
         "storageKey": null
       }
     ],
@@ -99,16 +83,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "ea47b5e92959717336254318266e71af",
+    "cacheID": "0e0babd6ab23cdc24f84b28f103a4c9b",
     "id": null,
     "metadata": {},
     "name": "EditorSidebarFloorMutation",
     "operationKind": "mutation",
-    "text": "mutation EditorSidebarFloorMutation(\n  $data: FloorModifyInput!\n) {\n  modifyFloor(data: $data) {\n    success\n    databaseId\n    buildingDatabaseId\n  }\n}\n"
+    "text": "mutation EditorSidebarFloorMutation(\n  $data: FloorModifyInput!\n) {\n  modifyFloor(data: $data) {\n    databaseId\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "bef8b65f9064bd83778386e42df7531d";
+(node as any).hash = "a599728e5d4d3fce79d73e5a58290b00";
 
 export default node;

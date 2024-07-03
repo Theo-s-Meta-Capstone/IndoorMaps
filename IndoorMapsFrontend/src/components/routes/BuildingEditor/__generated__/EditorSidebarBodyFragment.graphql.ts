@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<165c10bcfd0b7bd14b71ce7e102f6757>>
+ * @generated SignedSource<<637c1196668c68ae7e146c6fe2822a13>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,7 @@ export type EditorSidebarBodyFragment$data = {
   readonly floors: ReadonlyArray<{
     readonly databaseId: number;
     readonly id: string;
+    readonly shape: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"FloorListItemFragment">;
   }>;
   readonly id: string;
@@ -104,6 +105,13 @@ return {
         (v0/*: any*/),
         (v1/*: any*/),
         {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "shape",
+          "storageKey": null
+        },
+        {
           "args": null,
           "kind": "FragmentSpread",
           "name": "FloorListItemFragment"
@@ -117,6 +125,6 @@ return {
 };
 })();
 
-(node as any).hash = "94bc162ac2702792b9a25ce0edfa9533";
+(node as any).hash = "bcf5ee5a1ded1e8b8688d83b9c66ebfc";
 
 export default node;

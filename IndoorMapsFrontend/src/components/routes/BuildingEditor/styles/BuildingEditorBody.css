@@ -4,6 +4,7 @@
 
 .EditorSidebar {
     min-width: 30%;
+    max-width: 30%;
     padding: .5em;
 }
 
