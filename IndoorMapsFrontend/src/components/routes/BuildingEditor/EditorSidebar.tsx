@@ -119,18 +119,20 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     }
     // Before moving this eventlisner here, creating shapes was using an old version of the state
     // This code runs everytime the floor is changed so the onShapeCreate always is referenceing the proper version of currentFloor
+    map.clearAllEventListeners();
     map.on('pm:create', onShapeCreate);
     map.pm.Toolbar.setButtonDisabled("Polygon", floorPolygonExists);
     map.pm.Toolbar.setButtonDisabled("Entrances", !floorPolygonExists);
   }
 
   useEffect(() => {
-    if (buildingData.floors.length !== 0) {
+    if (currentFloor == null && buildingData.floors.length !== 0) {
       setCurrentFloor(buildingData.floors[0].databaseId)
     }
   }, [buildingData.floors])
 
   useEffect(() => {
+    console.log(currentFloor)
     if (currentFloor === null) {
       return;
     }
@@ -149,14 +151,15 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       setWhetherBuildingOrEntrenceMapping(false);
     } else {
       const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
+      // This covers the case where there are entrence markers but no polygon
+      setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
+      // add the geoJson to the floor and add the proper event listeners
       floor.addData(geoJson);
       floor.addTo(map)
       floor.getLayers().map((layer) => {
         layer.on('pm:edit', onShapeEdit)
         layer.on('pm:remove', onShapeRemove)
       })
-      // This covers the case where there are entrence markers but no polygon
-      setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
     }
 
   }, [currentFloor])
