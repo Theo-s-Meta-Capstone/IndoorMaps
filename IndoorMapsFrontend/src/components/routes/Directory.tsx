@@ -9,6 +9,7 @@ import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
 const DirectoryPageQuery = graphql`
     query DirectoryQuery {
     allBuildings {
+        id
         ...BuildingItemFragment
     }
     getUserFromCookie {

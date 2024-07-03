@@ -13,6 +13,7 @@ const ListOfConnectedBuildingsUserDataFragment = graphql`
     user {
         id
         BuildingWithPerms {
+            id
             ...ConnectedBuildingItemFragment
         }
     }
@@ -33,8 +34,8 @@ function ListOfConnectedBuildings({ getUserFromCookie }: ListOfConnectedBuilding
     if (!data.isLogedIn || !data.user) {
         return null;
     }
-    const buildingItems = data.user.BuildingWithPerms.map((building, i) => {
-        return <ConnectedBuildingItem key={i} buildingWithPerms={building} />
+    const buildingItems = data.user.BuildingWithPerms.map((building) => {
+        return <ConnectedBuildingItem key={building.id} buildingWithPerms={building} />
     })
 
     return (
