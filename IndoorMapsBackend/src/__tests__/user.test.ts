@@ -150,7 +150,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             cookie
           ]).send(signOutMutation);
         expect(response.error).toEqual(false);
-        console.log(response.body.data);
         expect(response.body.data?.signOut.success).toEqual(true);
     });
 

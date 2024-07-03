@@ -9,19 +9,47 @@ import {
     Field,
     Int,
     FieldResolver,
-    Root
+    Root,
+    Float
 } from 'type-graphql'
 import { Context } from './context.js'
 import { GraphQLError } from 'graphql'
 import { Building, Floor } from './Building.js'
-import { convertToGraphQLBuilding } from './utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLFloor } from './utils/typeConversions.js'
 import { Floor as DbFloor } from '@prisma/client'
+import { validateUser } from './auth/validateUser.js'
+import { NewFloorResult } from './User.js'
 
 
 @InputType()
 class BuildingUniqueInput {
-    @Field({ nullable: true })
+    @Field()
     id: number
+}
+
+@InputType()
+class FloorUniqueInput {
+    @Field(type => Int)
+    id: number
+}
+
+@InputType()
+class NewShape {
+    @Field({ nullable: true })
+    shape: string
+}
+
+@InputType()
+class FloorModifyInput extends FloorUniqueInput {
+    @Field({ nullable: true })
+    title?: string
+
+    @Field({ nullable: true })
+    description?: string
+
+    // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
+    @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape" })
+    newShape?: NewShape
 }
 
 @InputType()
@@ -30,10 +58,25 @@ class BuildingCreateInput {
     title: string
 
     @Field()
+    address: string
+
+    @Field(type => Float)
+    startLat: number
+
+    @Field(type => Float)
+    startLon: number
+}
+
+@InputType()
+class FloorCreateInput {
+    @Field()
+    title: string
+
+    @Field()
     description: string
 
-    @Field((type) => Int, { description: "the creater's user id" })
-    owner: number
+    @Field(type => Int)
+    buildingDatabseId: number
 }
 
 @Resolver(Building)
@@ -49,8 +92,8 @@ export class BuildingResolver {
                 id: building.databaseId
             },
             select: {
-                floors: true
-            }
+                floors: { orderBy: { id: 'asc' } }
+            },
         });
         if (!dbFloors) {
             throw new GraphQLError('Building not found', {
@@ -59,12 +102,7 @@ export class BuildingResolver {
                 },
             });
         }
-        return dbFloors.floors.map((value: DbFloor) => {
-            return {
-                ...value,
-                id: "floor" + value.id.toString()
-            }
-        })
+        return dbFloors.floors.map((value: DbFloor) => convertToGraphQLFloor(value))
     }
 
     @Mutation((returns) => Building)
@@ -72,32 +110,102 @@ export class BuildingResolver {
         @Arg('data') data: BuildingCreateInput,
         @Ctx() ctx: Context,
     ): Promise<Building> {
-        // TODO: only get the floors and areas if needed
-        // Use prisma to get building
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
         const newBuilding = await ctx.prisma.building.create({
             data: {
                 title: data.title,
-                description: data.description,
+                address: data.address,
+                startLat: data.startLat,
+                startLon: data.startLon,
                 editors: {
                     create: {
                         editorLevel: "owner",
                         user: {
                             connect: {
-                                id: data.owner,
+                                id: user.databaseId,
                             },
                         },
                     },
                 },
+            }
+        });
+        return convertToGraphQLBuilding(newBuilding);
+    }
+
+    @Mutation((returns) => NewFloorResult)
+    async createFloor(
+        @Arg('data') data: FloorCreateInput,
+        @Ctx() ctx: Context,
+    ): Promise<NewFloorResult> {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        const newFloor = await ctx.prisma.floor.create({
+            data: {
+                title: data.title,
+                description: data.description,
+                building: {
+                    connect: {
+                        id: data.buildingDatabseId,
+                    },
+                },
+            },
+        });
+
+        return {
+            success: true,
+            databaseId: newFloor.id,
+            buildingDatabaseId: data.buildingDatabseId
+        };
+    }
+
+    @Mutation((returns) => NewFloorResult)
+    async modifyFloor(
+        @Arg('data') data: FloorModifyInput,
+        @Ctx() ctx: Context,
+    ): Promise<NewFloorResult> {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        const updatedFloor = await ctx.prisma.floor.update({
+            where: {
+                id: data.id
+            },
+            data: {
+                description: data.description,
+                title: data.title,
+                shape: data.newShape !== undefined ? data.newShape.shape : undefined
             },
             select: {
                 id: true,
+                buildingId: true,
                 title: true,
                 description: true,
-                floors: true,
+                shape: true
             }
         });
-
-        return convertToGraphQLBuilding(newBuilding);
+        return {
+            success: true,
+            databaseId: updatedFloor.id,
+            buildingDatabaseId: updatedFloor.buildingId
+        };
     }
 
     @Query((returns) => Building)
@@ -109,12 +217,6 @@ export class BuildingResolver {
             where: {
                 id: data.id,
             },
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                floors: true,
-            }
         })
         if (!dbBuilding) {
             throw new GraphQLError('Building not found', {
@@ -126,13 +228,35 @@ export class BuildingResolver {
         return convertToGraphQLBuilding(dbBuilding);
     }
 
+    @Query((returns) => Floor)
+    async getFloor(
+        @Arg('data') data: FloorUniqueInput,
+        @Ctx() ctx: Context,
+    ): Promise<Floor> {
+        const dbFloor = await ctx.prisma.floor.findUnique({
+            where: {
+                id: data.id,
+            }
+        })
+        if (!dbFloor) {
+            throw new GraphQLError('Floor not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        return convertToGraphQLFloor(dbFloor);
+    }
+
     @Query(() => [Building])
     async allBuildings(@Ctx() ctx: Context) {
         const buildings = await ctx.prisma.building.findMany({
             select: {
                 id: true,
                 title: true,
-                description: true,
+                address: true,
+                startLat: true,
+                startLon: true,
                 floors: true,
             }
         });

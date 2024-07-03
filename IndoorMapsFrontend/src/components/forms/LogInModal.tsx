@@ -50,7 +50,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
                 }
             });
         } catch (error) {
-            let errorMessage = (error as Error).message;
+            const errorMessage = (error as Error).message;
             setFormError(errorMessage);
         }
     };

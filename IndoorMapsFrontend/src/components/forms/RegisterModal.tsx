@@ -53,7 +53,7 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }
                 }
             });
         } catch (error) {
-            let errorMessage = (error as Error).message;
+            const errorMessage = (error as Error).message;
             setFormError(errorMessage);
         }
     };

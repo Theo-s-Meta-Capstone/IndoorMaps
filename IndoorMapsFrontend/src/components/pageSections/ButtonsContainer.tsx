@@ -66,7 +66,7 @@ function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
         }
       });
     } catch (error) {
-      let errorMessage = (error as Error).message;
+      const errorMessage = (error as Error).message;
       setSignOutFormError(errorMessage);
     }
   };

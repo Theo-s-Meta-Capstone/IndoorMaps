@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { graphql, loadQuery, useRelayEnvironment } from "react-relay";
 
 /**
  * A wrapper for useState<boolean>, commonly used to show modals and to removed the need for close modal handlers
@@ -22,4 +23,60 @@ export const useBooleanState = (initalValue: boolean) => {
     }
 
     return [booleanValue, setFalse, setTrue] as const;
+}
+
+/**
+ * Provides wrappers around loadQuery that make it easier to refresh the relay cache
+ * @returns [refreshFloorData, refreshBuildingData] where refreshFloorData is a function that takes in a floor database id and refreshes the floor data in the relay cache
+ *                                                  and refreshBuildingData is a function that takes in a building database id and refreshes the building data in the relay cache
+ */
+export const useRefreshRelayCache = () => {
+    const environment = useRelayEnvironment();
+
+    const refreshFloorQuery = graphql`
+        query hooksGetFloorQuery($data: FloorUniqueInput!) {
+            getFloor(data: $data) {
+                ...FloorListItemFragment
+            }
+        }
+    `;
+
+    const refreshFloorData = (floorDatabaseId: number) => {
+        loadQuery(
+            environment,
+            refreshFloorQuery,
+            {
+                data: {
+                    id: floorDatabaseId
+                }
+            },
+            { fetchPolicy: "network-only" }
+        );
+    }
+
+    const refreshBuildingQuery = graphql`
+        query hooksGetBuildingQuery($data: BuildingUniqueInput!) {
+            getBuilding(data: $data) {
+                id
+                floors {
+                    ...FloorListItemFragment
+                }
+            }
+        }
+    `;
+
+    const refreshBuildingData = (buildingDatabseId: number) => {
+        loadQuery(
+            environment,
+            refreshBuildingQuery,
+            {
+                data: {
+                    id: buildingDatabseId
+                }
+            },
+            { fetchPolicy: "network-only" }
+        );
+    }
+
+    return [refreshFloorData, refreshBuildingData] as const;
 }

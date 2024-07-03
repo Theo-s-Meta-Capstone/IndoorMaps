@@ -12,7 +12,6 @@ const ListOfConnectedBuildingsUserDataFragment = graphql`
     isLogedIn
     user {
         id
-        ...CreateBuildingModalUserDataFormFragment
         BuildingWithPerms {
             ...ConnectedBuildingItemFragment
         }
@@ -41,7 +40,7 @@ function ListOfConnectedBuildings({ getUserFromCookie }: ListOfConnectedBuilding
     return (
         <div className="connectedBuildingsContainer">
             <Button onClick={handleOpenCreateBuilding}>Create Building</Button>
-            <CreateBuildingModal userData={data.user} isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
+            <CreateBuildingModal isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
             {buildingItems}
         </div>
     )

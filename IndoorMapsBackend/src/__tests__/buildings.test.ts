@@ -35,6 +35,38 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         httpServer.close();
     });
 
+    let cookie = "";
+
+    const createUserQueryData = {
+        query: `
+        mutation Mutation($data: UserCreateInput!) {
+            signupUser(data: $data) {
+              id
+              email
+              name
+              isEmailVerified
+            }
+          }
+        `,
+        variables: {
+            "data": {
+                "password": "pass",
+                "name": testBuildingName+"creator",
+                "email": testBuildingName+"creator" + "@test.com"
+            }
+        },
+    }
+
+    it('Create new user', async () => {
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(createUserQueryData);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.signupUser.id).toBeDefined();
+        expect(response.body.data?.signupUser.name).toEqual(testBuildingName+"creator");
+        expect(response.body.data?.signupUser.isEmailVerified).toEqual(false);
+        cookie = response.headers['set-cookie'][0];
+    });
+
     it('Create a building', async () => {
         // this is the query for our test
         const createBuildingQuery = {
@@ -43,7 +75,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
                 createBuilding(data: $data) {
                 id
                 title
-                description
                 floors {
                     id
                     title
@@ -55,13 +86,14 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             variables: {
                 "data": {
                     "title": testBuildingName,
-                    "description": "1 hacker way, CA, USA, Earth",
-                    "owner": seedUserId
+                    "address": "1 hacker way, CA, USA, Earth",
+                    "startLat": 4,
+                    "startLon": 4
                 }
             },
         };
         // send our request to the url of the test server
-        const response = await request(url).post('/').send(createBuildingQuery);
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(createBuildingQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.createBuilding.title).toEqual(testBuildingName);
         buildingId = response.body.data?.createBuilding.id
@@ -76,7 +108,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
                 allBuildings {
                   id
                   title
-                  description
                   floors {
                     id
                     title
@@ -101,7 +132,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
                 getBuilding(data: $data) {
                   id
                   title
-                  description
                   floors {
                     id
                     title

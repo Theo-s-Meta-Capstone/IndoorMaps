@@ -1,7 +1,8 @@
 import { Button, Group, Notification } from "@mantine/core";
+import { ButtonsContainerFragment$data } from "./__generated__/ButtonsContainerFragment.graphql";
 
 type Props = {
-    user: any
+    user: ButtonsContainerFragment$data["user"];
     logout: () => void;
     formError: string | null;
     closeFormError: () => void;

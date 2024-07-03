@@ -4,23 +4,23 @@
 # -----------------------------------------------
 
 type Building {
-  databaseId: Float!
-  description: String!
+  address: String!
+  databaseId: Int!
   floors: [Floor!]!
   id: ID!
+  startPos: LatLng!
   title: String!
 }
 
 input BuildingCreateInput {
-  description: String!
-
-  """the creater's user id"""
-  owner: Int!
+  address: String!
+  startLat: Float!
+  startLon: Float!
   title: String!
 }
 
 input BuildingUniqueInput {
-  id: Float
+  id: Float!
 }
 
 type BuildingWithPerms {
@@ -36,9 +36,37 @@ enum EditorLevel {
 }
 
 type Floor {
+  databaseId: Int!
   description: String!
   id: ID!
+  shape: String
   title: String!
+}
+
+input FloorCreateInput {
+  buildingDatabseId: Int!
+  description: String!
+  title: String!
+}
+
+input FloorModifyInput {
+  description: String
+  id: Int!
+
+  """
+  If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape
+  """
+  newShape: NewShape
+  title: String
+}
+
+input FloorUniqueInput {
+  id: Int!
+}
+
+type LatLng {
+  lat: Float!
+  lon: Float!
 }
 
 type LogedInUser {
@@ -49,15 +77,28 @@ type LogedInUser {
 
 type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
+  createFloor(data: FloorCreateInput!): NewFloorResult!
+  modifyFloor(data: FloorModifyInput!): NewFloorResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+}
+
+type NewFloorResult {
+  buildingDatabaseId: Int!
+  databaseId: Int!
+  success: Boolean!
+}
+
+input NewShape {
+  shape: String
 }
 
 type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getBuilding(data: BuildingUniqueInput!): Building!
+  getFloor(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!
 }
 

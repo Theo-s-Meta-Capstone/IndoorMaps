@@ -1,50 +1,54 @@
 import { Button, Modal, TextInput, Notification, Group } from "@mantine/core";
-import { hasLength, isNotEmpty, useForm } from "@mantine/form";
+import { hasLength, useForm } from "@mantine/form";
 import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
-import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { CreateFloorModalMutation } from "./__generated__/CreateFloorModalMutation.graphql";
+import { useRefreshRelayCache } from "../../hooks";
 
 interface Props {
     isOpen: boolean,
     closeModal: () => void,
 }
 
-const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
+const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [, refreshBuildingData] = useRefreshRelayCache();
+    const { buildingId } = useParams();
 
     const form = useForm({
         mode: 'controlled',
-        initialValues: { buildingName: '', address: '', startingPosition: '' },
+        initialValues: { title: '', description: ''},
         validate: {
-            buildingName: hasLength({ min: 4 }, 'Building name must be at least 4 characters long'),
-            address: isNotEmpty('Please enter an address'),
-            startingPosition: isNotEmpty('Please enter a starting position'),
+            title: hasLength({ min: 1, max: 8 }, 'Floor must be between 1 and 8 characters long'),
         },
     });
 
-    const [commit, isInFlight] = useMutation<CreateBuildingModalMutation>(graphql`
-        mutation CreateBuildingModalMutation($input: BuildingCreateInput!) {
-            createBuilding(data: $input) {
-                databaseId
+    const [commit, isInFlight] = useMutation<CreateFloorModalMutation>(graphql`
+        mutation CreateFloorModalMutation($input: FloorCreateInput!) {
+            createFloor(data: $input) {
+                buildingDatabaseId
             }
         }
     `);
 
     const handleSubmit = async (values: typeof form.values) => {
+        if(buildingId == undefined){
+            setFormError("Building url param not found");
+            return
+        }
         try {
             commit({
                 variables: {
                     input: {
-                        title: values.buildingName,
-                        address: values.address,
-                        startLat: parseFloat(values.startingPosition.split(', ')[0]),
-                        startLon: parseFloat(values.startingPosition.split(', ')[1]),
+                        buildingDatabseId: parseInt(buildingId),
+                        title: values.title,
+                        description: values.description,
                     },
                 },
                 onCompleted(data) {
-                    navigate(`/building/${data.createBuilding.databaseId}/editor`);
+                    refreshBuildingData(data.createFloor.buildingDatabaseId);
+                    closeModal();
                 },
                 onError(error) {
                     setFormError(error.message);
@@ -72,9 +76,8 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
                         {formError}
                     </Notification>
                     : null}
-                <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
-                <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
-                <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
+                <TextInput {...form.getInputProps('title')} label="Floor Name" placeholder="F1" />
+                <TextInput {...form.getInputProps('description')} label="Floor Description" placeholder="Geology department" />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
@@ -83,4 +86,4 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
     )
 }
 
-export default CreateBuildingModal;
+export default CreateFloorModal;
