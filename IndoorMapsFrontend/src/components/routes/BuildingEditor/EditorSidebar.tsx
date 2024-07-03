@@ -132,7 +132,6 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   }, [buildingData.floors])
 
   useEffect(() => {
-    console.log(currentFloor)
     if (currentFloor === null) {
       return;
     }
@@ -164,7 +163,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
 
   }, [currentFloor])
 
-  const floorListElements = buildingData.floors.map((floor, i) => (<FloorListItem setCurrentFloor={handleFloorChange} currentFloor={currentFloor} floorFromParent={floor} key={i} />));
+  const floorListElements = buildingData.floors.map((floor) => (<FloorListItem setCurrentFloor={handleFloorChange} currentFloor={currentFloor} floorFromParent={floor} key={floor.id} />));
 
   return (
     <aside className="EditorSidebar">
