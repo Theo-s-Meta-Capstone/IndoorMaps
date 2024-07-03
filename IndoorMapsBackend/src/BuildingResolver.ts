@@ -34,6 +34,25 @@ class FloorUniqueInput {
 }
 
 @InputType()
+class NewShape {
+    @Field({ nullable: true })
+    shape: string
+}
+
+@InputType()
+class FloorModifyInput extends FloorUniqueInput {
+    @Field({ nullable: true })
+    title?: string
+
+    @Field({ nullable: true })
+    description?: string
+
+    // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
+    @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape"})
+    newShape?: NewShape
+}
+
+@InputType()
 class BuildingCreateInput {
     @Field()
     title: string
@@ -158,6 +177,43 @@ export class BuildingResolver {
             success: true,
             databaseId: newFloor.id,
             buildingDatabaseId: data.buildingDatabseId
+        };
+    }
+
+    @Mutation((returns) => NewFloorResult)
+    async modifyFloor(
+        @Arg('data') data: FloorModifyInput,
+        @Ctx() ctx: Context,
+    ): Promise<NewFloorResult> {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            throw new GraphQLError('User not signed in', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        const updatedFloor = await ctx.prisma.floor.update({
+            where: {
+                id: data.id
+            },
+            data: {
+                description: data.description,
+                title: data.title,
+                shape: data.newShape !== undefined ? data.newShape.shape : undefined
+            },
+            select: {
+                id: true,
+                buildingId: true,
+                title: true,
+                description: true,
+                shape: true
+            }
+        });
+        return {
+            success: true,
+            databaseId: updatedFloor.id,
+            buildingDatabaseId: updatedFloor.buildingId
         };
     }
 

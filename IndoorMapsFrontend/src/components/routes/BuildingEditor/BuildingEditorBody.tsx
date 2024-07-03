@@ -44,31 +44,9 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
 
     const [map, setMap] = useState<L.Map | null>(null);
 
-    const onShapeEdit = (event: L.LeafletEvent) => {
-        if (!map) return;
-        console.log(event.layer.toGeoJSON)
-        console.log(map.pm.getGeomanLayers(true))
-        console.log(map.pm.getGeomanDrawLayers(true));
-    }
-
-    const onShapeCreate = (event: L.LeafletEvent) => {
-        if (!map) return;
-        if (event.layer instanceof L.Polyline) {
-            event.layer.setStyle({ color: 'black' });
-            event.layer.toGeoJSON
-        }
-        console.log(map.pm.getGeomanLayers().map((layer: any) => layer.toGeoJSON()));
-        console.log(map.pm.getGeomanDrawLayers());
-        console.log(event);
-        console.log(event.layer.toGeoJSON());
-        event.layer.on('pm:edit', onShapeEdit)
-    }
-
     const setUpMapBuilder = () => {
         if (!map || mapIsSetUp) return;
         setMapIsSetUp(true)
-        map.on('pm:create', onShapeCreate);
-
         // Setting Up the Place Entrances Control
         map.pm.Toolbar.copyDrawControl('drawMarker', {
             name: 'Entrances',
@@ -82,6 +60,10 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
             },
         };
         map.pm.setLang('en', customTranslation, 'en');
+
+        // Disabling the Drawing Tools, These are then re-enabled based in the sidebar
+        map.pm.Toolbar.setButtonDisabled("Polygon", true);
+        map.pm.Toolbar.setButtonDisabled("Entrances", true);
     }
 
     useEffect(() => {
@@ -106,7 +88,9 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
                 />
                 <GeomanControl />
             </MapContainer>
-            <EditorSidebar buildingFromParent={buildingData}/>
+            {map ?
+                <EditorSidebar map={map} buildingFromParent={buildingData}/>
+            : null}
         </main>
     )
 }
