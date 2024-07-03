@@ -94,7 +94,6 @@ export class BuildingResolver {
             select: {
                 floors: { orderBy: { id: 'asc' } }
             },
-
         });
         if (!dbFloors) {
             throw new GraphQLError('Building not found', {
@@ -135,17 +134,8 @@ export class BuildingResolver {
                         },
                     },
                 },
-            },
-            select: {
-                id: true,
-                title: true,
-                address: true,
-                startLat: true,
-                startLon: true,
-                floors: true,
             }
         });
-
         return convertToGraphQLBuilding(newBuilding);
     }
 
@@ -227,14 +217,6 @@ export class BuildingResolver {
             where: {
                 id: data.id,
             },
-            select: {
-                id: true,
-                title: true,
-                address: true,
-                startLat: true,
-                startLon: true,
-                floors: true,
-            }
         })
         if (!dbBuilding) {
             throw new GraphQLError('Building not found', {
