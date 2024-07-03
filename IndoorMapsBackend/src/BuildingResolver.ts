@@ -92,11 +92,9 @@ export class BuildingResolver {
                 id: building.databaseId
             },
             select: {
-                floors: true
+                floors: { orderBy: { id: 'asc' } }
             },
-            orderBy: {
-                id: 'desc',
-            }
+
         });
         if (!dbFloors) {
             throw new GraphQLError('Building not found', {
