@@ -172,7 +172,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         </Notification>
         : null}
       <h1>Editor Sidebar</h1>
-      <Tooltip opened={currentFloor === -1} label="Create your first floor to get started">
+      <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
         <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
       </Tooltip>
       <CreateFloorModal isOpen={isCreateFloorModalOpen} closeModal={handleCloseCreateFloorModal} />
