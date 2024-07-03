@@ -89,8 +89,8 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
                 <GeomanControl />
             </MapContainer>
             {map ?
-                <EditorSidebar map={map} buildingFromParent={buildingData}/>
-            : null}
+                <EditorSidebar map={map} buildingFromParent={buildingData} />
+                : null}
         </main>
     )
 }

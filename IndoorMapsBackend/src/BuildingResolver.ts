@@ -20,7 +20,6 @@ import { Floor as DbFloor } from '@prisma/client'
 import { validateUser } from './auth/validateUser.js'
 import { NewFloorResult, User } from './User.js'
 
-
 @InputType()
 class BuildingUniqueInput {
     @Field()
@@ -195,9 +194,6 @@ export class BuildingResolver {
             select: {
                 id: true,
                 buildingId: true,
-                title: true,
-                description: true,
-                shape: true
             }
         });
         return {
@@ -250,13 +246,8 @@ export class BuildingResolver {
     @Query(() => [Building])
     async allBuildings(@Ctx() ctx: Context) {
         const buildings = await ctx.prisma.building.findMany({
-            select: {
-                id: true,
-                title: true,
-                address: true,
-                startLat: true,
-                startLon: true,
-                floors: true,
+            include: {
+                floors: true
             }
         });
         return buildings.map((building) => convertToGraphQLBuilding(building))

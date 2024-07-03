@@ -119,35 +119,35 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
 
     useEffect(() => {
         if (currentFloor === null) {
-          return;
+            return;
         }
         // remove all layers that are in the Layer group
         floor.getLayers().map((layer) => {
-          map.removeLayer(layer);
-          floor.removeLayer(layer);
+            map.removeLayer(layer);
+            floor.removeLayer(layer);
         })
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {
-          throw new Error("No floor matching the current floor found")
+            throw new Error("No floor matching the current floor found")
         }
 
         if (!currentFloorRef.shape) {
-          setWhetherBuildingOrEntrenceMapping(false);
+            setWhetherBuildingOrEntrenceMapping(false);
         } else {
-          const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
-          // This covers the case where there are entrence markers but no polygon
-          setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
-          // add the geoJson to the floor and add the proper event listeners
-          floor.addData(geoJson);
-          floor.addTo(map)
-          floor.getLayers().map((layer) => {
-            layer.on('pm:edit', onShapeEdit)
-            layer.on('pm:remove', onShapeRemove)
-          })
+            const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
+            // This covers the case where there are entrence markers but no polygon
+            setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
+            // add the geoJson to the floor and add the proper event listeners
+            floor.addData(geoJson);
+            floor.addTo(map)
+            floor.getLayers().map((layer) => {
+                layer.on('pm:edit', onShapeEdit)
+                layer.on('pm:remove', onShapeRemove)
+            })
         }
 
-      }, [currentFloor])
+    }, [currentFloor])
 
     const floorListElements = building.floors.map((floor) => (<FloorListItem setCurrentFloor={setCurrentFloor} currentFloor={currentFloor} floorFromParent={floor} key={floor.id} />));
 
