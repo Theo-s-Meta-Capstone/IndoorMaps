@@ -98,7 +98,6 @@ export class BuildingResolver {
                 id: 'desc',
             }
         });
-        console.log(dbFloors)
         if (!dbFloors) {
             throw new GraphQLError('Building not found', {
                 extensions: {

@@ -109,7 +109,6 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     event.layer.on('pm:edit', onShapeEdit)
     event.layer.on('pm:remove', onShapeRemove)
     handleFloorShapeUpdate()
-    console.log(currentFloor)
   }
 
   useEffect(() => {
