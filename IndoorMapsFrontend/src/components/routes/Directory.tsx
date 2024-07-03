@@ -48,13 +48,13 @@ type DirectoryBodyContainerProps = {
 }
 
 function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
-    const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
+    const {getUserFromCookie, allBuildings} = usePreloadedQuery(DirectoryPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
-            <ListOfConnectedBuildings getUserFromCookie={data.getUserFromCookie}/>
-            <ListOfBuildings buildings={data.allBuildings} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
+            <ListOfConnectedBuildings getUserFromCookie={getUserFromCookie}/>
+            <ListOfBuildings buildings={allBuildings} />
         </>
     )
 }

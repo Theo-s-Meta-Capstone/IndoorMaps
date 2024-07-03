@@ -44,11 +44,11 @@ type RootBodyContainerProps = {
 }
 
 function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
-    const data = usePreloadedQuery(RootPageQuery, queryReference);
+    const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
         </>
     )
 }

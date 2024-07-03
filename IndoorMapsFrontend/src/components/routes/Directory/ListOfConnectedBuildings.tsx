@@ -27,15 +27,15 @@ type ListOfConnectedBuildingsItemsFragmentProps = {
 function ListOfConnectedBuildings({ getUserFromCookie }: ListOfConnectedBuildingsItemsFragmentProps) {
     const [isCreateBuildingOpen, handleCloseCreateBuilding, handleOpenCreateBuilding] = useBooleanState(false);
 
-    const data = useFragment(
+    const { isLogedIn, user } = useFragment(
         ListOfConnectedBuildingsUserDataFragment,
         getUserFromCookie,
     );
-    if (!data.isLogedIn || !data.user) {
+    if (!isLogedIn || !user) {
         return null;
     }
-    const buildingItems = data.user.BuildingWithPerms.map((building) => {
-        return <ConnectedBuildingItem key={building.id} buildingWithPerms={building} />
+    const buildingItems = user.BuildingWithPerms.map((building) => {
+        return <ConnectedBuildingItem key={building.id} buildingWithPermsFromParent={building} />
     })
 
     return (

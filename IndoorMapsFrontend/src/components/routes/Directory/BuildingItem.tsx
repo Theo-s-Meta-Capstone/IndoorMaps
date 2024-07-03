@@ -13,19 +13,19 @@ const BuildingFragment = graphql`
 `;
 
 type BuildingItemProps = {
-    building: BuildingItemFragment$key;
+    buildingFromParent: BuildingItemFragment$key;
 }
 
-function BuildingItem({ building }: BuildingItemProps) {
-    const data = useFragment(
+function BuildingItem({ buildingFromParent }: BuildingItemProps) {
+    const building = useFragment(
         BuildingFragment,
-        building,
+        buildingFromParent,
     );
     return (
-        <Link to={`/building/${data.databaseId}/viewer`}>
+        <Link to={`/building/${building.databaseId}/viewer`}>
             <Group>
-                <h2>{data.title}</h2>
-                <p>{data.address}</p>
+                <h2>{building.title}</h2>
+                <p>{building.address}</p>
             </Group>
         </Link>
     )

@@ -26,7 +26,7 @@ const BuildingEditor = () => {
     );
 
     useEffect(() => {
-        if(buildingId == null) {
+        if (buildingId == null) {
             return;
         }
         loadQuery({
@@ -55,11 +55,11 @@ type BuildingEditorBodyContainerProps = {
 }
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
-    const data = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <BuildingEditorBody buildingFromParent={data.getBuilding} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
     )
 }
