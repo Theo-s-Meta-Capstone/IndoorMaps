@@ -121,7 +121,7 @@ input FloorUniqueInput {
   id: Int!
 }
 
-type Geododer {
+type Geocoder {
   autocomplete(data: AutocompleteInput!): Autocomplete!
   locationLookup(data: LocationLookupInput!): LatLng!
 }
@@ -177,9 +177,9 @@ type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getArea(data: AreaUniqueInput!): Area!
-  getAutocomplete: Geododer!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
+  getGeocoder: Geocoder!
   getUserFromCookie: LogedInUser!
 }
 

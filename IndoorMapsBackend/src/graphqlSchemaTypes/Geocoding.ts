@@ -61,5 +61,5 @@ export class Autocomplete {
 }
 
 @ObjectType()
-export class Geododer {
+export class Geocoder {
 }

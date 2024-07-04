@@ -1,8 +1,7 @@
 import { Arg, Ctx, Query, Field, ObjectType, Resolver, InputType, Int, FieldResolver, Root } from "type-graphql";
 import { GraphQLError } from "graphql";
 
-import { Context } from "../utils/context.js";
-import { Autocomplete, AutocompleteItem, Geododer } from "../graphqlSchemaTypes/Geocoding.js";
+import { Autocomplete, Geocoder } from "../graphqlSchemaTypes/Geocoding.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 
 @InputType()
@@ -20,10 +19,10 @@ class LocationLookupInput {
     id: string
 }
 
-@Resolver(Geododer)
+@Resolver(Geocoder)
 export class GeododerResolver {
-    @Query((returns) => Geododer)
-    async getAutocomplete() {
+    @Query((returns) => Geocoder)
+    async getGeocoder() {
         return {}
     }
 
