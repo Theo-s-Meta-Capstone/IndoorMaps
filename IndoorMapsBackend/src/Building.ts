@@ -1,6 +1,26 @@
 import 'reflect-metadata'
 import { ObjectType, Field, ID, Float, Int } from 'type-graphql'
 
+import { MutationResult } from './utils/generic.js'
+
+@ObjectType()
+export class NewFloorResult extends MutationResult {
+  @Field(type => Int)
+  databaseId: number
+
+  @Field(type => Int)
+  buildingDatabaseId: number
+}
+
+@ObjectType()
+export class NewAreaResult extends MutationResult {
+  @Field(type => Int)
+  databaseId: number
+
+  @Field(type => Int)
+  floorDatabaseId: number
+}
+
 @ObjectType()
 export class LatLng {
   constructor(lat: number, lon: number) {
@@ -14,6 +34,29 @@ export class LatLng {
   lon: number
 }
 
+@ObjectType()
+export class Area {
+  @Field((type) => ID)
+  id: string
+
+  @Field(type => Int)
+  databaseId: number
+
+  @Field()
+  title: string
+
+  @Field()
+  description: string
+
+  @Field()
+  shape: string
+
+  @Field()
+  traversable: boolean
+
+  @Field()
+  category: string
+}
 
 @ObjectType()
 export class Floor {

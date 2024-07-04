@@ -7,12 +7,14 @@ import http from 'http';
 import cors from 'cors';
 import cookieParser from "cookie-parser"
 import * as tq from 'type-graphql'
+// only required due to Prisma no longer automaticly load .env files in v16
+import 'dotenv/config'
+
 import { prisma, Context } from "./context.js";
 import { UserResolver } from "./UserResolver.js";
 import { BuildingResolver } from "./BuildingResolver.js";
-
-// only required due to Prisma no longer automaticly load .env files in v16
-import 'dotenv/config'
+import { FloorResolver } from "./FloorResolver.js";
+import { AreaResolver } from "./AreaResolver.js";
 
 const app = express();
 export const httpServer = http.createServer(app);
@@ -23,7 +25,7 @@ const BUILD_PREVIEW_URL = "http://localhost:4173";
  */
 async function main() {
     const schema = await tq.buildSchema({
-        resolvers: [UserResolver, BuildingResolver],
+        resolvers: [UserResolver, AreaResolver, FloorResolver, BuildingResolver],
         validate: { forbidUnknownValues: false },
         emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
     })

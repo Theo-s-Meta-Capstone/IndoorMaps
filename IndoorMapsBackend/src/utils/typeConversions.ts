@@ -3,9 +3,8 @@
 */
 
 import { User } from '../User.js'
-import { User as DbUser} from '@prisma/client';
-import { Building, Floor, LatLng } from '../Building.js'
-import { Building as DbBuilding, Floor as DbFloor } from '@prisma/client'
+import { Area, Building, Floor, LatLng } from '../Building.js'
+import { Building as DbBuilding, Floor as DbFloor, Area as DbArea, User as DbUser } from '@prisma/client'
 
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
     const user: User = {
@@ -37,4 +36,13 @@ export const convertToGraphQLFloor = (floorFromDB: DbFloor): Floor => {
         id: "floor" + floorFromDB.id.toString()
     }
     return floor;
+}
+
+export const convertToGraphQlArea = (areaFromDB: DbArea): Area => {
+    const area: Area = {
+        ...areaFromDB,
+        databaseId: areaFromDB.id,
+        id: "floor" + areaFromDB.id.toString()
+    }
+    return area;
 }

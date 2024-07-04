@@ -1,13 +1,9 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID, InterfaceType, registerEnumType, Int } from 'type-graphql'
+import { ObjectType, Field, ID, registerEnumType } from 'type-graphql'
 import { IsEmail } from 'class-validator'
-import { Building } from './Building.js';
 
-@InterfaceType()
-abstract class Node {
-  @Field(type => ID)
-  id: string;
-}
+import { Building } from './Building.js';
+import { MutationResult } from './utils/generic.js';
 
 @ObjectType()
 export class User {
@@ -41,22 +37,7 @@ export class LogedInUser {
 }
 
 @ObjectType()
-export class MutationResult {
-  @Field()
-  success: boolean
-}
-
-@ObjectType()
 export class SignedOutSuccess extends MutationResult {
-}
-
-@ObjectType()
-export class NewFloorResult extends MutationResult {
-  @Field(type => Int)
-  databaseId: number
-
-  @Field(type => Int)
-  buildingDatabaseId: number
 }
 
 enum EditorLevel {
