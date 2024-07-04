@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { graphql, loadQuery, useRelayEnvironment } from "react-relay";
 
 /**
@@ -83,39 +83,19 @@ export const useRefreshRelayCache = () => {
     return [refreshFloorData, refreshBuildingData] as const;
 }
 
-// export const useGetAddressAutocomplete = () => {
-//     const environment = useRelayEnvironment();
+// based on https://www.telerik.com/blogs/how-to-create-custom-debounce-hook-react, I added typing
+// because the file is tsx, the T needs to be T, for it to not be seen as a react component (https://stackoverflow.com/questions/32696475/typescript-tsx-and-generic-parameters)
+export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500): T => {
+    const [debouncedValue, setDebouncedValue] = useState<T>(startingValue);
+    const timerRef = useRef<ReturnType<typeof setInterval>>();
 
-//     const getAddressAutocompleteQuery = graphql`
-//         query hooksGetAddressAutocompleteQuery($data: AutocompleteInput!) {
-//             getAutocomplete(data: $data) {
-//                 items {
-//                 title
-//                 id
-//                 highlights {
-//                     title {
-//                     start
-//                     end
-//                     }
-//                 }
-//                 }
-//             }
-//         }
-//     `;
+    useEffect(() => {
+        timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
 
-//     const getAddressAutocomplete = (searchString: string) => {
-//         loadQuery(
-//             environment,
-//             getAddressAutocompleteQuery,
-//             {
-//                 data: {
-//                     "p": searchString,
-//                     "limit": 5
-//                   }
-//             },
-//             { fetchPolicy: "network-only" }
-//         );
-//     }
+        return () => {
+            clearTimeout(timerRef.current);
+        };
+    }, [value, delay]);
 
-//     return [getAddressAutocomplete] as const;
-// }
+    return debouncedValue;
+};

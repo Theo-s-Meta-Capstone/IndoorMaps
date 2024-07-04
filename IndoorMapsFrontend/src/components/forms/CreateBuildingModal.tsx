@@ -1,13 +1,13 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { fetchQuery, graphql, useMutation, useRefetchableFragment, useRelayEnvironment } from "react-relay";
+import { fetchQuery, graphql, useMutation, useRelayEnvironment } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
 import FormErrorNotification from "./FormErrorNotification";
 import AutoCompleteResults from "./AutoCompleteResults";
 import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
-import { CreateBuildingModalLatlngLookupQuery, CreateBuildingModalLatlngLookupQuery$data } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
+import { CreateBuildingModalLatlngLookupQuery } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
 
 interface Props {
     isOpen: boolean,
