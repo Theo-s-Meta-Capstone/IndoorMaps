@@ -33,6 +33,32 @@ input AreaUniqueInput {
   id: Int!
 }
 
+type Autocomplete {
+  items: [AutocompleteItem!]!
+}
+
+type AutocompleteAddress {
+  countryCode: String
+  countryName: String
+  label: String
+  postalCode: String
+  state: String
+  stateCode: String
+}
+
+input AutocompleteInput {
+  limit: Int!
+  p: String!
+}
+
+type AutocompleteItem {
+  address: AutocompleteAddress
+  highlights: TitleHighlightsRange
+  id: String!
+  resultType: String
+  title: String!
+}
+
 type Building {
   address: String!
   databaseId: Int!
@@ -95,9 +121,18 @@ input FloorUniqueInput {
   id: Int!
 }
 
+type HighlightsRange {
+  end: Int
+  start: Int
+}
+
 type LatLng {
   lat: Float!
   lon: Float!
+}
+
+input LocationLookupInput {
+  id: String!
 }
 
 type LogedInUser {
@@ -137,13 +172,19 @@ type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getArea(data: AreaUniqueInput!): Area!
+  getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!
+  locationLookup(data: LocationLookupInput!): LatLng!
 }
 
 type SignedOutSuccess {
   success: Boolean!
+}
+
+type TitleHighlightsRange {
+  title: [HighlightsRange!]
 }
 
 type User {

@@ -15,6 +15,7 @@ import { UserResolver } from "./resolvers/UserResolver.js";
 import { BuildingResolver } from "./resolvers/BuildingResolver.js";
 import { FloorResolver } from "./resolvers/FloorResolver.js";
 import { AreaResolver } from "./resolvers/AreaResolver.js";
+import { AutocompleteResolver } from "./resolvers/AutocompleteResolver.js";
 
 const app = express();
 export const httpServer = http.createServer(app);
@@ -25,7 +26,7 @@ const BUILD_PREVIEW_URL = "http://localhost:4173";
  */
 async function main() {
     const schema = await tq.buildSchema({
-        resolvers: [UserResolver, AreaResolver, FloorResolver, BuildingResolver],
+        resolvers: [AutocompleteResolver, UserResolver, AreaResolver, FloorResolver, BuildingResolver],
         validate: { forbidUnknownValues: false },
         emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
     })

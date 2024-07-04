@@ -1,7 +1,7 @@
 import { Field, ID, InterfaceType, ObjectType } from "type-graphql";
 
 @InterfaceType()
-abstract class Node {
+export abstract class Node {
   @Field(type => ID)
   id: string;
 }
