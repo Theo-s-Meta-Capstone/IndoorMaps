@@ -131,7 +131,7 @@ type LatLng {
 }
 
 input LocationLookupInput {
-  id: String!
+  id: String
 }
 
 type LogedInUser {
@@ -174,7 +174,7 @@ type Query {
   getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
-  getLocationLookup(data: LocationLookupInput!): LatLng!
+  getLocationLookup(data: LocationLookupInput!): LatLng
   getUserFromCookie: LogedInUser!
 }
 

@@ -12,8 +12,8 @@ class AutocompleteInput {
 
 @InputType()
 class LocationLookupInput {
-    @Field()
-    id: string
+    @Field({nullable: true})
+    id?: string
 }
 
 @Resolver()
@@ -45,10 +45,13 @@ export class GeododerResolver {
         }
     }
 
-    @Query((returns) => LatLng)
+    @Query((returns) => LatLng, {nullable: true})
     async getLocationLookup(
         @Arg('data') data: LocationLookupInput,
     ): Promise<LatLng> {
+        if(data.id === null){
+            return new LatLng(0, 0)
+        }
         try {
             const url = `https://lookup.search.hereapi.com/v1/lookup?id=${data.id}&apiKey=${process.env.HERE_API_KEY}`
             const response = await fetch(url);

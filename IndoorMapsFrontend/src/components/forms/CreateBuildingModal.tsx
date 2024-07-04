@@ -1,12 +1,13 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { graphql, useMutation } from "react-relay";
+import { fetchQuery, graphql, useMutation, useRefetchableFragment, useRelayEnvironment } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
 import FormErrorNotification from "./FormErrorNotification";
 import AutoCompleteResults from "./AutoCompleteResults";
-import { AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { CreateBuildingModalLatlngLookupQuery, CreateBuildingModalLatlngLookupQuery$data } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
 
 interface Props {
     isOpen: boolean,
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
+    const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -60,6 +62,40 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
         }
     };
 
+    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
+        form.setFieldValue('address', item.title);
+        fetchQuery<CreateBuildingModalLatlngLookupQuery>(
+            environment,
+            graphql`
+            query CreateBuildingModalLatlngLookupQuery($lookupInput: LocationLookupInput!) {
+                getLocationLookup(data: $lookupInput) {
+                    lat
+                    lon
+                }
+            }
+            `,
+            {
+                lookupInput: {
+                    "id": item.id
+                }
+            },
+        )
+            .subscribe({
+                start: () => { },
+                complete: () => { },
+                error: (error: Error) => {
+                    setFormError(error.message);
+                },
+                next: (data) => {
+                    if (!data || !data.getLocationLookup) {
+                        setFormError("No response when loading lat/long for autocomplete result");
+                        return;
+                    }
+                    form.setFieldValue('startingPosition', `${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
+                }
+            });
+    }
+
     return (
         <Modal
             opened={isOpen}
@@ -75,7 +111,7 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
                 <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
                 <Suspense fallback={<div>Loading...</div>}>
-                    <AutoCompleteResults searchString={form.values.address} getGeocoder={getGeocoder} />
+                    <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />
                 </Suspense>
                 <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
                 <Group>

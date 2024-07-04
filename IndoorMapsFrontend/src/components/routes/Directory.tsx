@@ -7,7 +7,7 @@ import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
 
 const DirectoryPageQuery = graphql`
-    query DirectoryQuery($data: AutocompleteInput!) {
+    query DirectoryQuery($autocompleteInput: AutocompleteInput!) {
     allBuildings {
         id
         ...BuildingItemFragment
@@ -31,9 +31,9 @@ const Directory = () => {
     // See ./Root.tsx line 24 for explanation of this useEffect
     useEffect(() => {
         loadQuery({
-            data: {
+            autocompleteInput: {
                 p: null,
-            }
+            },
         });
     }, []);
 
