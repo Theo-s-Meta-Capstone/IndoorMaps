@@ -24,10 +24,13 @@ input AreaCreateInput {
 input AreaModifyInput {
   category: String
   description: String
-  floorDatabseId: Int
   id: Int!
   shape: String
   title: String
+}
+
+input AreaUniqueInput {
+  id: Int!
 }
 
 type Building {
@@ -133,6 +136,7 @@ input NewShape {
 type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
+  getArea(data: AreaUniqueInput!): Area!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!

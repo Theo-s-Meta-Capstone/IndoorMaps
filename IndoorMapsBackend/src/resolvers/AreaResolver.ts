@@ -1,7 +1,9 @@
-import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx } from "type-graphql"
+import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query } from "type-graphql"
 import { getUserOrThrowError } from "../auth/validateUser.js"
 import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
+import { convertToGraphQlArea } from "../utils/typeConversions.js"
+import { GraphQLError } from "graphql"
 
 @InputType()
 class AreaCreateInput {
@@ -30,19 +32,16 @@ class AreaUniqueInput {
 @InputType()
 class AreaModifyInput extends AreaUniqueInput {
     @Field({ nullable: true })
-    title: string
+    title?: string
 
     @Field({ nullable: true })
-    description: string
-
-    @Field(type => Int, { nullable: true })
-    floorDatabseId: number
+    description?: string
 
     @Field({ nullable: true })
-    shape: string
+    shape?: string
 
     @Field({ nullable: true })
-    category: string
+    category?: string
 }
 
 @Resolver(of => Area)
@@ -98,5 +97,25 @@ export class AreaResolver {
             databaseId: updatedArea.id,
             floorDatabaseId: updatedArea.floorId
         };
+    }
+
+    @Query((returns) => Area)
+    async getArea(
+        @Arg('data') data: AreaUniqueInput,
+        @Ctx() ctx: Context,
+    ): Promise<Area> {
+        const dbArea = await ctx.prisma.area.findUnique({
+            where: {
+                id: data.id,
+            }
+        })
+        if (!dbArea) {
+            throw new GraphQLError('Floor not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        return convertToGraphQlArea(dbArea);
     }
 }

@@ -45,7 +45,7 @@ export const convertToGraphQlArea = (areaFromDB: DbArea): Area => {
         ...areaFromDB,
         shape: JSON.stringify(areaFromDB.shape),
         databaseId: areaFromDB.id,
-        id: "floor" + areaFromDB.id.toString()
+        id: "area" + areaFromDB.id.toString()
     }
     return area;
 }
