@@ -83,39 +83,39 @@ export const useRefreshRelayCache = () => {
     return [refreshFloorData, refreshBuildingData] as const;
 }
 
-export const useGetAddressAutocomplete = () => {
-    const environment = useRelayEnvironment();
+// export const useGetAddressAutocomplete = () => {
+//     const environment = useRelayEnvironment();
 
-    const getAddressAutocompleteQuery = graphql`
-        query hooksGetAddressAutocompleteQuery($data: AutocompleteInput!) {
-            getAutocomplete(data: $data) {
-                items {
-                title
-                id
-                highlights {
-                    title {
-                    start
-                    end
-                    }
-                }
-                }
-            }
-        }
-    `;
+//     const getAddressAutocompleteQuery = graphql`
+//         query hooksGetAddressAutocompleteQuery($data: AutocompleteInput!) {
+//             getAutocomplete(data: $data) {
+//                 items {
+//                 title
+//                 id
+//                 highlights {
+//                     title {
+//                     start
+//                     end
+//                     }
+//                 }
+//                 }
+//             }
+//         }
+//     `;
 
-    const getAddressAutocomplete = (searchString: string) => {
-        loadQuery(
-            environment,
-            getAddressAutocompleteQuery,
-            {
-                data: {
-                    "p": searchString,
-                    "limit": 5
-                  }
-            },
-            { fetchPolicy: "network-only" }
-        );
-    }
+//     const getAddressAutocomplete = (searchString: string) => {
+//         loadQuery(
+//             environment,
+//             getAddressAutocompleteQuery,
+//             {
+//                 data: {
+//                     "p": searchString,
+//                     "limit": 5
+//                   }
+//             },
+//             { fetchPolicy: "network-only" }
+//         );
+//     }
 
-    return [getAddressAutocomplete] as const;
-}
+//     return [getAddressAutocomplete] as const;
+// }

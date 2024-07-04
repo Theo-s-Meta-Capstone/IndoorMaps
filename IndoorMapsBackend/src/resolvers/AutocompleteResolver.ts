@@ -6,11 +6,8 @@ import { LatLng } from "../graphqlSchemaTypes/Building.js";
 
 @InputType()
 class AutocompleteInput {
-    @Field()
-    p: string
-
-    @Field(type => Int)
-    limit: number
+    @Field({nullable: true})
+    p?: string
 }
 
 @InputType()
@@ -19,19 +16,19 @@ class LocationLookupInput {
     id: string
 }
 
-@Resolver(Geocoder)
+@Resolver()
 export class GeododerResolver {
-    @Query((returns) => Geocoder)
-    async getGeocoder() {
-        return {}
-    }
-
-    @FieldResolver((type) => Autocomplete)
-    async autocomplete(
+    @Query((type) => Autocomplete)
+    async getAutocomplete(
         @Arg('data') data: AutocompleteInput,
     ): Promise<Autocomplete> {
+        if(data.p === null){
+            return {
+                items: []
+            }
+        }
         try {
-            const url = `https://autocomplete.search.hereapi.com/v1/autocomplete?q=${data.p}&limit=${data.limit}&apiKey=${process.env.HERE_API_KEY}`
+            const url = `https://autocomplete.search.hereapi.com/v1/autocomplete?q=${data.p}&limit=${5}&apiKey=${process.env.HERE_API_KEY}`
             const response = await fetch(url);
             const body = await response.json();
             return {
@@ -48,8 +45,8 @@ export class GeododerResolver {
         }
     }
 
-    @FieldResolver((returns) => LatLng)
-    async locationLookup(
+    @Query((returns) => LatLng)
+    async getLocationLookup(
         @Arg('data') data: LocationLookupInput,
     ): Promise<LatLng> {
         try {

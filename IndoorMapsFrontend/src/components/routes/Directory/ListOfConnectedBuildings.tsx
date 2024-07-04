@@ -5,6 +5,7 @@ import { ListOfConnectedBuildingsUserDataDisplayFragment$key } from "./__generat
 import { useBooleanState } from "../../../hooks";
 import { Button } from "@mantine/core";
 import CreateBuildingModal from "../../forms/CreateBuildingModal";
+import { AutoCompleteResultsFragment$key } from "../../forms/__generated__/AutoCompleteResultsFragment.graphql";
 
 const ListOfConnectedBuildingsUserDataFragment = graphql`
   fragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser{
@@ -21,10 +22,11 @@ const ListOfConnectedBuildingsUserDataFragment = graphql`
 `;
 
 type ListOfConnectedBuildingsItemsFragmentProps = {
-    getUserFromCookie: ListOfConnectedBuildingsUserDataDisplayFragment$key
+    getUserFromCookie: ListOfConnectedBuildingsUserDataDisplayFragment$key,
+    getGeocoder: AutoCompleteResultsFragment$key,
 }
 
-function ListOfConnectedBuildings({ getUserFromCookie }: ListOfConnectedBuildingsItemsFragmentProps) {
+function ListOfConnectedBuildings({ getUserFromCookie, getGeocoder }: ListOfConnectedBuildingsItemsFragmentProps) {
     const [isCreateBuildingOpen, handleCloseCreateBuilding, handleOpenCreateBuilding] = useBooleanState(false);
 
     const { isLogedIn, user } = useFragment(
@@ -41,7 +43,7 @@ function ListOfConnectedBuildings({ getUserFromCookie }: ListOfConnectedBuilding
     return (
         <div className="connectedBuildingsContainer">
             <Button onClick={handleOpenCreateBuilding}>Create Building</Button>
-            <CreateBuildingModal isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
+            <CreateBuildingModal getGeocoder={getGeocoder} isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
             {buildingItems}
         </div>
     )

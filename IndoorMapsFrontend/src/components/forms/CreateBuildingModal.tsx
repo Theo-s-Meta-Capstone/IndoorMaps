@@ -1,17 +1,20 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
 import FormErrorNotification from "./FormErrorNotification";
+import AutoCompleteResults from "./AutoCompleteResults";
+import { AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
 
 interface Props {
     isOpen: boolean,
     closeModal: () => void,
+    getGeocoder: AutoCompleteResultsFragment$key,
 }
 
-const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
+const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -71,6 +74,9 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AutoCompleteResults searchString={form.values.address} getGeocoder={getGeocoder} />
+                </Suspense>
                 <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>
