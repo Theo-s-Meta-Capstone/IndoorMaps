@@ -1,10 +1,11 @@
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 import { GraphQLError } from "graphql";
 
-import { Area, Floor, NewFloorResult } from "../Building.js";
 import { Context } from "../context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
 import { getUserOrThrowError } from "../auth/validateUser.js";
+import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
+import { Area } from "../graphqlSchemaTypes/Area.js";
 
 @InputType()
 class FloorCreateInput {
@@ -82,7 +83,7 @@ export class FloorResolver {
             data: {
                 description: data.description,
                 title: data.title,
-                shape: data.newShape !== undefined ? data.newShape.shape : undefined
+                shape: data.newShape !== undefined ? JSON.parse(data.newShape.shape) : undefined
             },
             select: {
                 id: true,

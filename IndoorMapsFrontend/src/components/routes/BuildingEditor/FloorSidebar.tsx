@@ -135,7 +135,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
         if (!currentFloorRef.shape) {
             setWhetherBuildingOrEntrenceMapping(false);
         } else {
-            const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
+            const geoJson: GeoJSON.FeatureCollection = JSON.parse(currentFloorRef.shape);
             // This covers the case where there are entrence markers but no polygon
             setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
             // add the geoJson to the floor and add the proper event listeners

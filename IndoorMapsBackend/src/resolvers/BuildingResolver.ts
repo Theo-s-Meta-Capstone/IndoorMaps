@@ -4,9 +4,10 @@ import { GraphQLError } from 'graphql'
 import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../context.js'
-import { Building, Floor } from '../Building.js'
+import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
 import { getUserOrThrowError } from '../auth/validateUser.js'
+import { Floor } from '../graphqlSchemaTypes/Floor.js'
 
 @InputType()
 class BuildingUniqueInput {

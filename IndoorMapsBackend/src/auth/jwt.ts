@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 import { User as DbUser } from '@prisma/client';
-import { User } from "../User.js"
+import { User } from "../graphqlSchemaTypes/User.js"
 import { prisma } from '../context.js'
 import { convertToGraphQLUser } from '../utils/typeConversions.js';
 

@@ -11,7 +11,7 @@ import {
     Root,
 } from 'type-graphql'
 import { Context } from '../context.js'
-import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../User.js'
+import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graphqlSchemaTypes/User.js'
 import auth from '../auth/auth.js'
 import { validateUser } from '../auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLUser } from '../utils/typeConversions.js'
