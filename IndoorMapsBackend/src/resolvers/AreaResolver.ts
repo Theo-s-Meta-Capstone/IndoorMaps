@@ -1,6 +1,6 @@
 import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx } from "type-graphql"
 import { getUserOrThrowError } from "../auth/validateUser.js"
-import { Context } from "../context.js"
+import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 
 @InputType()

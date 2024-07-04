@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { Prisma } from "@prisma/client";
-import { prisma } from '../context.js'
+import { prisma } from '../utils/context.js'
 import { SignInData } from "../types.js";
 import { signAccessToken } from './jwt.js';
 

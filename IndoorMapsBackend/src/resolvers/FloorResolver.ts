@@ -1,7 +1,7 @@
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 import { GraphQLError } from "graphql";
 
-import { Context } from "../context.js";
+import { Context } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
 import { getUserOrThrowError } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";

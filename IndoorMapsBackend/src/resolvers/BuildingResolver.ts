@@ -3,7 +3,7 @@ import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, R
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor } from '@prisma/client'
 
-import { Context } from '../context.js'
+import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
 import { getUserOrThrowError } from '../auth/validateUser.js'

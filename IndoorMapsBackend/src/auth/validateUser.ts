@@ -1,6 +1,6 @@
 import { isInstance } from "class-validator";
 import { User } from "../graphqlSchemaTypes/User.js";
-import { Context } from "../context.js";
+import { Context } from "../utils/context.js";
 import { verifyAccessToken } from "./jwt.js";
 import { GraphQLError } from "graphql";
 

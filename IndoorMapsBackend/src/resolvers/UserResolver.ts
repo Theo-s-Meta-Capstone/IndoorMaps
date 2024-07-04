@@ -10,7 +10,7 @@ import {
     FieldResolver,
     Root,
 } from 'type-graphql'
-import { Context } from '../context.js'
+import { Context } from '../utils/context.js'
 import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graphqlSchemaTypes/User.js'
 import auth from '../auth/auth.js'
 import { validateUser } from '../auth/validateUser.js';

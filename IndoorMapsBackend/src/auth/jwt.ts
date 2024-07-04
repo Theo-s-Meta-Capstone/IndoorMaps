@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 import { User as DbUser } from '@prisma/client';
 import { User } from "../graphqlSchemaTypes/User.js"
-import { prisma } from '../context.js'
+import { prisma } from '../utils/context.js'
 import { convertToGraphQLUser } from '../utils/typeConversions.js';
 
 const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET ? process.env.ACCESS_TOKEN_SECRET : "ACCESS_TOKEN_SECRET";

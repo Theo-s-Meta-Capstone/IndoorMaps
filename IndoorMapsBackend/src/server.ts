@@ -10,7 +10,7 @@ import * as tq from 'type-graphql'
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
 
-import { prisma, Context } from "./context.js";
+import { prisma, Context } from "./utils/context.js";
 import { UserResolver } from "./resolvers/UserResolver.js";
 import { BuildingResolver } from "./resolvers/BuildingResolver.js";
 import { FloorResolver } from "./resolvers/FloorResolver.js";
