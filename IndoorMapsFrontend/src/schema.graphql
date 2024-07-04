@@ -121,6 +121,11 @@ input FloorUniqueInput {
   id: Int!
 }
 
+type Geododer {
+  autocomplete(data: AutocompleteInput!): Autocomplete!
+  locationLookup(data: LocationLookupInput!): LatLng!
+}
+
 type HighlightsRange {
   end: Int
   start: Int
@@ -172,11 +177,10 @@ type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
   getArea(data: AreaUniqueInput!): Area!
-  getAutocomplete(data: AutocompleteInput!): Autocomplete!
+  getAutocomplete: Geododer!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!
-  locationLookup(data: LocationLookupInput!): LatLng!
 }
 
 type SignedOutSuccess {

@@ -37,7 +37,7 @@ class TitleHighlightsRange {
 }
 
 @ObjectType()
-class AutocompleteItem {
+export class AutocompleteItem {
     @Field()
     id: string
 
@@ -58,4 +58,8 @@ class AutocompleteItem {
 export class Autocomplete {
     @Field(type => [AutocompleteItem]!)
     items: AutocompleteItem[]
+}
+
+@ObjectType()
+export class Geododer {
 }
