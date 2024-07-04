@@ -1,10 +1,10 @@
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 import { GraphQLError } from "graphql";
 
-import { Area, Floor, NewFloorResult } from "./Building.js";
-import { Context } from "./context.js";
-import { convertToGraphQLFloor, convertToGraphQlArea } from "./utils/typeConversions.js";
-import { getUserOrThrowError } from "./auth/validateUser.js";
+import { Area, Floor, NewFloorResult } from "../Building.js";
+import { Context } from "../context.js";
+import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
+import { getUserOrThrowError } from "../auth/validateUser.js";
 
 @InputType()
 class FloorCreateInput {

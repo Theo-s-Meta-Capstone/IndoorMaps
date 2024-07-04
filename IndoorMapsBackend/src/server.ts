@@ -11,10 +11,10 @@ import * as tq from 'type-graphql'
 import 'dotenv/config'
 
 import { prisma, Context } from "./context.js";
-import { UserResolver } from "./UserResolver.js";
-import { BuildingResolver } from "./BuildingResolver.js";
-import { FloorResolver } from "./FloorResolver.js";
-import { AreaResolver } from "./AreaResolver.js";
+import { UserResolver } from "./resolvers/UserResolver.js";
+import { BuildingResolver } from "./resolvers/BuildingResolver.js";
+import { FloorResolver } from "./resolvers/FloorResolver.js";
+import { AreaResolver } from "./resolvers/AreaResolver.js";
 
 const app = express();
 export const httpServer = http.createServer(app);

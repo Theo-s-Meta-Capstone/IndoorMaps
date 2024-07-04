@@ -1,7 +1,7 @@
 import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx } from "type-graphql"
-import { Area, Floor, NewAreaResult } from "./Building.js"
-import { getUserOrThrowError } from "./auth/validateUser.js"
-import { Context } from "./context.js"
+import { Area, Floor, NewAreaResult } from "../Building.js"
+import { getUserOrThrowError } from "../auth/validateUser.js"
+import { Context } from "../context.js"
 
 @InputType()
 class AreaCreateInput {
