@@ -78,10 +78,15 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     })
     // Both of these are needed to disable editing
     // This one makes it so if you are currently in edit mode it stops being editable
+    // this only seems to work for the vetector move edit mode and not the dragging or rotating
     floorMapLayer.pm.disable()
     // This one makes it so enter edit mode it doesn't show as editable
     floorMapLayer.pm.setOptions({
       allowEditing:false,
+      allowCutting:false,
+      allowRemoval:false,
+      allowRotation:false,
+      draggable:false,
     })
     openAreaSidebar();
   }

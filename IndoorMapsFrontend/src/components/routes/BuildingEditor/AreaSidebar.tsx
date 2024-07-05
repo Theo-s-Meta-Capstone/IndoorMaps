@@ -7,6 +7,7 @@ import { AreaSidebarCreateMutation } from "./__generated__/AreaSidebarCreateMuta
 import { AreaSidebarDeleteAreaMutation, AreaSidebarDeleteAreaMutation$variables } from "./__generated__/AreaSidebarDeleteAreaMutation.graphql";
 import { useRefreshRelayCache } from "../../../hooks";
 import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
+import * as L from "leaflet";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -35,7 +36,17 @@ interface Props {
 const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
     const floorData = useFragment(AreaSidebarFragment, floorFromParent);
     const [formError, setFormError] = useState<string | null>(null);
+    const [selectedArea, setSelectedArea] = useState<L.Layer | null>(null);
     const [refreshFloorData,] = useRefreshRelayCache();
+
+    const handleChangeSelectedArea = (layer: L.Layer) => {
+        setSelectedArea(prev => {
+            if (prev instanceof L.Polygon) {
+                prev.setStyle({ color: 'blue' });
+            }
+            return layer
+        });
+    }
 
     const [commitCreateArea, isInFlightCreateArea] = useMutation<AreaSidebarCreateMutation>(graphql`
     mutation AreaSidebarCreateMutation($input: AreaCreateInput!) {
@@ -54,7 +65,12 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         }
         const layerGeoJSON: GeoJSON.Feature = event.layer.toGeoJSON();
         areasMapLayer.addLayer(event.layer);
+        handleChangeSelectedArea(event.layer);
 
+        event.layer.on('click', () => {
+            handleChangeSelectedArea(event.layer);
+        });
+        event.layer.on('pm:edit', onShapeEdit)
         event.layer.on('pm:remove', onShapeRemove)
         areasMapLayer.addTo(map)
 
@@ -114,6 +130,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
     const onShapeEdit = (event: L.LeafletEvent) => {
         if (!map) return;
+        handleChangeSelectedArea(event.layer);
         updateArea({
             data: {
                 id: event.layer.feature.properties.databaseId,
@@ -190,13 +207,21 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
         areasMapLayer.addTo(map)
         areasMapLayer.getLayers().map((layer) => {
-            // layer.on('click', setCurrentShape);
+            layer.on('click', () => {
+                handleChangeSelectedArea(layer);
+            });
             layer.on('pm:edit', onShapeEdit)
             layer.on('pm:remove', onShapeRemove)
         })
         // Not having the blank dependency array caused the map to be re-rendered every time a mutation was completed
         // This is bad because mutations don't update the relay cache, so the map would be re-rendered with the old data
     }, [])
+
+    useEffect(() => {
+        if (selectedArea instanceof L.Polygon) {
+            selectedArea.setStyle({ color: 'red' });
+        }
+    }, [selectedArea])
 
     return (
         <>
