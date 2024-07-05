@@ -38,13 +38,50 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
     const [refreshFloorData,] = useRefreshRelayCache();
 
     const [commitCreateArea, isInFlightCreateArea] = useMutation<AreaSidebarCreateMutation>(graphql`
-        mutation AreaSidebarCreateMutation($input: AreaCreateInput!) {
-            createArea(data: $input) {
-                databaseId
-                floorDatabaseId
-            }
+    mutation AreaSidebarCreateMutation($input: AreaCreateInput!) {
+        createArea(data: $input) {
+            databaseId
+            floorDatabaseId
         }
+    }
     `);
+
+    const onShapeCreate = (event: L.LeafletEvent) => {
+        if (!map) return;
+        if (!floorData) {
+            setFormError("No Floor Selected");
+            return;
+        }
+        const layerGeoJSON: GeoJSON.Feature = event.layer.toGeoJSON();
+        areasMapLayer.addLayer(event.layer);
+
+        event.layer.on('pm:remove', onShapeRemove)
+        areasMapLayer.addTo(map)
+
+        try {
+            commitCreateArea({
+                variables: {
+                    input: {
+                        "floorDatabseId": floorData.databaseId,
+                        "title": "",
+                        "description": "",
+                        "shape": JSON.stringify(layerGeoJSON),
+                    },
+                },
+                onCompleted(data) {
+                    event.layer.feature = layerGeoJSON;
+                    event.layer.feature.properties.databaseId = data.createArea.databaseId
+                    refreshFloorData(floorData.databaseId);
+                },
+                onError(error) {
+                    setFormError(error.message);
+                }
+            });
+        } catch (error) {
+            const errorMessage = (error as Error).message;
+            setFormError(errorMessage);
+        }
+    }
 
     const [commitUpdateArea, isInFlightUpdateArea] = useMutation<AreaSidebarUpdateAreaMutation>(graphql`
     mutation AreaSidebarUpdateAreaMutation($data: AreaModifyInput!) {
@@ -121,43 +158,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
             }
         }
         )
-    }
-
-    const onShapeCreate = (event: L.LeafletEvent) => {
-        if (!map) return;
-        if (!floorData) {
-            setFormError("No Floor Selected");
-            return;
-        }
-        const layerGeoJSON: GeoJSON.Feature = event.layer.toGeoJSON();
-        areasMapLayer.addLayer(event.layer);
-
-        event.layer.on('pm:remove', onShapeRemove)
-        areasMapLayer.addTo(map)
-
-        try {
-            commitCreateArea({
-                variables: {
-                    input: {
-                        "floorDatabseId": floorData.databaseId,
-                        "title": "",
-                        "description": "",
-                        "shape": JSON.stringify(layerGeoJSON),
-                    },
-                },
-                onCompleted(data) {
-                    event.layer.feature = layerGeoJSON;
-                    event.layer.feature.properties.databaseId = data.createArea.databaseId
-                    refreshFloorData(floorData.databaseId);
-                },
-                onError(error) {
-                    setFormError(error.message);
-                }
-            });
-        } catch (error) {
-            const errorMessage = (error as Error).message;
-            setFormError(errorMessage);
-        }
     }
 
     useEffect(() => {
