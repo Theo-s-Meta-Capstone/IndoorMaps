@@ -11,6 +11,7 @@ const BuildingEditorPageQuery = graphql`
         ...ButtonsContainerFragment,
     }
     getBuilding(data: $data) {
+        title
         ...BuildingEditorBodyFragment
     }
 }`
@@ -39,8 +40,6 @@ const BuildingEditor = () => {
 
     return (
         <div>
-            <h1>Editing building #{buildingId}</h1>
-            <Link to="/directory">Directory</Link>
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingEditorBodyContainer queryReference={queryReference} />
@@ -59,6 +58,8 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     return (
         <>
+            <h1>Editing building {getBuilding.title}</h1>
+            <Link to="/directory">Directory</Link>
             <ButtonsContainer getUserFromCookie={getUserFromCookie} />
             <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
