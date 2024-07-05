@@ -14,14 +14,14 @@ interface Props {
 const EditAreaForm = ({ area }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
     const [refreshFloorData,] = useRefreshRelayCache();
-    const feature = (area as L.GeoJSON<any, Geometry>).feature as Feature;
+    const feature = (area as L.GeoJSON<Geometry>).feature as Feature;
 
     const form = useForm({
         mode: 'controlled',
         initialValues: { title: '', description: '' },
     });
 
-    let debouncedFormValue = useDebounce(form.values, form.values, 500);
+    const debouncedFormValue = useDebounce(form.values, form.values, 500);
 
     const [commit, isInFlight] = useMutation<EditAreaFormMutation>(graphql`
         mutation EditAreaFormMutation($input: AreaModifyInput!) {

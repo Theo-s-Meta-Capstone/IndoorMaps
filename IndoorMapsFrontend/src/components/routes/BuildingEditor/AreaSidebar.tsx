@@ -227,7 +227,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         <>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Area Sidebar</h2>
-            {!!selectedArea ?
+            {selectedArea ?
             <EditAreaForm area={selectedArea} />
             :
             null
