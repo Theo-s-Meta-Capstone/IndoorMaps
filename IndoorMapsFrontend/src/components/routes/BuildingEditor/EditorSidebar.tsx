@@ -88,6 +88,8 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       allowRotation:false,
       draggable:false,
     })
+    // disable drawing, useful if the user was drawing while on the floor sidebar
+    map.pm.disableDraw();
     openAreaSidebar();
   }
 

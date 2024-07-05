@@ -195,9 +195,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
             areasMapLayer.addData(geoJson);
         })
 
-        // disable drawing, useful if the user was drawing while on the floor sidebar
-        map.pm.disableDraw();
-
         map.removeEventListener("pm:create");
         map.on('pm:create', onShapeCreate);
 
