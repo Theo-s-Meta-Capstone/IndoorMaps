@@ -39,6 +39,7 @@ export const useRefreshRelayCache = () => {
         query hooksGetFloorQuery($data: FloorUniqueInput!) {
             getFloor(data: $data) {
                 ...FloorListItemFragment
+                ...AreaSidebarBodyFragment
             }
         }
     `;

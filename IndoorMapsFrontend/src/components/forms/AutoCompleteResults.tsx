@@ -34,7 +34,6 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
     );
 
     useEffect(() => {
-        console.log(searchString)
         if (searchString.length > 0) {
             refetch({ autocompleteInput: { p: searchString } }, { fetchPolicy: 'store-or-network' })
         }

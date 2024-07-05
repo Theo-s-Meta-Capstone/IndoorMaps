@@ -57,7 +57,7 @@ export class AreaResolver {
             data: {
                 title: data.title,
                 description: data.description,
-                shape: data.shape,
+                shape: JSON.parse(data.shape),
                 traversable: false,
                 category: data.category ? data.category : "",
                 floor: {
@@ -85,12 +85,31 @@ export class AreaResolver {
                 id: data.id
             },
             data: {
-                ...data
+                ...data,
+                shape: data.shape !== undefined ? JSON.parse(data.shape) : undefined
             },
             select: {
                 id: true,
                 floorId: true,
             }
+        });
+        return {
+            success: true,
+            databaseId: updatedArea.id,
+            floorDatabaseId: updatedArea.floorId
+        };
+    }
+
+    @Mutation((returns) => NewAreaResult)
+    async deleteArea(
+        @Arg('data') data: AreaUniqueInput,
+        @Ctx() ctx: Context,
+    ): Promise<NewAreaResult> {
+        await getUserOrThrowError(ctx.cookies);
+        const updatedArea = await ctx.prisma.area.delete({
+            where: {
+                id: data.id
+            },
         });
         return {
             success: true,

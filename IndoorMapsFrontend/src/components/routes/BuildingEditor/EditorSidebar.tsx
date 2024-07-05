@@ -22,6 +22,7 @@ const EditorSidebarFragment = graphql`
       id
       databaseId
       shape
+      ...AreaSidebarBodyFragment
     }
     ...FloorSidebarBodyFragment
   }
@@ -32,12 +33,13 @@ interface Props {
   map: L.Map;
 }
 
-const floor = L.geoJSON();
+const floorMapLayer = L.geoJSON();
+const areasMapLayer = L.geoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);
   const [currentFloor, setCurrentFloor] = useState<number | null>(null);
-  const [isAreaSidebarOpen, handleCloseAreaSidebar, handleOpenAreaSidebar] = useBooleanState(false);
+  const [isAreaSidebarOpen, closeAreaSidebar, openAreaSidebar] = useBooleanState(false);
 
   const handleFloorChange = (newFloor: number) => {
     setCurrentFloor(newFloor);
@@ -49,6 +51,41 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     }
   }, [building.floors])
 
+  const handleCloseAreaSidebar = () => {
+    // remove all layers that are in the Area Layer group
+    // when editing the floor, the areas are removed from the map
+    areasMapLayer.getLayers().map((layer) => {
+      map.removeLayer(layer);
+      areasMapLayer.removeLayer(layer);
+    })
+    floorMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.Polygon) {
+        layer.setStyle({ color: 'blue' });
+      }
+    })
+    floorMapLayer.pm.enable()
+    floorMapLayer.pm.setOptions({
+      allowEditing:true,
+    })
+    closeAreaSidebar();
+  }
+
+  const handleOpenAreaSidebar = () => {
+    floorMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.Polygon) {
+        layer.setStyle({ color: 'black' });
+      }
+    })
+    // Both of these are needed to disable editing
+    // This one makes it so if you are currently in edit mode it stops being editable
+    floorMapLayer.pm.disable()
+    // This one makes it so enter edit mode it doesn't show as editable
+    floorMapLayer.pm.setOptions({
+      allowEditing:false,
+    })
+    openAreaSidebar();
+  }
+
   return (
     <aside className="EditorSidebar">
       <Group justify="space-between">
@@ -56,9 +93,9 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
       </Group>
       {isAreaSidebarOpen ?
-        <AreaSidebar />
+        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} />
         :
-        <FloorSidebar setCurrentFloor={handleFloorChange} floor={floor} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+        <FloorSidebar setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }
     </aside>
   )

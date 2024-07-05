@@ -28,11 +28,11 @@ interface Props {
     buildingFromParent: FloorSidebarBodyFragment$key;
     map: L.Map;
     currentFloor: number | null;
-    floor: L.GeoJSON;
+    floorMapLayer: L.GeoJSON;
     setCurrentFloor: (floor: number) => void;
 }
 
-const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrentFloor }: Props) => {
+const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
             data: {
                 id: currentFloor,
                 newShape: {
-                    shape: JSON.stringify(floor.toGeoJSON())
+                    shape: JSON.stringify(floorMapLayer.toGeoJSON())
                 }
             }
         }
@@ -87,16 +87,13 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
 
     const onShapeRemove = (event: L.LeafletEvent) => {
         if (!map) return;
-        floor.removeLayer(event.layer);
+        floorMapLayer.removeLayer(event.layer);
         handleFloorShapeUpdate()
     }
 
     const onShapeCreate = (event: L.LeafletEvent) => {
         if (!map) return;
-        if (event.layer instanceof L.Polygon) {
-            event.layer.setStyle({ color: 'black' });
-        }
-        floor.addLayer(event.layer);
+        floorMapLayer.addLayer(event.layer);
         event.layer.on('pm:edit', onShapeEdit)
         event.layer.on('pm:remove', onShapeRemove)
         handleFloorShapeUpdate()
@@ -122,9 +119,9 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
             return;
         }
         // remove all layers that are in the Layer group
-        floor.getLayers().map((layer) => {
+        floorMapLayer.getLayers().map((layer) => {
             map.removeLayer(layer);
-            floor.removeLayer(layer);
+            floorMapLayer.removeLayer(layer);
         })
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
@@ -139,9 +136,9 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floor, setCurrent
             // This covers the case where there are entrence markers but no polygon
             setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
             // add the geoJson to the floor and add the proper event listeners
-            floor.addData(geoJson);
-            floor.addTo(map)
-            floor.getLayers().map((layer) => {
+            floorMapLayer.addData(geoJson);
+            floorMapLayer.addTo(map)
+            floorMapLayer.getLayers().map((layer) => {
                 layer.on('pm:edit', onShapeEdit)
                 layer.on('pm:remove', onShapeRemove)
             })
