@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AreaSidebarCreateMutation } from "./__generated__/AreaSidebarCreateMutation.graphql";
 import { AreaSidebarDeleteAreaMutation, AreaSidebarDeleteAreaMutation$variables } from "./__generated__/AreaSidebarDeleteAreaMutation.graphql";
 import { useRefreshRelayCache } from "../../../hooks";
+import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -44,6 +45,45 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
             }
         }
     `);
+
+    const [commitUpdateArea, isInFlightUpdateArea] = useMutation<AreaSidebarUpdateAreaMutation>(graphql`
+    mutation AreaSidebarUpdateAreaMutation($data: AreaModifyInput!) {
+        modifyArea(data: $data) {
+            success
+            databaseId
+        }
+    }
+    `);
+
+    const updateArea = async (variables: AreaSidebarUpdateAreaMutation$variables) => {
+        if (!floorData) {
+            throw new Error("floor not set")
+        }
+        try {
+            commitUpdateArea({
+                variables,
+                onCompleted() {
+                    refreshFloorData(floorData.databaseId);
+                },
+                onError(error) {
+                    setFormError(error.message);
+                }
+            });
+        } catch (error) {
+            const errorMessage = (error as Error).message;
+            setFormError(errorMessage);
+        }
+    };
+
+    const onShapeEdit = (event: L.LeafletEvent) => {
+        if (!map) return;
+        updateArea({
+            data: {
+                id: event.layer.feature.properties.databaseId,
+                shape: JSON.stringify(event.layer.toGeoJSON()),
+            }
+        })
+    }
 
     const [commitDeleteArea, isInFlightDeleteArea] = useMutation<AreaSidebarDeleteAreaMutation>(graphql`
     mutation AreaSidebarDeleteAreaMutation($data: AreaUniqueInput!) {
@@ -151,18 +191,18 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         areasMapLayer.addTo(map)
         areasMapLayer.getLayers().map((layer) => {
             // layer.on('click', setCurrentShape);
-            // layer.on('pm:edit', onShapeEdit)
+            layer.on('pm:edit', onShapeEdit)
             layer.on('pm:remove', onShapeRemove)
         })
-    // Not having the blank dependency array caused the map to be re-rendered every time a mutation was completed
-    // This is bad because mutations don't update the relay cache, so the map would be re-rendered with the old data
+        // Not having the blank dependency array caused the map to be re-rendered every time a mutation was completed
+        // This is bad because mutations don't update the relay cache, so the map would be re-rendered with the old data
     }, [])
 
     return (
         <>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Area Sidebar</h2>
-            <div>{(isInFlightCreateArea || isInFlightDeleteArea) ? "saving ..." : "all saved"}</div>
+            <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving ..." : "all saved"}</div>
 
         </>
     );
