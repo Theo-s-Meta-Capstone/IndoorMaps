@@ -8,6 +8,7 @@ import { AreaSidebarDeleteAreaMutation, AreaSidebarDeleteAreaMutation$variables 
 import { useRefreshRelayCache } from "../../../hooks";
 import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
 import * as L from "leaflet";
+import EditAreaForm from "../../forms/EditAreaForm";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -41,7 +42,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
     const handleChangeSelectedArea = (layer: L.Layer) => {
         setSelectedArea(prev => {
-            if (prev instanceof L.Polygon) {
+            if (prev !== layer && prev instanceof L.Polygon) {
                 prev.setStyle({ color: 'blue' });
             }
             return layer
@@ -65,14 +66,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         }
         const layerGeoJSON: GeoJSON.Feature = event.layer.toGeoJSON();
         areasMapLayer.addLayer(event.layer);
-        handleChangeSelectedArea(event.layer);
-
-        event.layer.on('click', () => {
-            handleChangeSelectedArea(event.layer);
-        });
-        event.layer.on('pm:edit', onShapeEdit)
-        event.layer.on('pm:remove', onShapeRemove)
-        areasMapLayer.addTo(map)
 
         try {
             commitCreateArea({
@@ -87,6 +80,14 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
                 onCompleted(data) {
                     event.layer.feature = layerGeoJSON;
                     event.layer.feature.properties.databaseId = data.createArea.databaseId
+                    event.layer.feature.properties.title = "";
+                    event.layer.feature.properties.description = "";
+                    handleChangeSelectedArea(event.layer);
+                    event.layer.on('click', () => {
+                        handleChangeSelectedArea(event.layer);
+                    });
+                    event.layer.on('pm:edit', onShapeEdit)
+                    event.layer.on('pm:remove', onShapeRemove)
                     refreshFloorData(floorData.databaseId);
                 },
                 onError(error) {
@@ -190,8 +191,10 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
         floorData.areas.forEach((area) => {
             const geoJson: GeoJSON.Feature = JSON.parse(area.shape);
-            // inject the database id into the geojson properties
+            // inject my data into the geojson properties
             geoJson.properties!.databaseId = area.databaseId
+            geoJson.properties!.title = area.title
+            geoJson.properties!.description = area.description
             areasMapLayer.addData(geoJson);
         })
 
@@ -224,7 +227,12 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         <>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Area Sidebar</h2>
-            <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving ..." : "all saved"}</div>
+            {!!selectedArea ?
+            <EditAreaForm area={selectedArea} />
+            :
+            null
+            }
+            <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving area map ..." : "area map saved"}</div>
 
         </>
     );
