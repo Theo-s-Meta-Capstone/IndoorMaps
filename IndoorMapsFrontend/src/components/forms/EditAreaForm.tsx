@@ -2,7 +2,7 @@ import { Button, TextInput, Group, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { graphql, useMutation } from "react-relay";
-import { useRefreshRelayCache } from "../../hooks";
+import { useDebounce, useRefreshRelayCache } from "../../hooks";
 import FormErrorNotification from "./FormErrorNotification";
 import { EditAreaFormMutation } from "./__generated__/EditAreaFormMutation.graphql";
 import { Feature, Geometry } from "geojson";
@@ -20,6 +20,8 @@ const EditAreaForm = ({ area }: Props) => {
         mode: 'controlled',
         initialValues: { title: '', description: '' },
     });
+
+    const debouncedFormValue = useDebounce(form.values, form.values, 500);
 
     const [commit, isInFlight] = useMutation<EditAreaFormMutation>(graphql`
         mutation EditAreaFormMutation($input: AreaModifyInput!) {
@@ -63,16 +65,17 @@ const EditAreaForm = ({ area }: Props) => {
         form.setFieldValue("description", (feature.properties ? feature.properties.description : ""));
     }, [area]);
 
+    useEffect(() => {
+        handleSubmit(debouncedFormValue);
+    }, [debouncedFormValue]);
+
     return (
-        <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
+        <div>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <TextInput {...form.getInputProps('title')} label="Area Name" placeholder="101" />
             <Textarea {...form.getInputProps('description')} label="Area Description" placeholder="Classes: Geology 101 930, ..." />
-            <Group>
-                <Button type="submit" disabled={isInFlight}>Submit</Button>
-            </Group>
-            <div>{isInFlight ? "saving area details ..." : "area details saved"}</div>
-        </form>
+            <div>{(isInFlight || debouncedFormValue !== form.values) ? "saving area details ..." : "area details saved"}</div>
+        </div>
     )
 }
 
