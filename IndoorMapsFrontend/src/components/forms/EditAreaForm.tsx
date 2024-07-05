@@ -1,4 +1,4 @@
-import { Button, TextInput, Group, Textarea } from "@mantine/core";
+import { TextInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { graphql, useMutation } from "react-relay";
@@ -21,7 +21,7 @@ const EditAreaForm = ({ area }: Props) => {
         initialValues: { title: '', description: '' },
     });
 
-    const debouncedFormValue = useDebounce(form.values, form.values, 500);
+    let debouncedFormValue = useDebounce(form.values, form.values, 500);
 
     const [commit, isInFlight] = useMutation<EditAreaFormMutation>(graphql`
         mutation EditAreaFormMutation($input: AreaModifyInput!) {
@@ -66,6 +66,9 @@ const EditAreaForm = ({ area }: Props) => {
     }, [area]);
 
     useEffect(() => {
+        if(feature.properties!.title == debouncedFormValue.title && feature.properties!.description == debouncedFormValue.description){
+            return;
+        }
         handleSubmit(debouncedFormValue);
     }, [debouncedFormValue]);
 
@@ -74,7 +77,7 @@ const EditAreaForm = ({ area }: Props) => {
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <TextInput {...form.getInputProps('title')} label="Area Name" placeholder="101" />
             <Textarea {...form.getInputProps('description')} label="Area Description" placeholder="Classes: Geology 101 930, ..." />
-            <div>{(isInFlight || debouncedFormValue !== form.values) ? "saving area details ..." : "area details saved"}</div>
+            <div>{(isInFlight) ? "saving area details ..." : "area details saved"}</div>
         </div>
     )
 }
