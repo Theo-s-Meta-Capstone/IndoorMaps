@@ -23,6 +23,8 @@ const BuildingViewer = () => {
         BuildingViewerPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
+    // TODO: load the correct building based off the params
     useEffect(() => {
         loadQuery({});
     }, []);
@@ -46,11 +48,11 @@ type BuildingViewerBodyContainerProps = {
 }
 
 function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
-    const data = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
+    const {getUserFromCookie} = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
         </>
     )
 }

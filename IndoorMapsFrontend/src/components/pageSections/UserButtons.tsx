@@ -1,5 +1,6 @@
-import { Button, Group, Notification } from "@mantine/core";
+import { Button, Group } from "@mantine/core";
 import { ButtonsContainerFragment$data } from "./__generated__/ButtonsContainerFragment.graphql";
+import FormErrorNotification from "../forms/FormErrorNotification";
 
 type Props = {
     user: ButtonsContainerFragment$data["user"];
@@ -13,11 +14,7 @@ const UserButtons = ({ user, logout, formError, closeFormError }: Props) => {
 
     return (
         <Group className="userButtons">
-            {formError ?
-                    <Notification color="red" title="Error" onClose={() => { closeFormError() }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-                        {formError}
-                    </Notification>
-                    : null}
+            <FormErrorNotification formError={formError} onClose={() => { closeFormError() }} />
             <p>Hello {user.name}</p>
             <Button onClick={() => { logout() }} variant="default">Log Out</Button>
         </Group>

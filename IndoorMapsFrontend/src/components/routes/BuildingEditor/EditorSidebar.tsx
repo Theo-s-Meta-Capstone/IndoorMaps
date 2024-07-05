@@ -1,12 +1,11 @@
-import { graphql, useFragment, useMutation } from "react-relay";
+import { graphql, useFragment } from "react-relay";
 import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBodyFragment.graphql";
-import CreateFloorModal from "../../forms/CreateFloorModal";
-import { useBooleanState, useRefreshRelayCache } from "../../../hooks";
-import { Button, ScrollArea, Tooltip, Notification } from "@mantine/core";
-import FloorListItem from "./FloorListItem";
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
-import { EditorSidebarFloorMutation, EditorSidebarFloorMutation$variables } from "./__generated__/EditorSidebarFloorMutation.graphql";
+import FloorSidebar from "./FloorSidebar";
+import { useBooleanState } from "../../../hooks";
+import AreaSidebar from "./AreaSidebar";
+import { Button, Group } from "@mantine/core";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -23,8 +22,9 @@ const EditorSidebarFragment = graphql`
       id
       databaseId
       shape
-      ...FloorListItemFragment
+      ...AreaSidebarBodyFragment
     }
+    ...FloorSidebarBodyFragment
   }
 `;
 
@@ -33,155 +33,77 @@ interface Props {
   map: L.Map;
 }
 
-const floor = L.geoJSON();
+const floorMapLayer = L.geoJSON();
+const areasMapLayer = L.geoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
-  const buildingData = useFragment(EditorSidebarFragment, buildingFromParent);
-  const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
+  const building = useFragment(EditorSidebarFragment, buildingFromParent);
   const [currentFloor, setCurrentFloor] = useState<number | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [refreshFloorData,] = useRefreshRelayCache();
-
-  const [commit, isInFlight] = useMutation<EditorSidebarFloorMutation>(graphql`
-        mutation EditorSidebarFloorMutation($data: FloorModifyInput!) {
-          modifyFloor(data: $data) {
-            databaseId
-          }
-        }
-    `);
-
-  const modifyFloor = async (variables: EditorSidebarFloorMutation$variables) => {
-    if(!currentFloor){
-      throw new Error("floor not set")
-    }
-    try {
-      commit({
-        variables,
-        onCompleted() {
-          refreshFloorData(currentFloor);
-        },
-        onError(error) {
-          setFormError(error.message);
-        }
-      });
-    } catch (error) {
-      const errorMessage = (error as Error).message;
-      setFormError(errorMessage);
-    }
-  };
-
-  const handleFloorShapeUpdate = () => {
-    if(!currentFloor){
-      throw new Error("floor not set")
-    }
-    modifyFloor({
-      data: {
-        id: currentFloor,
-        newShape: {
-          shape: JSON.stringify(floor.toGeoJSON())
-        }
-      }
-    }
-    )
-  }
+  const [isAreaSidebarOpen, closeAreaSidebar, openAreaSidebar] = useBooleanState(false);
 
   const handleFloorChange = (newFloor: number) => {
     setCurrentFloor(newFloor);
   }
 
-  const onShapeEdit = () => {
-    if (!map) return;
-    handleFloorShapeUpdate()
-  }
-
-  const onShapeRemove = (event: L.LeafletEvent) => {
-    if (!map) return;
-    floor.removeLayer(event.layer);
-    handleFloorShapeUpdate()
-  }
-
-  const onShapeCreate = (event: L.LeafletEvent) => {
-    if (!map) return;
-    if (event.layer instanceof L.Polygon) {
-      event.layer.setStyle({ color: 'black' });
-    }
-    floor.addLayer(event.layer);
-    event.layer.on('pm:edit', onShapeEdit)
-    event.layer.on('pm:remove', onShapeRemove)
-    handleFloorShapeUpdate()
-  }
-
-  const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
-    if (!floorPolygonExists) {
-      map.pm.enableDraw('Polygon');
-    }else{
-      map.pm.disableDraw();
-    }
-    // Before moving this eventlisner here, creating shapes was using an old version of the state
-    // This code runs everytime the floor is changed so the onShapeCreate always is referenceing the proper version of currentFloor
-    map.clearAllEventListeners();
-    map.on('pm:create', onShapeCreate);
-    map.pm.Toolbar.setButtonDisabled("Polygon", floorPolygonExists);
-    map.pm.Toolbar.setButtonDisabled("Entrances", !floorPolygonExists);
-  }
-
   useEffect(() => {
-    if (currentFloor == null && buildingData.floors.length !== 0) {
-      setCurrentFloor(buildingData.floors[0].databaseId)
+    if (currentFloor == null && building.floors.length !== 0) {
+      setCurrentFloor(building.floors[0].databaseId)
     }
-  }, [buildingData.floors])
+  }, [building.floors])
 
-  useEffect(() => {
-    console.log(currentFloor)
-    if (currentFloor === null) {
-      return;
-    }
-    // remove all layers that are in the Layer group
-    floor.getLayers().map((layer) => {
+  const handleCloseAreaSidebar = () => {
+    // remove all layers that are in the Area Layer group
+    // when editing the floor, the areas are removed from the map
+    areasMapLayer.getLayers().map((layer) => {
       map.removeLayer(layer);
-      floor.removeLayer(layer);
+      areasMapLayer.removeLayer(layer);
     })
+    floorMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.Polygon) {
+        layer.setStyle({ color: 'blue' });
+      }
+    })
+    floorMapLayer.pm.enable()
+    floorMapLayer.pm.setOptions({
+      allowEditing:true,
+    })
+    closeAreaSidebar();
+  }
 
-    const currentFloorRef = buildingData.floors.find(floor => floor.databaseId === currentFloor);
-    if (!currentFloorRef) {
-      throw new Error("No floor matching the current floor found")
-    }
-
-    if (!currentFloorRef.shape) {
-      setWhetherBuildingOrEntrenceMapping(false);
-    } else {
-      const geoJson: GeoJSON.FeatureCollection = JSON.parse(JSON.parse(currentFloorRef.shape));
-      // This covers the case where there are entrence markers but no polygon
-      setWhetherBuildingOrEntrenceMapping(geoJson.features.findIndex(feature => { return feature.geometry.type === "Polygon" }) > -1);
-      // add the geoJson to the floor and add the proper event listeners
-      floor.addData(geoJson);
-      floor.addTo(map)
-      floor.getLayers().map((layer) => {
-        layer.on('pm:edit', onShapeEdit)
-        layer.on('pm:remove', onShapeRemove)
-      })
-    }
-
-  }, [currentFloor])
-
-  const floorListElements = buildingData.floors.map((floor, i) => (<FloorListItem setCurrentFloor={handleFloorChange} currentFloor={currentFloor} floorFromParent={floor} key={i} />));
+  const handleOpenAreaSidebar = () => {
+    floorMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.Polygon) {
+        layer.setStyle({ color: 'black' });
+      }
+    })
+    // Both of these are needed to disable editing
+    // This one makes it so if you are currently in edit mode it stops being editable
+    // this only seems to work for the vetector move edit mode and not the dragging or rotating
+    floorMapLayer.pm.disable()
+    // This one makes it so enter edit mode it doesn't show as editable
+    floorMapLayer.pm.setOptions({
+      allowEditing:false,
+      allowCutting:false,
+      allowRemoval:false,
+      allowRotation:false,
+      draggable:false,
+    })
+    // disable drawing, useful if the user was drawing while on the floor sidebar
+    map.pm.disableDraw();
+    openAreaSidebar();
+  }
 
   return (
     <aside className="EditorSidebar">
-      {formError ?
-        <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-          {formError}
-        </Notification>
-        : null}
-      <h1>Editor Sidebar</h1>
-      <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
-        <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
-      </Tooltip>
-      <CreateFloorModal isOpen={isCreateFloorModalOpen} closeModal={handleCloseCreateFloorModal} />
-      <ScrollArea h={250}>
-        {floorListElements}
-      </ScrollArea>
-      <div>{isInFlight ? "saving ..." : "all saved"}</div>
+      <Group justify="space-between">
+        <Button onClick={handleCloseAreaSidebar} disabled={!isAreaSidebarOpen}>Add + Edit Floors</Button>
+        <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
+      </Group>
+      {isAreaSidebarOpen ?
+        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} />
+        :
+        <FloorSidebar setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+      }
     </aside>
   )
 }

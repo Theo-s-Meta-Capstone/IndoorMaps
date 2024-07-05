@@ -7,8 +7,9 @@ import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
 
 const DirectoryPageQuery = graphql`
-    query DirectoryQuery {
+    query DirectoryQuery($autocompleteInput: AutocompleteInput!) {
     allBuildings {
+        id
         ...BuildingItemFragment
     }
     getUserFromCookie {
@@ -16,6 +17,7 @@ const DirectoryPageQuery = graphql`
         ...UserDataDisplayFragment,
         ...ListOfConnectedBuildingsUserDataDisplayFragment
     }
+    ...AutoCompleteResultsFragment
 }`
 
 const Directory = () => {
@@ -26,8 +28,13 @@ const Directory = () => {
         DirectoryPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
     useEffect(() => {
-        loadQuery({});
+        loadQuery({
+            autocompleteInput: {
+                p: null,
+            },
+        });
     }, []);
 
     if (queryReference == null) {
@@ -48,12 +55,13 @@ type DirectoryBodyContainerProps = {
 
 function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
     const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
+    const { getUserFromCookie, allBuildings } = data;
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
-            <ListOfConnectedBuildings getUserFromCookie={data.getUserFromCookie}/>
-            <ListOfBuildings buildings={data.allBuildings} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
+            <ListOfConnectedBuildings getUserFromCookie={getUserFromCookie} getGeocoder={data} />
+            <ListOfBuildings buildings={allBuildings} />
         </>
     )
 }

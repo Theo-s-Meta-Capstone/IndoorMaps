@@ -14,25 +14,6 @@ export class LatLng {
   lon: number
 }
 
-
-@ObjectType()
-export class Floor {
-  @Field((type) => ID)
-  id: string
-
-  @Field(type => Int)
-  databaseId: number
-
-  @Field()
-  title: string
-
-  @Field()
-  description: string
-
-  @Field({ nullable: true })
-  shape?: string
-}
-
 @ObjectType()
 export class Building {
   @Field((type) => ID)

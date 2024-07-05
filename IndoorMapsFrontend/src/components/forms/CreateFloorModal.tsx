@@ -1,10 +1,11 @@
-import { Button, Modal, TextInput, Notification, Group } from "@mantine/core";
+import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, useForm } from "@mantine/form";
 import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { useParams } from "react-router-dom";
 import { CreateFloorModalMutation } from "./__generated__/CreateFloorModalMutation.graphql";
 import { useRefreshRelayCache } from "../../hooks";
+import FormErrorNotification from "./FormErrorNotification";
 
 interface Props {
     isOpen: boolean,
@@ -71,11 +72,7 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
             }}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
-                {formError ?
-                    <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-                        {formError}
-                    </Notification>
-                    : null}
+                <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('title')} label="Floor Name" placeholder="F1" />
                 <TextInput {...form.getInputProps('description')} label="Floor Description" placeholder="Geology department" />
                 <Group>

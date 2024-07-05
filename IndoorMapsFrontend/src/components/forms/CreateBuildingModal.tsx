@@ -1,16 +1,22 @@
-import { Button, Modal, TextInput, Notification, Group } from "@mantine/core";
+import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
-import { useState } from "react";
-import { graphql, useMutation } from "react-relay";
+import { Suspense, useState } from "react";
+import { fetchQuery, graphql, useMutation, useRelayEnvironment } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
+import FormErrorNotification from "./FormErrorNotification";
+import AutoCompleteResults from "./AutoCompleteResults";
+import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { CreateBuildingModalLatlngLookupQuery } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
 
 interface Props {
     isOpen: boolean,
     closeModal: () => void,
+    getGeocoder: AutoCompleteResultsFragment$key,
 }
 
-const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
+const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
+    const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -56,6 +62,40 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
         }
     };
 
+    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
+        form.setFieldValue('address', item.title);
+        fetchQuery<CreateBuildingModalLatlngLookupQuery>(
+            environment,
+            graphql`
+            query CreateBuildingModalLatlngLookupQuery($lookupInput: LocationLookupInput!) {
+                getLocationLookup(data: $lookupInput) {
+                    lat
+                    lon
+                }
+            }
+            `,
+            {
+                lookupInput: {
+                    "id": item.id
+                }
+            },
+        )
+            .subscribe({
+                start: () => { },
+                complete: () => { },
+                error: (error: Error) => {
+                    setFormError(error.message);
+                },
+                next: (data) => {
+                    if (!data || !data.getLocationLookup) {
+                        setFormError("No response when loading lat/long for autocomplete result");
+                        return;
+                    }
+                    form.setFieldValue('startingPosition', `${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
+                }
+            });
+    }
+
     return (
         <Modal
             opened={isOpen}
@@ -67,13 +107,12 @@ const CreateBuildingModal = ({ isOpen, closeModal }: Props) => {
             }}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
-                {formError ?
-                    <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-                        {formError}
-                    </Notification>
-                    : null}
+                <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />
+                </Suspense>
                 <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>

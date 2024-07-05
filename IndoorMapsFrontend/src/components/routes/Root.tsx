@@ -21,6 +21,10 @@ const Root = () => {
         RootPageQuery,
     );
 
+    // In the example on the relay docs, they run loadQuery after a button press https://www.internalfb.com/intern/staticdocs/relay/docs/api-reference/use-query-loader/
+    // I want the query to run on page load, so I'm using useEffect to run loadQuery on page load.
+    // When it is not inside of a loadQuery this error is produced: "Too many re-renders. React limits the number of renders to prevent an infinite loop."
+    // There is likely a better way to load the main relay query for a page, I just havent found it
     useEffect(() => {
         loadQuery({});
     }, []);
@@ -44,11 +48,11 @@ type RootBodyContainerProps = {
 }
 
 function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
-    const data = usePreloadedQuery(RootPageQuery, queryReference);
+    const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={data.getUserFromCookie} />
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
         </>
     )
 }

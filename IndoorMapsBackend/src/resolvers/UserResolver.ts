@@ -10,13 +10,13 @@ import {
     FieldResolver,
     Root,
 } from 'type-graphql'
-import { Context } from './context.js'
-import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from './User.js'
-import auth from './auth/auth.js'
-import { validateUser } from './auth/validateUser.js';
-import { convertToGraphQLBuilding, convertToGraphQLUser } from './utils/typeConversions.js'
+import { Context } from '../utils/context.js'
+import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graphqlSchemaTypes/User.js'
+import auth from '../auth/auth.js'
+import { validateUser } from '../auth/validateUser.js';
+import { convertToGraphQLBuilding, convertToGraphQLUser } from '../utils/typeConversions.js'
 import { GraphQLError } from 'graphql'
-import { deleteAccessToken } from './auth/jwt.js'
+import { deleteAccessToken } from '../auth/jwt.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 

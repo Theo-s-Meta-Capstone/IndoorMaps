@@ -51,8 +51,8 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         variables: {
             "data": {
                 "password": "pass",
-                "name": testBuildingName+"creator",
-                "email": testBuildingName+"creator" + "@test.com"
+                "name": testBuildingName + "creator",
+                "email": testBuildingName + "creator" + "@test.com"
             }
         },
     }
@@ -62,25 +62,43 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         const response = await request(url).post('/').send(createUserQueryData);
         expect(response.error).toEqual(false);
         expect(response.body.data?.signupUser.id).toBeDefined();
-        expect(response.body.data?.signupUser.name).toEqual(testBuildingName+"creator");
+        expect(response.body.data?.signupUser.name).toEqual(testBuildingName + "creator");
         expect(response.body.data?.signupUser.isEmailVerified).toEqual(false);
         cookie = response.headers['set-cookie'][0];
     });
 
+    // The following tests get all return fields possible inorder to test field resolvers (which only run when asked for)
     it('Create a building', async () => {
         // this is the query for our test
         const createBuildingQuery = {
             query: `
             mutation Mutation($data: BuildingCreateInput!) {
                 createBuilding(data: $data) {
-                id
-                title
-                floors {
                     id
+                    databaseId
                     title
-                    description
-                }
-                }
+                    startPos {
+                      lat
+                      lon
+                    }
+                    address
+                    floors {
+                      id
+                      databaseId
+                      title
+                      description
+                      shape
+                      areas {
+                        id
+                        databaseId
+                        title
+                        description
+                        shape
+                        traversable
+                        category
+                      }
+                    }
+                  }
             }
         `,
             variables: {
@@ -106,14 +124,31 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             query: `
             query Query {
                 allBuildings {
-                  id
-                  title
-                  floors {
                     id
+                    databaseId
                     title
-                    description
+                    startPos {
+                      lat
+                      lon
+                    }
+                    address
+                    floors {
+                      id
+                      databaseId
+                      title
+                      description
+                      shape
+                      areas {
+                        id
+                        databaseId
+                        title
+                        description
+                        shape
+                        traversable
+                        category
+                      }
+                    }
                   }
-                }
               }
         `,
         };
@@ -129,22 +164,39 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         const getSingleBuildingQuery = {
             query: `
             query GetBuilding($data: BuildingUniqueInput!) {
-                getBuilding(data: $data) {
-                  id
-                  title
-                  floors {
+                getBuilding(data: $data)  {
                     id
+                    databaseId
                     title
-                    description
+                    startPos {
+                      lat
+                      lon
+                    }
+                    address
+                    floors {
+                      id
+                      databaseId
+                      title
+                      description
+                      shape
+                      areas {
+                        id
+                        databaseId
+                        title
+                        description
+                        shape
+                        traversable
+                        category
+                      }
+                    }
                   }
-                }
               }
         `,
-        variables: {
-            "data": {
-                "id": parseInt(buildingId.substring("building".length)),
-              }
-        },
+            variables: {
+                "data": {
+                    "id": parseInt(buildingId.substring("building".length)),
+                }
+            },
         };
         // send our request to the url of the test server
         const response = await request(url).post('/').send(getSingleBuildingQuery);
@@ -152,6 +204,217 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         expect(response.body.data?.getBuilding.title).toEqual(testBuildingName);
     });
 
+    let floorDatabaseId = -1;
 
+    it('Create floor on new building', async () => {
+        // used generic name testQuery to make it easier to copy and paste
+        const testQuery = {
+            query: `
+            mutation CreateFloor($data: FloorCreateInput!) {
+                createFloor(data: $data) {
+                  success
+                  databaseId
+                  buildingDatabaseId
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "title": "newFlo",
+                    "description": "newFloorFromTestnewFloorFromTestnewFloorFromTestnewFloorFromTestnewFloorFromTestnewFloorFromTest",
+                    "buildingDatabseId": parseInt(buildingId.substring("building".length)),
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.createFloor.buildingDatabaseId).toEqual(parseInt(buildingId.substring("building".length)));
+        floorDatabaseId = response.body.data?.createFloor.databaseId
+    });
 
+    it('Get floor', async () => {
+        const testQuery = {
+            query: `
+            query Query($data: FloorUniqueInput!) {
+                getFloor(data: $data) {
+                  id
+                  databaseId
+                  title
+                  description
+                  shape
+                  areas {
+                    id
+                    databaseId
+                    title
+                    description
+                    shape
+                    traversable
+                    category
+                  }
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "id": floorDatabaseId
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getFloor.databaseId).toEqual(floorDatabaseId);
+        expect(response.body.data?.getFloor.shape).toBeNull();
+    });
+
+    it('Modify floor', async () => {
+        // used generic name testQuery to make it easier to copy and paste
+        const testQuery = {
+            query: `
+            mutation Mutation($data: FloorModifyInput!) {
+                modifyFloor(data: $data) {
+                  success
+                  databaseId
+                  buildingDatabaseId
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "id": floorDatabaseId,
+                    "title": "Diff",
+                    "description": "New Description",
+                    "newShape": {
+                        "shape": JSON.stringify({ "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-77.7637, 39.78075], [-77.764304, 39.780311], [-77.763022, 39.780193], [-77.7637, 39.78075]]] }, "properties": {} }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-77.763435, 39.780393] }, "properties": {} }] })
+                    }
+                }
+            }
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.modifyFloor.success).toEqual(true);
+    });
+
+    it('Get floor with new data', async () => {
+        const testQuery = {
+            query: `
+            query Query($data: FloorUniqueInput!) {
+                getFloor(data: $data) {
+                  id
+                  databaseId
+                  title
+                  description
+                  shape
+                  areas {
+                    id
+                    databaseId
+                    title
+                    description
+                    shape
+                    traversable
+                    category
+                  }
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "id": floorDatabaseId
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getFloor.databaseId).toEqual(floorDatabaseId);
+        expect(response.body.data?.getFloor.description).toEqual("New Description");
+        expect(response.body.data?.getFloor.shape).toBeDefined();
+    });
+
+    let areaDatabaseId = -1;
+    it('Create new area', async () => {
+        const testQuery = {
+            query: `
+            mutation Mutation($data: AreaCreateInput!) {
+                createArea(data: $data) {
+                  success
+                  databaseId
+                  floorDatabaseId
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabseId": floorDatabaseId,
+                    "title": "testArea",
+                    "description": "testAreaDescription",
+                    "shape": JSON.stringify({ "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-77.7637, 39.78075], [-77.764304, 39.780311], [-77.763022, 39.780193], [-77.7637, 39.78075]]] }, "properties": {} }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-77.763435, 39.780393] }, "properties": {} }] })
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.createArea.success).toEqual(true);
+        areaDatabaseId = response.body.data?.createArea.databaseId
+    });
+
+    it('Modify new area', async () => {
+        const testQuery = {
+            query: `
+            mutation ModifyArea($data: AreaModifyInput!) {
+                modifyArea(data: $data) {
+                  success
+                  databaseId
+                  floorDatabaseId
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "id": areaDatabaseId,
+                    "title": "editedArea",
+                    "description": "different",
+                    "category": "different",
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.modifyArea.success).toEqual(true);
+    });
+
+    it('Get the new area', async () => {
+        const testQuery = {
+            query: `
+            query Query($data: AreaUniqueInput!) {
+                getArea(data: $data) {
+                  id
+                  databaseId
+                  title
+                  description
+                  shape
+                  traversable
+                  category
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "id": areaDatabaseId,
+                }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getArea.description).toEqual("different");
+        expect(response.body.data?.getArea.category).toEqual("different");
+        expect(response.body.data?.getArea.shape).toBeDefined();
+        expect(response.body.data?.getArea.title).toEqual("editedArea");
+
+    });
 });

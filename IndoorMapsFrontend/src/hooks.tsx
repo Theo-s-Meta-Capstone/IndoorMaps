@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { graphql, loadQuery, useRelayEnvironment } from "react-relay";
 
 /**
@@ -22,6 +22,8 @@ export const useBooleanState = (initalValue: boolean) => {
         setBooleanValue(true);
     }
 
+    // Const Assertion stops typescript from widing type
+    // Read more https://medium.com/@taitasciore/const-assertions-and-type-narrowing-widening-in-typescript-72005b201f28
     return [booleanValue, setFalse, setTrue] as const;
 }
 
@@ -37,6 +39,7 @@ export const useRefreshRelayCache = () => {
         query hooksGetFloorQuery($data: FloorUniqueInput!) {
             getFloor(data: $data) {
                 ...FloorListItemFragment
+                ...AreaSidebarBodyFragment
             }
         }
     `;
@@ -80,3 +83,20 @@ export const useRefreshRelayCache = () => {
 
     return [refreshFloorData, refreshBuildingData] as const;
 }
+
+// based on https://www.telerik.com/blogs/how-to-create-custom-debounce-hook-react, I added typing
+// because the file is tsx, the T needs to be T, for it to not be seen as a react component (https://stackoverflow.com/questions/32696475/typescript-tsx-and-generic-parameters)
+export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500): T => {
+    const [debouncedValue, setDebouncedValue] = useState<T>(startingValue);
+    const timerRef = useRef<ReturnType<typeof setInterval>>();
+
+    useEffect(() => {
+        timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
+
+        return () => {
+            clearTimeout(timerRef.current);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};

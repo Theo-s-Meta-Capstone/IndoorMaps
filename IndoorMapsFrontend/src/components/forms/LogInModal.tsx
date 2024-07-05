@@ -1,8 +1,9 @@
-import { Button, Modal, TextInput, Notification, PasswordInput, Group } from "@mantine/core";
+import { Button, Modal, TextInput, PasswordInput, Group } from "@mantine/core";
 import { isEmail, useForm } from "@mantine/form";
 import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { LogInModalMutation } from "./__generated__/LogInModalMutation.graphql";
+import FormErrorNotification from "./FormErrorNotification";
 
 interface Props {
     isOpen: boolean,
@@ -66,11 +67,7 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
             }}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
-                {formError ?
-                    <Notification color="red" title="Error" onClose={() => { setFormError(null) }} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
-                        {formError}
-                    </Notification>
-                    : null}
+                <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('email')} autoComplete="email" label="Email" placeholder="zuck@meta.com" />
                 <PasswordInput {...form.getInputProps('password')} autoComplete="current-password" label="Password" placeholder="" />
                 <Group>

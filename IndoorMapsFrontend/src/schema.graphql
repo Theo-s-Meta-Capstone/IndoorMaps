@@ -3,6 +3,61 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Area {
+  category: String!
+  databaseId: Int!
+  description: String!
+  id: ID!
+  shape: String!
+  title: String!
+  traversable: Boolean!
+}
+
+input AreaCreateInput {
+  category: String
+  description: String!
+  floorDatabseId: Int!
+  shape: String!
+  title: String!
+}
+
+input AreaModifyInput {
+  category: String
+  description: String
+  id: Int!
+  shape: String
+  title: String
+}
+
+input AreaUniqueInput {
+  id: Int!
+}
+
+type Autocomplete {
+  items: [AutocompleteItem!]!
+}
+
+type AutocompleteAddress {
+  countryCode: String
+  countryName: String
+  label: String
+  postalCode: String
+  state: String
+  stateCode: String
+}
+
+input AutocompleteInput {
+  p: String
+}
+
+type AutocompleteItem {
+  address: AutocompleteAddress
+  highlights: TitleHighlightsRange
+  id: String!
+  resultType: String
+  title: String!
+}
+
 type Building {
   address: String!
   databaseId: Int!
@@ -36,6 +91,7 @@ enum EditorLevel {
 }
 
 type Floor {
+  areas: [Area!]!
   databaseId: Int!
   description: String!
   id: ID!
@@ -64,9 +120,18 @@ input FloorUniqueInput {
   id: Int!
 }
 
+type HighlightsRange {
+  end: Int
+  start: Int
+}
+
 type LatLng {
   lat: Float!
   lon: Float!
+}
+
+input LocationLookupInput {
+  id: String
 }
 
 type LogedInUser {
@@ -76,12 +141,21 @@ type LogedInUser {
 }
 
 type Mutation {
+  createArea(data: AreaCreateInput!): NewAreaResult!
   createBuilding(data: BuildingCreateInput!): Building!
   createFloor(data: FloorCreateInput!): NewFloorResult!
+  deleteArea(data: AreaUniqueInput!): NewAreaResult!
+  modifyArea(data: AreaModifyInput!): NewAreaResult!
   modifyFloor(data: FloorModifyInput!): NewFloorResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+}
+
+type NewAreaResult {
+  databaseId: Int!
+  floorDatabaseId: Int!
+  success: Boolean!
 }
 
 type NewFloorResult {
@@ -97,13 +171,20 @@ input NewShape {
 type Query {
   allBuildings: [Building!]!
   allUsers: [User!]!
+  getArea(data: AreaUniqueInput!): Area!
+  getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
+  getLocationLookup(data: LocationLookupInput!): LatLng
   getUserFromCookie: LogedInUser!
 }
 
 type SignedOutSuccess {
   success: Boolean!
+}
+
+type TitleHighlightsRange {
+  title: [HighlightsRange!]
 }
 
 type User {

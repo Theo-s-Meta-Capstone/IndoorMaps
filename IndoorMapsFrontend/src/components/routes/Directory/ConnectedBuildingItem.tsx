@@ -17,20 +17,20 @@ const ConnectedBuildingFragment = graphql`
 `;
 
 type ConnectedBuildingItemProps = {
-    buildingWithPerms: ConnectedBuildingItemFragment$key
+    buildingWithPermsFromParent: ConnectedBuildingItemFragment$key
 }
 
-function ConnectedBuildingItem({ buildingWithPerms }: ConnectedBuildingItemProps) {
-    const data = useFragment(
+function ConnectedBuildingItem({ buildingWithPermsFromParent }: ConnectedBuildingItemProps) {
+    const buildingWithPerms = useFragment(
         ConnectedBuildingFragment,
-        buildingWithPerms,
+        buildingWithPermsFromParent,
     );
     return (
-        <Link to={`/building/${data.building.databaseId}/editor`}>
-            <Group key={data.id} >
-                <h2>{data.building.title}</h2>
-                <p>{data.building.address}</p>
-                <p>you are: {data.editorLevel}</p>
+        <Link to={`/building/${buildingWithPerms.building.databaseId}/editor`}>
+            <Group>
+                <h2>{buildingWithPerms.building.title}</h2>
+                <p>{buildingWithPerms.building.address}</p>
+                <p>you are: {buildingWithPerms.editorLevel}</p>
             </Group>
         </Link>
     )

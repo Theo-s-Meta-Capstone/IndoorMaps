@@ -18,15 +18,15 @@ type UserDataDisplayProps = {
 }
 
 function UserDataDisplay({ getUserFromCookie }: UserDataDisplayProps) {
-    const data = useFragment(
+    const { isLogedIn, user } = useFragment(
         UserDataFragment,
         getUserFromCookie,
     );
     return (
         <>
-            <div>{data.isLogedIn ? "loged in" : "not loged in"}</div>
-            {data.isLogedIn ?
-                <div>{JSON.stringify(data.user)}</div>
+            <div>{isLogedIn ? "loged in" : "not loged in"}</div>
+            {isLogedIn ?
+                <div>{JSON.stringify(user)}</div>
                 :
                 null
             }

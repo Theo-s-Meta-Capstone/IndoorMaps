@@ -11,6 +11,7 @@ const BuildingEditorPageQuery = graphql`
         ...ButtonsContainerFragment,
     }
     getBuilding(data: $data) {
+        title
         ...BuildingEditorBodyFragment
     }
 }`
@@ -25,8 +26,9 @@ const BuildingEditor = () => {
         BuildingEditorPageQuery,
     );
 
+    // See ./Root.tsx line 24 for explanation of this useEffect
     useEffect(() => {
-        if(buildingId == null) {
+        if (buildingId == null) {
             return;
         }
         loadQuery({
@@ -38,8 +40,6 @@ const BuildingEditor = () => {
 
     return (
         <div>
-            <h1>Editing building #{buildingId}</h1>
-            <Link to="/directory">Directory</Link>
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingEditorBodyContainer queryReference={queryReference} />
@@ -55,11 +55,13 @@ type BuildingEditorBodyContainerProps = {
 }
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
-    const data = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={data.getUserFromCookie} />
-            <BuildingEditorBody buildingFromParent={data.getBuilding} />
+            <h1>Editing building {getBuilding.title}</h1>
+            <Link to="/directory">Directory</Link>
+            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
     )
 }
