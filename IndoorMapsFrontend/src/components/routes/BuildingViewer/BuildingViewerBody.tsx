@@ -176,13 +176,16 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                     if (layer.feature.properties.title) {
                         layer.bindTooltip(layer.feature.properties.title, { permanent: true, className: "title", offset: [0, 0] });
                     }
+                    if (layer.feature.properties.description) {
+                        layer.bindPopup(layer.feature.properties.description, { className: "description", offset: [0, 0] });
+                    }
                 }
                 layer.setStyle({
                     color: 'black',
                     fill: true,
                     fillOpacity: 1,
                     fillColor: 'white',
-
+                    className: "area"
                 });
             }
         })
