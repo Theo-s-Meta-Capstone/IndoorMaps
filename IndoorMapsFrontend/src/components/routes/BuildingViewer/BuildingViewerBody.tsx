@@ -113,6 +113,8 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const setUpMapBuilder = () => {
         if (!map || mapIsSetUp) return;
         setMapIsSetUp(true)
+        areasMapLayer.addTo(map)
+        floorMapLayer.addTo(map)
     }
 
     useEffect(() => {
@@ -147,7 +149,6 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
             const geoJson: GeoJSON.FeatureCollection = JSON.parse(currentFloorRef.shape);
             // add the geoJson to the floor and add the proper event listeners
             floorMapLayer.addData(geoJson);
-            floorMapLayer.addTo(map);
         }
 
         floorMapLayer.getLayers().map((layer) => {
@@ -180,17 +181,19 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                         layer.bindPopup(layer.feature.properties.description, { className: "description", offset: [0, 0] });
                     }
                 }
+                // The class lists property on set style doesn't work if the layer group has already been added to the map
+                // Likly related to this old issue: https://github.com/leaflet/leaflet/issues/2662
                 layer.setStyle({
                     color: 'black',
                     fill: true,
                     fillOpacity: 1,
                     fillColor: 'white',
-                    className: "area"
                 });
+                // getElement relys on the layer being already added to the map,
+                layer.getElement()?.classList.add("area")
             }
         })
 
-        areasMapLayer.addTo(map)
     }, [currentFloor])
 
     const floorListElements = building.floors.map((floor) => (<Button onClick={() => setCurrentFloor(floor.databaseId)} key={floor.id}>{floor.title}</Button>));
