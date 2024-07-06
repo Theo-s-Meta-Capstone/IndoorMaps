@@ -60,9 +60,10 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
 
     const [map, setMap] = useState<L.Map | null>(null);
 
-    const gpsMarker = L.marker([0, 0], {icon: locationMarkerIcon});
-    const accurecyMarker = L.circle([0,0], {radius: 0})
+    const gpsMarker = L.marker([0, 0], { icon: locationMarkerIcon });
+    const accurecyMarker = L.circle([0, 0], { radius: 0 })
 
+    let mapHasBeenDragged = false
     // I don't want a new user locaiton to trigger a react rerender so I'm not using a state to store the location
     // After incoking the getlocation function, what ever funciton is here will be called with the new location when ever it's ready
     const getLocation = useUserLocation((position: GeolocationPosition) => {
@@ -70,7 +71,9 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         gpsMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setRadius(position.coords.accuracy)
-        map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
+        if (!mapHasBeenDragged) {
+            map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
+        }
     }, (errorMessage: string) => {
         setPageError(errorMessage)
     });
@@ -82,7 +85,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
 
     let alreadyWatching = false;
     const startTrackingUserLocation = () => {
-        if(!map) return;
+        if (!map) return;
         // if the user is already watching, just zoom to the location
         if (alreadyWatching) {
             zoomToUserLocation();
@@ -92,6 +95,13 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         getLocation()
         gpsMarker.addTo(map);
         accurecyMarker.addTo(map);
+        // after clicking the location button location is updated where a gps watch event occurs
+        mapHasBeenDragged = false;
+        // if the user drags the map, the map no loger updates to the users new location
+        map.on('dragstart', () => {
+            mapHasBeenDragged = true;
+            map.removeEventListener('dragstart');
+        });
     }
 
     const setUpMapBuilder = () => {
@@ -157,7 +167,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         areasMapLayer.getLayers().map((layer) => {
             if (layer instanceof L.Polygon) {
                 if (layer.feature) {
-                    if(layer.feature.properties.title){
+                    if (layer.feature.properties.title) {
                         layer.bindTooltip(layer.feature.properties.title, { permanent: true, className: "title", offset: [0, 0] });
                     }
                 }
