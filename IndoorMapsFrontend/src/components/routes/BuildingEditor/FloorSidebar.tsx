@@ -89,7 +89,9 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (!map) return;
         floorMapLayer.removeLayer(event.layer);
         handleFloorShapeUpdate()
-        setWhetherBuildingOrEntrenceMapping(false);
+        if(event.layer instanceof L.Polygon){
+            setWhetherBuildingOrEntrenceMapping(false);
+        }
     }
 
     const onShapeCreate = (event: L.LeafletEvent) => {
