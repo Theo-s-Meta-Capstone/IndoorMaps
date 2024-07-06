@@ -54,6 +54,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const mapStyle = { height: '70vh', width: '100%', padding: 0, zIndex: 50 };
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
     const [pageError, setPageError] = useState<string | null>(null);
+    const [isLocationLoading, setLocationLoading] = useState(false)
 
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
@@ -68,6 +69,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     // After incoking the getlocation function, what ever funciton is here will be called with the new location when ever it's ready
     const getLocation = useUserLocation((position: GeolocationPosition) => {
         if (!map) return;
+        setLocationLoading(false)
         gpsMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setRadius(position.coords.accuracy)
@@ -75,6 +77,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
             map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
         }
     }, (errorMessage: string) => {
+        setLocationLoading(false)
         setPageError(errorMessage)
     });
 
@@ -89,6 +92,8 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         // if the user is already watching, just zoom to the location
         if (alreadyWatching) {
             zoomToUserLocation();
+        }else {
+            setLocationLoading(true);
         }
         // otherwise place the marker and add the event listener
         alreadyWatching = true;
@@ -202,7 +207,13 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         <main className="ViewerMain">
             <Group className="floorsContainer" >
                 {floorListElements}
-                <Button onClick={startTrackingUserLocation}><img src="/location.svg" alt="Get GPS Location" /></Button>
+                <Button onClick={startTrackingUserLocation}>
+                {isLocationLoading ?
+                    "loading"
+                    :
+                    <img src="/location.svg" alt="Get GPS Location" />
+                }
+                </Button>
                 <Button onClick={resetMapToStartingLocation}><img src="/resetLocation.svg" alt="Reset Location" /></Button>
             </Group>
             <FormErrorNotification className="MapViewerNotification" formError={pageError} onClose={() => setPageError(null)} />
