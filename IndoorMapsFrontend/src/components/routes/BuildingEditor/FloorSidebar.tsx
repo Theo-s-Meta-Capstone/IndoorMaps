@@ -24,7 +24,7 @@ const FloorSidebarFragment = graphql`
   }
 `;
 
-interface Props {
+type Props =  {
     buildingFromParent: FloorSidebarBodyFragment$key;
     map: L.Map;
     currentFloor: number | null;

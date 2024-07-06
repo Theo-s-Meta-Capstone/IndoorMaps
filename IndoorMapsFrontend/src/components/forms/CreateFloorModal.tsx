@@ -7,7 +7,7 @@ import { CreateFloorModalMutation } from "./__generated__/CreateFloorModalMutati
 import { useRefreshRelayCache } from "../../utils/hooks";
 import FormErrorNotification from "./FormErrorNotification";
 
-interface Props {
+type Props = {
     isOpen: boolean,
     closeModal: () => void,
 }

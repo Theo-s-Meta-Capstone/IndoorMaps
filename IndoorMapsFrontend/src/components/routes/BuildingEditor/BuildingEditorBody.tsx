@@ -30,7 +30,7 @@ const BuildingEditorFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
     buildingFromParent: BuildingEditorBodyFragment$key;
 }
 

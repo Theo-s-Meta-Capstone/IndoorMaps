@@ -7,7 +7,7 @@ import FormErrorNotification from "./FormErrorNotification";
 import { EditAreaFormMutation } from "./__generated__/EditAreaFormMutation.graphql";
 import { Feature, Geometry } from "geojson";
 
-interface Props {
+type Props = {
     area: L.Layer,
 }
 

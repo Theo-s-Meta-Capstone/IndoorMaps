@@ -8,7 +8,7 @@ import { useDebounce } from "../../utils/hooks";
 // I chose 300 with input from https://stackoverflow.com/a/73979506
 const debounceTime = 300;
 
-interface Props {
+type Props = {
     searchString: string,
     getGeocoder: AutoCompleteResultsFragment$key,
     chooseAutocompleteResult: (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => void,

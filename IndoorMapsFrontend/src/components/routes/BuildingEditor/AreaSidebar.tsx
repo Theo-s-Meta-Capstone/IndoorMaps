@@ -28,7 +28,7 @@ const AreaSidebarFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
     floorFromParent: AreaSidebarBodyFragment$key | undefined;
     map: L.Map;
     areasMapLayer: L.GeoJSON;

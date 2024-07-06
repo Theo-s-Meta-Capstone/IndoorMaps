@@ -3,7 +3,7 @@ import LogInModal from "../forms/LogInModal";
 import { useBooleanState } from "../../utils/hooks";
 import RegisterModal from "../forms/RegisterModal";
 
-interface Props {
+type Props = {
     refreshUserData: () => void;
 }
 

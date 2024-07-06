@@ -9,7 +9,7 @@ import AutoCompleteResults from "./AutoCompleteResults";
 import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
 import { CreateBuildingModalLatlngLookupQuery } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
 
-interface Props {
+type Props = {
     isOpen: boolean,
     closeModal: () => void,
     getGeocoder: AutoCompleteResultsFragment$key,

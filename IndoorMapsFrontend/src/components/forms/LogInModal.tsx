@@ -5,7 +5,7 @@ import { graphql, useMutation } from "react-relay";
 import { LogInModalMutation } from "./__generated__/LogInModalMutation.graphql";
 import FormErrorNotification from "./FormErrorNotification";
 
-interface Props {
+type Props = {
     isOpen: boolean,
     closeModal: () => void,
     switchAuthAction: () => void,

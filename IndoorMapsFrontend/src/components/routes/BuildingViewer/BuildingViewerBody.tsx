@@ -37,7 +37,7 @@ const BuildingViewerFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
     buildingFromParent: BuildingViewerBodyFragment$key;
 }
 
@@ -89,7 +89,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         // if the user is already watching, just zoom to the location
         if (alreadyWatching) {
             zoomToUserLocation();
-        };
+        }
         // otherwise place the marker and add the event listener
         alreadyWatching = true;
         getLocation()
@@ -147,7 +147,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
             const geoJson: GeoJSON.FeatureCollection = JSON.parse(currentFloorRef.shape);
             // add the geoJson to the floor and add the proper event listeners
             floorMapLayer.addData(geoJson);
-            floorMapLayer.addTo(map);;
+            floorMapLayer.addTo(map);
         }
 
         floorMapLayer.getLayers().map((layer) => {

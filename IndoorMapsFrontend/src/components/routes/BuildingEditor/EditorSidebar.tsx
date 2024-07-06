@@ -29,7 +29,7 @@ const EditorSidebarFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
   buildingFromParent: EditorSidebarBodyFragment$key;
   map: L.Map;
 }
