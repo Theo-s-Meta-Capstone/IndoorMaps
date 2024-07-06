@@ -100,3 +100,56 @@ export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500)
 
     return debouncedValue;
 };
+
+
+// Based on expample on https://www.w3schools.com/html/html5_geolocation.asp
+// enableHighAcuracy and fallback based on https://stackoverflow.com/questions/9053262/geolocation-html5-enablehighaccuracy-true-false-or-best-option
+export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void) => {
+    const [userLocationError, setUserLocationError] = useState<string | null>(null);
+    const getLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(onUserLocationWatch, errorCallback_highAccuracy, {maximumAge:600000, timeout:5000, enableHighAccuracy: true});
+        } else {
+            setUserLocationError("Geolocation is not supported by this browser.");
+        }
+    }
+    function errorCallback_highAccuracy(error: GeolocationPositionError) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                setUserLocationError("User denied the request for Geolocation.")
+                break;
+            case error.POSITION_UNAVAILABLE:
+                setUserLocationError("Location information is unavailable.")
+                break;
+            case error.TIMEOUT:
+                navigator.geolocation.watchPosition(
+                    onUserLocationWatch,
+                    errorCallback_lowAccuracy,
+                    {maximumAge:600000, timeout:10000, enableHighAccuracy: false});
+                break;
+            default:
+                setUserLocationError("An unknown error occurred.")
+                console.error(error)
+                break;
+        }
+    }
+    function errorCallback_lowAccuracy(error: GeolocationPositionError) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                setUserLocationError("User denied the request for Geolocation.")
+                break;
+            case error.POSITION_UNAVAILABLE:
+                setUserLocationError("Location information is unavailable.")
+                break;
+            case error.TIMEOUT:
+                setUserLocationError("The request to get user location timed out.")
+                break;
+            default:
+                setUserLocationError("An unknown error occurred.")
+                console.error(error)
+                break;
+        }
+    }
+
+    return [getLocation, userLocationError] as const;
+}

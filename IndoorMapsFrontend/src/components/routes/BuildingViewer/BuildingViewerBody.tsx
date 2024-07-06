@@ -6,6 +6,8 @@ import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBo
 import { useEffect, useState } from "react";
 import { Button, Group } from "@mantine/core";
 import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { useUserLocation } from "../../../utils/hooks";
+import FormErrorNotification from "../../forms/FormErrorNotification";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -51,12 +53,24 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const startingPosition = L.latLng(building.startPos.lat, building.startPos.lon);
     const mapStyle = { height: '70vh', width: '100%', padding: 0, zIndex: 50 };
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
-
+    const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
+    const [pageError, setPageError] = useState<string | null>(null);
 
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
 
     const [map, setMap] = useState<L.Map | null>(null);
+
+    const [getLocation, userLocationError] = useUserLocation((position: GeolocationPosition) => {
+        setUserLocation(position)
+    })
+
+    const startTrackingUserLocation = () => {
+        getLocation()
+        if(userLocationError){
+            setPageError(userLocationError)
+        }
+    }
 
     const setUpMapBuilder = () => {
         if (!map || mapIsSetUp) return;
@@ -142,6 +156,11 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         <main className="ViewerMain">
             <Group className="floorsContainer" >
                 {floorListElements}
+                <Button onClick={startTrackingUserLocation}>get location</Button>
+                <div className="locationMarker">
+                    <FormErrorNotification formError={pageError} onClose={() => setPageError(null)} />
+                    {JSON.stringify(userLocation)}
+                </div>
             </Group>
             <MapContainer
                 center={startingPosition}
