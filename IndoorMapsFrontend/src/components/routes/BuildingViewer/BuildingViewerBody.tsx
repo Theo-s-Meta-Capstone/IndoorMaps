@@ -104,6 +104,12 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         });
     }
 
+    const resetMapToStartingLocation = () => {
+        if (!map) return;
+        mapHasBeenDragged = true;
+        map.panTo(startingPosition);
+    }
+
     const setUpMapBuilder = () => {
         if (!map || mapIsSetUp) return;
         setMapIsSetUp(true)
@@ -190,7 +196,8 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         <main className="ViewerMain">
             <Group className="floorsContainer" >
                 {floorListElements}
-                <Button onClick={startTrackingUserLocation}><img src="/location.svg" alt="Get Location" /></Button>
+                <Button onClick={startTrackingUserLocation}><img src="/location.svg" alt="Get GPS Location" /></Button>
+                <Button onClick={resetMapToStartingLocation}><img src="/resetLocation.svg" alt="Reset Location" /></Button>
             </Group>
             <FormErrorNotification className="MapViewerNotification" formError={pageError} onClose={() => setPageError(null)} />
             <MapContainer
