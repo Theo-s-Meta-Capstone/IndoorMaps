@@ -135,7 +135,9 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         areasMapLayer.getLayers().map((layer) => {
             if (layer instanceof L.Polygon) {
                 if (layer.feature) {
-                    layer.bindTooltip(layer.feature.properties.title, { permanent: true, className: "title", offset: [0, 0] });
+                    if(layer.feature.properties.title){
+                        layer.bindTooltip(layer.feature.properties.title, { permanent: true, className: "title", offset: [0, 0] });
+                    }
                 }
                 layer.setStyle({
                     color: 'black',
