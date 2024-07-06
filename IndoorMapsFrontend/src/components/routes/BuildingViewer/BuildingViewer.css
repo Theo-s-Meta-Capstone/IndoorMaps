@@ -13,3 +13,11 @@
 .locationMarker {
     z-index: 100;
 }
+
+.MapViewerNotification {
+    z-index: 110;
+    position: absolute;
+    width: 70%;
+    left: 15px;
+    top: 15px;
+}

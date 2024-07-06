@@ -1,14 +1,15 @@
 import { Notification } from "@mantine/core";
 
-interface Props {
+type Props = {
     formError: string | null;
     onClose: () => void;
+    className?: string;
 }
 
-const FormErrorNotification = ({ formError, onClose }: Props) => {
+const FormErrorNotification = ({ formError, onClose, className }: Props) => {
     if(formError) {
         return (
-            <Notification color="red" title="Error" onClose={onClose} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
+            <Notification className={className} color="red" title="Error" onClose={onClose} closeButtonProps={{ 'aria-label': 'Hide notification' }}>
                 {formError}
             </Notification>
         )

@@ -5,7 +5,7 @@ import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
 import { useEffect, useState } from "react";
 import { Button, Group } from "@mantine/core";
-import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { DoorMarkerIcon, locationMarkerIcon } from "../../../utils/markerIcon";
 import { useUserLocation } from "../../../utils/hooks";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 
@@ -53,7 +53,6 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const startingPosition = L.latLng(building.startPos.lat, building.startPos.lon);
     const mapStyle = { height: '70vh', width: '100%', padding: 0, zIndex: 50 };
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
-    const [userLocation, setUserLocation] = useState<GeolocationPosition | null>(null);
     const [pageError, setPageError] = useState<string | null>(null);
 
     // Used to ensure the map is only set up once
@@ -61,15 +60,39 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
 
     const [map, setMap] = useState<L.Map | null>(null);
 
-    const [getLocation, userLocationError] = useUserLocation((position: GeolocationPosition) => {
-        setUserLocation(position)
-    })
+    const gpsMarker = L.marker([0, 0], {icon: locationMarkerIcon});
+    const accurecyMarker = L.circle([0,0], {radius: 0})
 
+    // I don't want a new user locaiton to trigger a react rerender so I'm not using a state to store the location
+    // After incoking the getlocation function, what ever funciton is here will be called with the new location when ever it's ready
+    const getLocation = useUserLocation((position: GeolocationPosition) => {
+        if (!map) return;
+        gpsMarker.setLatLng([position.coords.latitude, position.coords.longitude])
+        accurecyMarker.setLatLng([position.coords.latitude, position.coords.longitude])
+        accurecyMarker.setRadius(position.coords.accuracy)
+        map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
+    }, (errorMessage: string) => {
+        setPageError(errorMessage)
+    });
+
+    const zoomToUserLocation = () => {
+        if (!map) return;
+        map.panTo(accurecyMarker.getLatLng());
+    };
+
+    let alreadyWatching = false;
     const startTrackingUserLocation = () => {
+        if(!map) return;
+        // if the user is already watching, just zoom to the location
+        if (alreadyWatching) {
+            zoomToUserLocation();
+            return;
+        };
+        // otherwise place the marker and add the event listener
+        alreadyWatching = true;
         getLocation()
-        if(userLocationError){
-            setPageError(userLocationError)
-        }
+        gpsMarker.addTo(map);
+        accurecyMarker.addTo(map);
     }
 
     const setUpMapBuilder = () => {
@@ -158,12 +181,9 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         <main className="ViewerMain">
             <Group className="floorsContainer" >
                 {floorListElements}
-                <Button onClick={startTrackingUserLocation}>get location</Button>
-                <div className="locationMarker">
-                    <FormErrorNotification formError={pageError} onClose={() => setPageError(null)} />
-                    {JSON.stringify(userLocation)}
-                </div>
+                <Button onClick={startTrackingUserLocation}><img src="/location.svg" alt="Get Location" /></Button>
             </Group>
+            <FormErrorNotification className="MapViewerNotification" formError={pageError} onClose={() => setPageError(null)} />
             <MapContainer
                 center={startingPosition}
                 zoom={19}

@@ -104,10 +104,12 @@ export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500)
 
 // Based on expample on https://www.w3schools.com/html/html5_geolocation.asp
 // enableHighAcuracy and fallback based on https://stackoverflow.com/questions/9053262/geolocation-html5-enablehighaccuracy-true-false-or-best-option
-export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void) => {
-    const [userLocationError, setUserLocationError] = useState<string | null>(null);
+export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void, setUserLocationError: (errorMessage: string) => void) => {
+    let alreadyWatching = false;
     const getLocation = () => {
+        if (alreadyWatching) return;
         if (navigator.geolocation) {
+            alreadyWatching = true;
             navigator.geolocation.watchPosition(onUserLocationWatch, errorCallback_highAccuracy, {maximumAge:600000, timeout:5000, enableHighAccuracy: true});
         } else {
             setUserLocationError("Geolocation is not supported by this browser.");
@@ -150,6 +152,5 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
                 break;
         }
     }
-
-    return [getLocation, userLocationError] as const;
+    return getLocation;
 }

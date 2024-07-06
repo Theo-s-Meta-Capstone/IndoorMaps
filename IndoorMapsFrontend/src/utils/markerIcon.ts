@@ -6,3 +6,10 @@ export const DoorMarkerIcon = L.icon({
     iconSize: new L.Point(30, 30),
     iconUrl: '/door.svg'
 })
+
+export const locationMarkerIcon = L.icon({
+    shadowUrl: undefined,
+    iconAnchor: new L.Point(15, 15),
+    iconSize: new L.Point(30, 30),
+    iconUrl: '/locationMarker.svg'
+})
