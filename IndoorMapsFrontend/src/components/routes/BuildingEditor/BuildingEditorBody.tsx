@@ -78,7 +78,6 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
                 center={startingPosition}
                 zoom={19}
                 zoomSnap={0.5}
-                zoomControl={false}
                 style={mapStyle}
                 ref={setMap}
             >
