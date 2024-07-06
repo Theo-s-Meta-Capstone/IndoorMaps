@@ -116,6 +116,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
         }
     }
     function errorCallback_highAccuracy(error: GeolocationPositionError) {
+        alreadyWatching = false;
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 setUserLocationError("User denied the request for Geolocation.")
@@ -136,6 +137,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
         }
     }
     function errorCallback_lowAccuracy(error: GeolocationPositionError) {
+        alreadyWatching = false;
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 setUserLocationError("User denied the request for Geolocation.")

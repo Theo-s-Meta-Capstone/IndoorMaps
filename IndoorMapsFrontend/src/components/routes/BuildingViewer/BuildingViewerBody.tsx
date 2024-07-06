@@ -86,7 +86,6 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         // if the user is already watching, just zoom to the location
         if (alreadyWatching) {
             zoomToUserLocation();
-            return;
         };
         // otherwise place the marker and add the event listener
         alreadyWatching = true;
