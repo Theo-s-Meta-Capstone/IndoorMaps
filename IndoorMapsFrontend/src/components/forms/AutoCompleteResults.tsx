@@ -3,7 +3,7 @@ import { graphql } from "relay-runtime";
 import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
 import { useEffect } from "react";
 import { Button } from "@mantine/core";
-import { useDebounce } from "../../hooks";
+import { useDebounce } from "../../utils/hooks";
 
 // I chose 300 with input from https://stackoverflow.com/a/73979506
 const debounceTime = 300;

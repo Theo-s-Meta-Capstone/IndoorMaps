@@ -5,6 +5,7 @@ import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
 import { useEffect, useState } from "react";
 import { Button, Group } from "@mantine/core";
+import { DoorMarkerIcon } from "../../../utils/markerIcon";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -38,7 +39,11 @@ interface Props {
     buildingFromParent: BuildingViewerBodyFragment$key;
 }
 
-const floorMapLayer = L.geoJSON();
+const floorMapLayer = L.geoJSON(null, {
+    pointToLayer: function (_feature, latlng) {
+        return L.marker(latlng, { icon: DoorMarkerIcon });
+    }
+});
 const areasMapLayer = L.geoJSON();
 
 const BuildingViewerBody = ({ buildingFromParent }: Props) => {

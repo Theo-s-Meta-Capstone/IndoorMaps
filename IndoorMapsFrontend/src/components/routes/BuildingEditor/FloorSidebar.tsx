@@ -5,7 +5,7 @@ import { Button, ScrollArea, Tooltip } from "@mantine/core";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 import CreateFloorModal from "../../forms/CreateFloorModal";
 import { useEffect, useState } from "react";
-import { useBooleanState, useRefreshRelayCache } from "../../../hooks";
+import { useBooleanState, useRefreshRelayCache } from "../../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
 

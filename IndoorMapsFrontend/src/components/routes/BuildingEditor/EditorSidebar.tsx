@@ -3,9 +3,10 @@ import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBody
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
 import FloorSidebar from "./FloorSidebar";
-import { useBooleanState } from "../../../hooks";
+import { useBooleanState } from "../../../utils/hooks";
 import AreaSidebar from "./AreaSidebar";
 import { Button, Group } from "@mantine/core";
+import { DoorMarkerIcon } from "../../../utils/markerIcon";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -33,7 +34,11 @@ interface Props {
   map: L.Map;
 }
 
-const floorMapLayer = L.geoJSON();
+const floorMapLayer = L.geoJSON(null, {
+  pointToLayer: function (_feature, latlng) {
+    return L.marker(latlng, {icon: DoorMarkerIcon});
+  }
+});
 const areasMapLayer = L.geoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
@@ -65,7 +70,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     })
     floorMapLayer.pm.enable()
     floorMapLayer.pm.setOptions({
-      allowEditing:true,
+      allowEditing: true,
     })
     closeAreaSidebar();
   }
@@ -82,11 +87,11 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     floorMapLayer.pm.disable()
     // This one makes it so enter edit mode it doesn't show as editable
     floorMapLayer.pm.setOptions({
-      allowEditing:false,
-      allowCutting:false,
-      allowRemoval:false,
-      allowRotation:false,
-      draggable:false,
+      allowEditing: false,
+      allowCutting: false,
+      allowRemoval: false,
+      allowRotation: false,
+      draggable: false,
     })
     // disable drawing, useful if the user was drawing while on the floor sidebar
     map.pm.disableDraw();

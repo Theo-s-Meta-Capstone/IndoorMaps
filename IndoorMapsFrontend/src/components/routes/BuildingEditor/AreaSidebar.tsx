@@ -5,7 +5,7 @@ import FormErrorNotification from "../../forms/FormErrorNotification";
 import { useEffect, useState } from "react";
 import { AreaSidebarCreateMutation } from "./__generated__/AreaSidebarCreateMutation.graphql";
 import { AreaSidebarDeleteAreaMutation, AreaSidebarDeleteAreaMutation$variables } from "./__generated__/AreaSidebarDeleteAreaMutation.graphql";
-import { useRefreshRelayCache } from "../../../hooks";
+import { useRefreshRelayCache } from "../../../utils/hooks";
 import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
 import * as L from "leaflet";
 import EditAreaForm from "../../forms/EditAreaForm";

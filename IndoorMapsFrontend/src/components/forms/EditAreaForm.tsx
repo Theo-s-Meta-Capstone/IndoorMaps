@@ -2,7 +2,7 @@ import { TextInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { graphql, useMutation } from "react-relay";
-import { useDebounce, useRefreshRelayCache } from "../../hooks";
+import { useDebounce, useRefreshRelayCache } from "../../utils/hooks";
 import FormErrorNotification from "./FormErrorNotification";
 import { EditAreaFormMutation } from "./__generated__/EditAreaFormMutation.graphql";
 import { Feature, Geometry } from "geojson";

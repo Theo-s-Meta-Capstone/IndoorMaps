@@ -2,7 +2,7 @@ import "./styles/ListOfConnectedBuildings.css"
 import { graphql, useFragment } from "react-relay";
 import ConnectedBuildingItem from "./ConnectedBuildingItem";
 import { ListOfConnectedBuildingsUserDataDisplayFragment$key } from "./__generated__/ListOfConnectedBuildingsUserDataDisplayFragment.graphql";
-import { useBooleanState } from "../../../hooks";
+import { useBooleanState } from "../../../utils/hooks";
 import { Button } from "@mantine/core";
 import CreateBuildingModal from "../../forms/CreateBuildingModal";
 import { AutoCompleteResultsFragment$key } from "../../forms/__generated__/AutoCompleteResultsFragment.graphql";
