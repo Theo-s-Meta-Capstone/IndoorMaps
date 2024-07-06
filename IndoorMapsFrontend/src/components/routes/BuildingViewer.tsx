@@ -3,16 +3,14 @@ import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { Link, useParams } from "react-router-dom";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
-        ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment
-    }
+        ...ButtonsContainerFragment
+        }
     getBuilding(data: $data) {
         title
         ...BuildingViewerBodyFragment
@@ -65,7 +63,6 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
             <h1>{getBuilding.title}</h1>
             <Link to="/directory">Directory</Link>
             <ButtonsContainer getUserFromCookie={getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
             <BuildingViewerBody buildingFromParent={getBuilding} />
         </>
     )
