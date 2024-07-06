@@ -98,6 +98,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         event.layer.on('pm:edit', onShapeEdit)
         event.layer.on('pm:remove', onShapeRemove)
         handleFloorShapeUpdate()
+        setWhetherBuildingOrEntrenceMapping(true);
     }
 
     const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
