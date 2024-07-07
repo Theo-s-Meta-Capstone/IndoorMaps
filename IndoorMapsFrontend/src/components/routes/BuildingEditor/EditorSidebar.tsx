@@ -7,6 +7,7 @@ import { useBooleanState } from "../../../utils/hooks";
 import AreaSidebar from "./AreaSidebar";
 import { Button, Group } from "@mantine/core";
 import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -57,12 +58,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   }, [building.floors])
 
   const handleCloseAreaSidebar = () => {
-    // remove all layers that are in the Area Layer group
-    // when editing the floor, the areas are removed from the map
-    areasMapLayer.getLayers().map((layer) => {
-      map.removeLayer(layer);
-      areasMapLayer.removeLayer(layer);
-    })
+    removeAllLayersFromLayerGroup(areasMapLayer, map);
     floorMapLayer.getLayers().map((layer) => {
       if (layer instanceof L.Polygon) {
         layer.setStyle({ color: 'blue' });

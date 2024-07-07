@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useBooleanState, useRefreshRelayCache } from "../../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 
 const FloorSidebarFragment = graphql`
@@ -122,11 +123,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (currentFloor === null) {
             return;
         }
-        // remove all layers that are in the Layer group
-        floorMapLayer.getLayers().map((layer) => {
-            map.removeLayer(layer);
-            floorMapLayer.removeLayer(layer);
-        })
+        removeAllLayersFromLayerGroup(floorMapLayer, map);
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {

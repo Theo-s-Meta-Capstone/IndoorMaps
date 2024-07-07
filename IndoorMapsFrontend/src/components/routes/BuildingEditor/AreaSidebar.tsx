@@ -9,6 +9,7 @@ import { useRefreshRelayCache } from "../../../utils/hooks";
 import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
 import * as L from "leaflet";
 import EditAreaForm from "../../forms/EditAreaForm";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -27,6 +28,8 @@ const AreaSidebarFragment = graphql`
     }
   }
 `;
+
+const areaEntranceMapLayer = new L.GeoJSON();
 
 type Props = {
     floorFromParent: AreaSidebarBodyFragment$key | undefined;
@@ -58,7 +61,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
     }
     `);
 
-    const onShapeCreate = (event: L.LeafletEvent) => {
+    const onAreaCreate = (event: L.LeafletEvent) => {
         if (!map) return;
         if (!floorData) {
             setFormError("No Floor Selected");
@@ -97,6 +100,32 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         } catch (error) {
             const errorMessage = (error as Error).message;
             setFormError(errorMessage);
+        }
+    }
+
+    const onEntranceCreate = (event: L.LeafletEvent) => {
+        areaEntranceMapLayer.addLayer(event.layer);
+        updateArea({
+            data: {
+                id: event.layer.feature.properties.databaseId,
+                entrances: {
+                    shape: JSON.stringify(areaEntranceMapLayer.toGeoJSON()),
+                }
+            }
+        })
+    }
+
+    const onShapeCreate = (event: L.LeafletEvent) => {
+        if (!map) return;
+        if (!floorData) {
+            setFormError("No Floor Selected");
+            return;
+        }
+        if(event.layer instanceof L.Polygon) {
+            onAreaCreate(event);
+        }
+        else if (event.layer instanceof L.Marker) {
+            onEntranceCreate(event);
         }
     }
 
@@ -184,11 +213,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         if (floorData === null || floorData === undefined) {
             return;
         }
-        // remove all layers that are in the Layer group
-        areasMapLayer.getLayers().map((layer) => {
-            map.removeLayer(layer);
-            areasMapLayer.removeLayer(layer);
-        })
+        removeAllLayersFromLayerGroup(areasMapLayer, map);
 
         floorData.areas.forEach((area) => {
             const geoJson: GeoJSON.Feature = JSON.parse(area.shape);
@@ -203,6 +228,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         map.on('pm:create', onShapeCreate);
         map.pm.Toolbar.setButtonDisabled("Polygon", false);
 
+        areaEntranceMapLayer.addTo(map);
         areasMapLayer.addTo(map)
         areasMapLayer.getLayers().map((layer) => {
             layer.on('click', () => {
@@ -219,6 +245,8 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         if (selectedArea instanceof L.Polygon) {
             selectedArea.setStyle({ color: 'red' });
             map.pm.Toolbar.setButtonDisabled("Entrances", false);
+            removeAllLayersFromLayerGroup(areasMapLayer, map);
+            areaEntranceMapLayer
         } else {
             map.pm.Toolbar.setButtonDisabled("Entrances", true);
         }

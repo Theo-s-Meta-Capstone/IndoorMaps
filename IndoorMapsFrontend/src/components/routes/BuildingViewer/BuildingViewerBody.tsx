@@ -8,6 +8,7 @@ import { Button, Group } from "@mantine/core";
 import { DoorMarkerIcon, locationMarkerIcon } from "../../../utils/markerIcon";
 import { useUserLocation } from "../../../utils/hooks";
 import FormErrorNotification from "../../forms/FormErrorNotification";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -134,16 +135,8 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
             return;
         }
 
-        // remove all layers that are in the Layer group
-        floorMapLayer.getLayers().map((layer) => {
-            map.removeLayer(layer);
-            floorMapLayer.removeLayer(layer);
-        })
-
-        areasMapLayer.getLayers().map((layer) => {
-            map.removeLayer(layer);
-            areasMapLayer.removeLayer(layer);
-        })
+        removeAllLayersFromLayerGroup(floorMapLayer, map);
+        removeAllLayersFromLayerGroup(areasMapLayer, map);
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {
