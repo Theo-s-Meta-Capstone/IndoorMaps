@@ -170,6 +170,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
     const onShapeRemove = (event: L.LeafletEvent) => {
         if (!map) return;
+        setSelectedArea(null);
         deleteArea({
             data: {
                 id: event.layer.feature.properties.databaseId,
@@ -200,10 +201,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
         map.removeEventListener("pm:create");
         map.on('pm:create', onShapeCreate);
-
         map.pm.Toolbar.setButtonDisabled("Polygon", false);
-        // only when a shape is selected can entrances be placed
-        map.pm.Toolbar.setButtonDisabled("Entrances", true);
 
         areasMapLayer.addTo(map)
         areasMapLayer.getLayers().map((layer) => {
@@ -220,6 +218,9 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
     useEffect(() => {
         if (selectedArea instanceof L.Polygon) {
             selectedArea.setStyle({ color: 'red' });
+            map.pm.Toolbar.setButtonDisabled("Entrances", false);
+        } else {
+            map.pm.Toolbar.setButtonDisabled("Entrances", true);
         }
     }, [selectedArea])
 
@@ -228,9 +229,9 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Area Sidebar</h2>
             {selectedArea ?
-            <EditAreaForm area={selectedArea} />
-            :
-            null
+                <EditAreaForm area={selectedArea} />
+                :
+                null
             }
             <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving area map ..." : "area map saved"}</div>
 
