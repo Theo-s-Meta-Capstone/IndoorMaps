@@ -44,6 +44,9 @@ class AreaModifyInput extends AreaUniqueInput {
     @Field({ nullable: true })
     category?: string
 
+    @Field(type => Boolean, { nullable: true })
+    traversable?: boolean
+
     // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
     @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape" })
     entrances?: NewShape
@@ -92,7 +95,8 @@ export class AreaResolver {
             data: {
                 ...data,
                 shape: data.shape !== undefined ? JSON.parse(data.shape) : undefined,
-                entrances: data.entrances !== undefined ? JSON.parse(data.entrances.shape) : undefined
+                entrances: data.entrances !== undefined ? JSON.parse(data.entrances.shape) : undefined,
+                traversable: data.traversable !== undefined ? data.traversable : undefined,
             },
             select: {
                 id: true,

@@ -33,6 +33,7 @@ input AreaModifyInput {
   id: Int!
   shape: String
   title: String
+  traversable: Boolean
 }
 
 input AreaUniqueInput {

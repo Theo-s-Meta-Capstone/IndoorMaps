@@ -87,6 +87,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
                     event.layer.feature.properties.databaseId = data.createArea.databaseId
                     event.layer.feature.properties.title = "";
                     event.layer.feature.properties.description = "";
+                    event.layer.feature.properties.traversable = false;
                     handleChangeSelectedArea(event.layer);
                     event.layer.on('click', () => {
                         handleChangeSelectedArea(event.layer);
@@ -247,6 +248,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
             geoJson.properties!.databaseId = area.databaseId
             geoJson.properties!.title = area.title
             geoJson.properties!.description = area.description
+            geoJson.properties!.traversable = area.traversable
             areasMapLayer.addData(geoJson);
         })
 
