@@ -26,7 +26,7 @@ class FloorUniqueInput {
 }
 
 @InputType()
-class NewShape {
+export class NewShape {
     @Field({ nullable: true })
     shape: string
 }

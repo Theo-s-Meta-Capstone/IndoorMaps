@@ -7,6 +7,7 @@ import { GeomanControl } from "./GeomanControl";
 import { graphql, useFragment } from "react-relay";
 import { BuildingEditorBodyFragment$key } from "./__generated__/BuildingEditorBodyFragment.graphql";
 import EditorSidebar from "./EditorSidebar";
+import { DoorMarkerIcon } from "../../../utils/markerIcon";
 
 const BuildingEditorFragment = graphql`
   fragment BuildingEditorBodyFragment on Building
@@ -29,7 +30,7 @@ const BuildingEditorFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
     buildingFromParent: BuildingEditorBodyFragment$key;
 }
 
@@ -48,10 +49,11 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
         if (!map || mapIsSetUp) return;
         setMapIsSetUp(true)
         // Setting Up the Place Entrances Control
-        map.pm.Toolbar.copyDrawControl('drawMarker', {
+        const doorMarker = map.pm.Toolbar.copyDrawControl('drawMarker', {
             name: 'Entrances',
             title: 'Place Entrances',
         });
+        doorMarker.drawInstance.setOptions({markerStyle: {icon: DoorMarkerIcon}});
         // Used to change the text that apears when placing a marker
         // found here: https://stackoverflow.com/questions/74991124/editing-geoman-map-cursor-tooltip
         const customTranslation = {
@@ -76,7 +78,6 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
                 center={startingPosition}
                 zoom={19}
                 zoomSnap={0.5}
-                zoomControl={false}
                 style={mapStyle}
                 ref={setMap}
             >

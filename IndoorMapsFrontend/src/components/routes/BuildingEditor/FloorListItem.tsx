@@ -15,7 +15,7 @@ const FloorListFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
   floorFromParent: FloorListItemFragment$key;
   currentFloor: number | null;
   setCurrentFloor: (floor: number) => void;

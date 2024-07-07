@@ -3,9 +3,11 @@ import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBody
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
 import FloorSidebar from "./FloorSidebar";
-import { useBooleanState } from "../../../hooks";
+import { useBooleanState } from "../../../utils/hooks";
 import AreaSidebar from "./AreaSidebar";
 import { Button, Group } from "@mantine/core";
+import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -28,13 +30,18 @@ const EditorSidebarFragment = graphql`
   }
 `;
 
-interface Props {
+type Props = {
   buildingFromParent: EditorSidebarBodyFragment$key;
   map: L.Map;
 }
 
-const floorMapLayer = L.geoJSON();
+const floorMapLayer = L.geoJSON(null, {
+  pointToLayer: function (_feature, latlng) {
+    return L.marker(latlng, {icon: DoorMarkerIcon});
+  }
+});
 const areasMapLayer = L.geoJSON();
+const areaEntranceMapLayer = L.geoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);
@@ -52,12 +59,8 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   }, [building.floors])
 
   const handleCloseAreaSidebar = () => {
-    // remove all layers that are in the Area Layer group
-    // when editing the floor, the areas are removed from the map
-    areasMapLayer.getLayers().map((layer) => {
-      map.removeLayer(layer);
-      areasMapLayer.removeLayer(layer);
-    })
+    removeAllLayersFromLayerGroup(areasMapLayer, map);
+    removeAllLayersFromLayerGroup(areaEntranceMapLayer, map);
     floorMapLayer.getLayers().map((layer) => {
       if (layer instanceof L.Polygon) {
         layer.setStyle({ color: 'blue' });
@@ -65,7 +68,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     })
     floorMapLayer.pm.enable()
     floorMapLayer.pm.setOptions({
-      allowEditing:true,
+      allowEditing: true,
     })
     closeAreaSidebar();
   }
@@ -82,11 +85,11 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     floorMapLayer.pm.disable()
     // This one makes it so enter edit mode it doesn't show as editable
     floorMapLayer.pm.setOptions({
-      allowEditing:false,
-      allowCutting:false,
-      allowRemoval:false,
-      allowRotation:false,
-      draggable:false,
+      allowEditing: false,
+      allowCutting: false,
+      allowRemoval: false,
+      allowRotation: false,
+      draggable: false,
     })
     // disable drawing, useful if the user was drawing while on the floor sidebar
     map.pm.disableDraw();
@@ -100,7 +103,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
       </Group>
       {isAreaSidebarOpen ?
-        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} />
+        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
         :
         <FloorSidebar setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }

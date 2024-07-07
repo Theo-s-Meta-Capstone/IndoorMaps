@@ -4,10 +4,10 @@ import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { useParams } from "react-router-dom";
 import { CreateFloorModalMutation } from "./__generated__/CreateFloorModalMutation.graphql";
-import { useRefreshRelayCache } from "../../hooks";
+import { useRefreshRelayCache } from "../../utils/hooks";
 import FormErrorNotification from "./FormErrorNotification";
 
-interface Props {
+type Props = {
     isOpen: boolean,
     closeModal: () => void,
 }

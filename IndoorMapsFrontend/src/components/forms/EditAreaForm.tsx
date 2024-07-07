@@ -1,13 +1,13 @@
-import { TextInput, Textarea } from "@mantine/core";
+import { Checkbox, TextInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { graphql, useMutation } from "react-relay";
-import { useDebounce, useRefreshRelayCache } from "../../hooks";
+import { useDebounce, useRefreshRelayCache } from "../../utils/hooks";
 import FormErrorNotification from "./FormErrorNotification";
 import { EditAreaFormMutation } from "./__generated__/EditAreaFormMutation.graphql";
 import { Feature, Geometry } from "geojson";
 
-interface Props {
+type Props = {
     area: L.Layer,
 }
 
@@ -18,7 +18,7 @@ const EditAreaForm = ({ area }: Props) => {
 
     const form = useForm({
         mode: 'controlled',
-        initialValues: { title: '', description: '' },
+        initialValues: { title: '', description: '', traversable: false },
     });
 
     const debouncedFormValue = useDebounce(form.values, form.values, 500);
@@ -43,11 +43,13 @@ const EditAreaForm = ({ area }: Props) => {
                         id: feature.properties.databaseId,
                         title: values.title,
                         description: values.description,
+                        traversable: values.traversable,
                     },
                 },
                 onCompleted(data) {
                     feature.properties!.title = values.title;
                     feature.properties!.description = values.description;
+                    feature.properties!.traversable = values.traversable;
                     refreshFloorData(data.modifyArea.floorDatabaseId)
                 },
                 onError(error) {
@@ -63,10 +65,11 @@ const EditAreaForm = ({ area }: Props) => {
     useEffect(() => {
         form.setFieldValue("title", (feature.properties ? feature.properties.title : ""));
         form.setFieldValue("description", (feature.properties ? feature.properties.description : ""));
+        form.setFieldValue("traversable", (feature.properties ? feature.properties.traversable : false));
     }, [area]);
 
     useEffect(() => {
-        if(feature.properties!.title == debouncedFormValue.title && feature.properties!.description == debouncedFormValue.description){
+        if (feature.properties!.title == debouncedFormValue.title && feature.properties!.description == debouncedFormValue.description && feature.properties!.traversable == debouncedFormValue.traversable) {
             return;
         }
         handleSubmit(debouncedFormValue);
@@ -77,6 +80,7 @@ const EditAreaForm = ({ area }: Props) => {
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <TextInput {...form.getInputProps('title')} label="Area Name" placeholder="101" />
             <Textarea {...form.getInputProps('description')} label="Area Description" placeholder="Classes: Geology 101 930, ..." />
+            <Checkbox {...form.getInputProps('traversable')} checked={form.getValues().traversable} label="Traversable" />
             <div>{(isInFlight) ? "saving area details ..." : "area details saved"}</div>
         </div>
     )

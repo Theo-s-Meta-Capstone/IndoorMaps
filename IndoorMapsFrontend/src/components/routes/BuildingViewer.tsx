@@ -1,15 +1,19 @@
+import "./BuildingViewer/BuildingViewer.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { Link, useParams } from "react-router-dom";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
+import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 
 const BuildingViewerPageQuery = graphql`
-    query BuildingViewerQuery {
+    query BuildingViewerQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
-        ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment
+        ...ButtonsContainerFragment
+        }
+    getBuilding(data: $data) {
+        title
+        ...BuildingViewerBodyFragment
     }
 }`
 
@@ -26,13 +30,18 @@ const BuildingViewer = () => {
     // See ./Root.tsx line 24 for explanation of this useEffect
     // TODO: load the correct building based off the params
     useEffect(() => {
-        loadQuery({});
+        if (buildingId == null) {
+            return;
+        }
+        loadQuery({
+            "data": {
+                id: parseInt(buildingId)
+            }
+        });
     }, []);
 
     return (
         <div>
-            <h1>Viewing building #{buildingId}</h1>
-            <Link to="/directory">Directory</Link>
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingViewerBodyContainer queryReference={queryReference} />
@@ -48,11 +57,13 @@ type BuildingViewerBodyContainerProps = {
 }
 
 function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
-    const {getUserFromCookie} = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
+    const {getUserFromCookie, getBuilding} = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     return (
         <>
+            <h1>{getBuilding.title}</h1>
+            <Link to="/directory">Directory</Link>
             <ButtonsContainer getUserFromCookie={getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
+            <BuildingViewerBody buildingFromParent={getBuilding} />
         </>
     )
 }

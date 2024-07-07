@@ -5,9 +5,10 @@ import { Button, ScrollArea, Tooltip } from "@mantine/core";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 import CreateFloorModal from "../../forms/CreateFloorModal";
 import { useEffect, useState } from "react";
-import { useBooleanState, useRefreshRelayCache } from "../../../hooks";
+import { useBooleanState, useRefreshRelayCache } from "../../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 
 const FloorSidebarFragment = graphql`
@@ -24,7 +25,7 @@ const FloorSidebarFragment = graphql`
   }
 `;
 
-interface Props {
+type Props =  {
     buildingFromParent: FloorSidebarBodyFragment$key;
     map: L.Map;
     currentFloor: number | null;
@@ -89,6 +90,9 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (!map) return;
         floorMapLayer.removeLayer(event.layer);
         handleFloorShapeUpdate()
+        if(event.layer instanceof L.Polygon){
+            setWhetherBuildingOrEntrenceMapping(false);
+        }
     }
 
     const onShapeCreate = (event: L.LeafletEvent) => {
@@ -97,6 +101,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         event.layer.on('pm:edit', onShapeEdit)
         event.layer.on('pm:remove', onShapeRemove)
         handleFloorShapeUpdate()
+        setWhetherBuildingOrEntrenceMapping(true);
     }
 
     const setWhetherBuildingOrEntrenceMapping = (floorPolygonExists: boolean) => {
@@ -118,11 +123,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (currentFloor === null) {
             return;
         }
-        // remove all layers that are in the Layer group
-        floorMapLayer.getLayers().map((layer) => {
-            map.removeLayer(layer);
-            floorMapLayer.removeLayer(layer);
-        })
+        removeAllLayersFromLayerGroup(floorMapLayer, map);
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {

@@ -1,0 +1,27 @@
+.ViewerMain {
+    position: relative;
+}
+
+.floorsContainer{
+    flex-direction: column;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+}
+
+.locationMarker {
+    z-index: 100;
+}
+
+.MapViewerNotification {
+    z-index: 110;
+    position: absolute;
+    width: 70%;
+    left: 15px;
+    top: 15px;
+}
+
+.area:hover {
+    fill: yellow
+}

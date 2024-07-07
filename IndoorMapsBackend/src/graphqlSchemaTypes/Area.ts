@@ -34,4 +34,7 @@ export class Area {
 
   @Field()
   category: string
+
+  @Field({nullable: true})
+  entrances?: string
 }
