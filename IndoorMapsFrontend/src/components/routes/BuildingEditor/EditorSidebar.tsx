@@ -41,6 +41,7 @@ const floorMapLayer = L.geoJSON(null, {
   }
 });
 const areasMapLayer = L.geoJSON();
+const areaEntranceMapLayer = new L.GeoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);
@@ -59,6 +60,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
 
   const handleCloseAreaSidebar = () => {
     removeAllLayersFromLayerGroup(areasMapLayer, map);
+    removeAllLayersFromLayerGroup(areaEntranceMapLayer, map);
     floorMapLayer.getLayers().map((layer) => {
       if (layer instanceof L.Polygon) {
         layer.setStyle({ color: 'blue' });
@@ -101,7 +103,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
       </Group>
       {isAreaSidebarOpen ?
-        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} />
+        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
         :
         <FloorSidebar setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }

@@ -10,6 +10,7 @@ import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables 
 import * as L from "leaflet";
 import EditAreaForm from "../../forms/EditAreaForm";
 import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
+import { DoorMarkerIcon } from "../../../utils/markerIcon";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -24,20 +25,20 @@ const AreaSidebarFragment = graphql`
         description
         shape
         traversable
+        entrances
         category
     }
   }
 `;
 
-const areaEntranceMapLayer = new L.GeoJSON();
-
 type Props = {
     floorFromParent: AreaSidebarBodyFragment$key | undefined;
     map: L.Map;
     areasMapLayer: L.GeoJSON;
+    areaEntranceMapLayer: L.GeoJSON;
 }
 
-const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
+const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer }: Props) => {
     const floorData = useFragment(AreaSidebarFragment, floorFromParent);
     const [formError, setFormError] = useState<string | null>(null);
     const [selectedArea, setSelectedArea] = useState<L.Layer | null>(null);
@@ -103,16 +104,36 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
         }
     }
 
-    const onEntranceCreate = (event: L.LeafletEvent) => {
-        areaEntranceMapLayer.addLayer(event.layer);
+    const onMarkerEdit = () => {
+        if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;
         updateArea({
             data: {
-                id: event.layer.feature.properties.databaseId,
+                id: selectedArea.feature!.properties.databaseId,
                 entrances: {
                     shape: JSON.stringify(areaEntranceMapLayer.toGeoJSON()),
                 }
             }
         })
+    }
+
+    const onMarkerDelete = (event: L.LeafletEvent) => {
+        areaEntranceMapLayer.removeLayer(event.sourceTarget);
+        console.log(areaEntranceMapLayer.toGeoJSON())
+        if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;
+        updateArea({
+            data: {
+                id: selectedArea.feature!.properties.databaseId,
+                entrances: {
+                    shape: JSON.stringify(areaEntranceMapLayer.toGeoJSON()),
+                }
+            }
+        })
+    }
+
+    const onEntranceCreate = (event: L.LeafletEvent) => {
+        if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;
+        areaEntranceMapLayer.addLayer(event.layer);
+        onMarkerEdit();
     }
 
     const onShapeCreate = (event: L.LeafletEvent) => {
@@ -121,11 +142,14 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
             setFormError("No Floor Selected");
             return;
         }
-        if(event.layer instanceof L.Polygon) {
+        if (event.layer instanceof L.Polygon) {
             onAreaCreate(event);
         }
         else if (event.layer instanceof L.Marker) {
             onEntranceCreate(event);
+        }
+        else {
+            console.log(event.layer);
         }
     }
 
@@ -243,11 +267,31 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer }: Props) => {
 
     useEffect(() => {
         if (selectedArea instanceof L.Polygon) {
+            map.removeEventListener("pm:create");
+            map.on('pm:create', onShapeCreate);
             selectedArea.setStyle({ color: 'red' });
+            // TODO: switch to a different icon for indoor doors
             map.pm.Toolbar.setButtonDisabled("Entrances", false);
-            removeAllLayersFromLayerGroup(areasMapLayer, map);
-            areaEntranceMapLayer
+            removeAllLayersFromLayerGroup(areaEntranceMapLayer, map);
+            if (selectedArea.feature) {
+                // type script is not smart enough to know that selectedArea.feature will be defined
+                const areaData = floorData?.areas.find(area => area.databaseId === selectedArea.feature!.properties.databaseId);
+                if (!areaData || !areaData.entrances) return;
+                const geoJson: GeoJSON.FeatureCollection = JSON.parse(areaData.entrances);
+                L.geoJSON(geoJson, {
+                    pointToLayer: function (_feature, latlng) {
+                        return L.marker(latlng, { icon: DoorMarkerIcon });
+                    }
+                }).addTo(areaEntranceMapLayer);
+                // areaEntranceMapLayer.add(geoJson);
+                areaEntranceMapLayer.getLayers().map((layer) => {
+                    layer.on('pm:edit', onMarkerEdit)
+                    layer.on('pm:remove', onMarkerDelete)
+                })
+            }
+
         } else {
+            removeAllLayersFromLayerGroup(areaEntranceMapLayer, map);
             map.pm.Toolbar.setButtonDisabled("Entrances", true);
         }
     }, [selectedArea])
