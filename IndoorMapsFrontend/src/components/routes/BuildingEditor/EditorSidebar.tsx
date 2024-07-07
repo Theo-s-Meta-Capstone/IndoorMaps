@@ -41,7 +41,7 @@ const floorMapLayer = L.geoJSON(null, {
   }
 });
 const areasMapLayer = L.geoJSON();
-const areaEntranceMapLayer = new L.GeoJSON();
+const areaEntranceMapLayer = L.geoJSON();
 
 const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);

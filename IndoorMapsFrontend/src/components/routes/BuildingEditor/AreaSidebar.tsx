@@ -82,6 +82,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
                     },
                 },
                 onCompleted(data) {
+                    console.log(event)
                     event.layer.feature = layerGeoJSON;
                     event.layer.feature.properties.databaseId = data.createArea.databaseId
                     event.layer.feature.properties.title = "";
@@ -117,6 +118,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
     }
 
     const onMarkerDelete = (event: L.LeafletEvent) => {
+        // TODO : invistage why it is .sourceTarget instead of layer and why sourceTarget works here but not anywhere else
         areaEntranceMapLayer.removeLayer(event.sourceTarget);
         console.log(areaEntranceMapLayer.toGeoJSON())
         if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;

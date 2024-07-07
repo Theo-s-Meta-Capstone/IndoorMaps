@@ -5,7 +5,7 @@ import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
 import { useEffect, useState } from "react";
 import { Button, Group } from "@mantine/core";
-import { DoorMarkerIcon, locationMarkerIcon } from "../../../utils/markerIcon";
+import { DoorMarkerIcon, IndoorDoorMarkerIcon, locationMarkerIcon } from "../../../utils/markerIcon";
 import { useUserLocation } from "../../../utils/hooks";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
@@ -33,6 +33,7 @@ const BuildingViewerFragment = graphql`
         title
         description
         shape
+        entrances
       }
     }
   }
@@ -47,7 +48,11 @@ const floorMapLayer = L.geoJSON(null, {
         return L.marker(latlng, { icon: DoorMarkerIcon });
     }
 });
-const areasMapLayer = L.geoJSON();
+const areasMapLayer = L.geoJSON(null, {
+    pointToLayer: function (_feature, latlng) {
+        return L.marker(latlng, { icon: IndoorDoorMarkerIcon });
+    }
+});
 
 const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const building = useFragment(BuildingViewerFragment, buildingFromParent);
@@ -167,6 +172,10 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
             geoJson.properties!.title = area.title
             geoJson.properties!.description = area.description
             areasMapLayer.addData(geoJson);
+            if(area.entrances){
+                const doorGeoJson: GeoJSON.Feature = JSON.parse(area.entrances);
+                areasMapLayer.addData(doorGeoJson);
+            }
         })
 
         areasMapLayer.getLayers().map((layer) => {
