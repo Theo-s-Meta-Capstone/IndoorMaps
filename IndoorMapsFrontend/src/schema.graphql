@@ -7,6 +7,7 @@ type Area {
   category: String!
   databaseId: Int!
   description: String!
+  entrances: String
   id: ID!
   shape: String!
   title: String!
@@ -24,6 +25,11 @@ input AreaCreateInput {
 input AreaModifyInput {
   category: String
   description: String
+
+  """
+  If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape
+  """
+  entrances: NewShape
   id: Int!
   shape: String
   title: String
