@@ -25,7 +25,7 @@ function ListOfBuildings({ graphQLData }: ListOfBuildingsProps) {
     const [data, refetch] = useRefetchableFragment(AllBuildingsFragment, graphQLData);
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
-    const [_, startTransition] = useTransition();
+    const [, startTransition] = useTransition();
     const buildings = data.allBuildings;
     // The key is the index and not the relay building id
     // Because the building data is not visible to this component (as it does not call useFragment)

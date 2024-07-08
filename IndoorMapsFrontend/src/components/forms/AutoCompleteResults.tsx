@@ -16,7 +16,7 @@ type Props = {
 
 const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResult }: Props) => {
     const debouncedValue = useDebounce(searchString, "", debounceTime);
-    const [_, startTransition] = useTransition();
+    const [, startTransition] = useTransition();
     const [data, refetch] = useRefetchableFragment(
         graphql`
           fragment AutoCompleteResultsFragment on Query
