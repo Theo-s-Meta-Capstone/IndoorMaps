@@ -1,7 +1,6 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { Link, useParams } from "react-router-dom";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
+import { useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../pageSections/HeaderNav";

@@ -1,8 +1,6 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { Link } from "react-router-dom";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "../pageSections/UserDataDisplay";
 import HeaderNav from "../pageSections/HeaderNav";
 
