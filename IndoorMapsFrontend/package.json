@@ -15,6 +15,7 @@
     "@mantine/core": "^7.11.0",
     "@mantine/form": "^7.11.0",
     "@mantine/hooks": "^7.11.0",
+    "@tabler/icons-react": "^3.9.0",
     "@types/geojson": "^7946.0.14",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",

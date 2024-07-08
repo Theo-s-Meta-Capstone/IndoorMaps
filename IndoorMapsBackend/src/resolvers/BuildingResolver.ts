@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float } from 'type-graphql'
 import { GraphQLError } from 'graphql'
-import { Floor as DbFloor } from '@prisma/client'
+import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
@@ -35,6 +35,12 @@ class BuildingCreateInput {
 class InviteEditorInput extends BuildingUniqueInput {
     @Field()
     invitedUser: string
+}
+
+@InputType()
+class BuildingSearchInput {
+    @Field({ nullable: true })
+    searchQuery: string
 }
 
 @Resolver(of => Building)
@@ -155,13 +161,33 @@ export class BuildingResolver {
     }
 
     @Query(() => [Building])
-    async allBuildings(@Ctx() ctx: Context) {
-        const buildings = await ctx.prisma.building.findMany({
-            include: {
-                floors: true
-            }
-        });
+    async allBuildings(
+        @Arg('data') data: BuildingSearchInput,
+        @Ctx() ctx: Context
+    ): Promise<Building[]> {
+        let buildings;
+        if (data.searchQuery && data.searchQuery.length > 0) {
+            buildings = await ctx.prisma.building.findMany({
+                where: {
+                    OR: [
+                        {
+                            title: {
+                                contains: data.searchQuery,
+                                mode: 'insensitive',
+                            }
+                        },
+                        {
+                            address: {
+                                contains: data.searchQuery,
+                                mode: 'insensitive',
+                            }
+                        }
+                    ],
+                }
+            });
+        } else {
+            buildings = await ctx.prisma.building.findMany({});
+        }
         return buildings.map((building) => convertToGraphQLBuilding(building))
     }
-
 }

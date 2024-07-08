@@ -81,6 +81,10 @@ input BuildingCreateInput {
   title: String!
 }
 
+input BuildingSearchInput {
+  searchQuery: String
+}
+
 input BuildingUniqueInput {
   id: Float!
 }
@@ -186,7 +190,7 @@ input NewShape {
 }
 
 type Query {
-  allBuildings: [Building!]!
+  allBuildings(data: BuildingSearchInput!): [Building!]!
   allUsers: [User!]!
   getArea(data: AreaUniqueInput!): Area!
   getAutocomplete(data: AutocompleteInput!): Autocomplete!
