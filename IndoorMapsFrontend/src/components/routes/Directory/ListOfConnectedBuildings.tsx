@@ -1,4 +1,3 @@
-import "./styles/ListOfConnectedBuildings.css"
 import { graphql, useFragment } from "react-relay";
 import ConnectedBuildingItem from "./ConnectedBuildingItem";
 import { ListOfConnectedBuildingsUserDataDisplayFragment$key } from "./__generated__/ListOfConnectedBuildingsUserDataDisplayFragment.graphql";
