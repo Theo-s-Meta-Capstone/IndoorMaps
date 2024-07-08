@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../pageSections/HeaderNav";
+import { Button } from "@mantine/core";
+import { useClipboard } from "@mantine/hooks";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -56,9 +58,15 @@ type BuildingEditorBodyContainerProps = {
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const clipboard = useClipboard();
+    const { buildingId } = useParams();
     return (
         <>
-            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"}>
+                <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
+                    {clipboard.copied ? "Link Copied" : "Share"}
+                </Button>
+            </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
     )
