@@ -132,6 +132,11 @@ type HighlightsRange {
   start: Int
 }
 
+input InviteEditorInput {
+  id: Float!
+  invitedUser: String!
+}
+
 type LatLng {
   lat: Float!
   lon: Float!
@@ -152,11 +157,16 @@ type Mutation {
   createBuilding(data: BuildingCreateInput!): Building!
   createFloor(data: FloorCreateInput!): NewFloorResult!
   deleteArea(data: AreaUniqueInput!): NewAreaResult!
+  inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
   modifyFloor(data: FloorModifyInput!): NewFloorResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+}
+
+type MutationResult {
+  success: Boolean!
 }
 
 type NewAreaResult {

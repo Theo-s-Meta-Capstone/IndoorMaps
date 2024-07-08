@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float} from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor } from '@prisma/client'
 
@@ -8,6 +8,7 @@ import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
 import { getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
+import { MutationResult } from '../utils/generic.js'
 
 @InputType()
 class BuildingUniqueInput {
@@ -28,6 +29,12 @@ class BuildingCreateInput {
 
     @Field(type => Float)
     startLon: number
+}
+
+@InputType()
+class InviteEditorInput extends BuildingUniqueInput {
+    @Field()
+    invitedUser: string
 }
 
 @Resolver(of => Building)
@@ -82,6 +89,46 @@ export class BuildingResolver {
             }
         });
         return convertToGraphQLBuilding(newBuilding);
+    }
+
+    @Mutation((returns) => MutationResult)
+    async inviteEditor(
+        @Arg('data') data: InviteEditorInput,
+        @Ctx() ctx: Context,
+    ): Promise<MutationResult> {
+        const user = await getUserOrThrowError(ctx.cookies);
+
+        const userToInvite = await ctx.prisma.user.findFirst({
+            where: {
+                email: data.invitedUser,
+            },
+        })
+        if (userToInvite === null) {
+            throw new GraphQLError('User to invite is not signed up', {
+                extensions: {
+                    code: 'USER_TO_INVITE_NOT_FOUND',
+                },
+            });
+        }
+
+        await ctx.prisma.buildingEditors.create({
+            data: {
+                editorLevel: "editor",
+                user: {
+                    connect: {
+                        email: data.invitedUser,
+                    },
+                },
+                building: {
+                    connect: {
+                        id: data.id,
+                    }
+                }
+            }
+        });
+        return {
+            success: true,
+        };
     }
 
     @Query((returns) => Building)

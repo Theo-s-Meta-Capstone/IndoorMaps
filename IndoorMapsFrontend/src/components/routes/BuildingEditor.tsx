@@ -6,6 +6,8 @@ import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../pageSections/HeaderNav";
 import { Button } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
+import { useBooleanState } from "../../utils/hooks";
+import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -57,6 +59,7 @@ type BuildingEditorBodyContainerProps = {
 }
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
+    const [isInviteEditorOpen, handleCloseInviteEditor, handleOpenInviteEditor] = useBooleanState(false);
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     const clipboard = useClipboard();
     const { buildingId } = useParams();
@@ -66,6 +69,10 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
                 <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
                     {clipboard.copied ? "Link Copied" : "Share"}
                 </Button>
+                <Button onClick={handleOpenInviteEditor}>
+                    Invite Editors
+                </Button>
+                <InviteEditorsModal isOpen={isInviteEditorOpen} closeModal={handleCloseInviteEditor} />
             </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
