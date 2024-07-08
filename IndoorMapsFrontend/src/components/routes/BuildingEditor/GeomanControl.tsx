@@ -20,7 +20,8 @@ const Geoman = L.Control.extend({
             drawCircle: false,
             oneBlock: true,
             drawCircleMarker: false,
-            drawText: false
+            drawText: false,
+            cutPolygon: false,
         });
 
     },
