@@ -309,7 +309,9 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
             {selectedArea ?
                 <EditAreaForm area={selectedArea} />
                 :
-                <p>Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool</p>
+                <p>Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool <br />
+                Select an Area to edit its Name and Description
+                </p>
             }
             <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving area map ..." : "area map saved"}</div>
 
