@@ -3,7 +3,7 @@ import { GraphQLError } from "graphql";
 
 import { Context } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
-import { getUserOrThrowError } from "../auth/validateUser.js";
+import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
 
@@ -75,7 +75,10 @@ export class FloorResolver {
         @Arg('data') data: FloorModifyInput,
         @Ctx() ctx: Context,
     ): Promise<NewFloorResult> {
-        const user = await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedFloorEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
         const updatedFloor = await ctx.prisma.floor.update({
             where: {
                 id: data.id
@@ -102,7 +105,10 @@ export class FloorResolver {
         @Arg('data') data: FloorCreateInput,
         @Ctx() ctx: Context,
     ): Promise<NewFloorResult> {
-        const user = await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedBuildingEditor(data.buildingDatabseId, ctx);
+        if (authError) {
+            throw authError;
+        }
         const newFloor = await ctx.prisma.floor.create({
             data: {
                 title: data.title,

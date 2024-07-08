@@ -1,4 +1,4 @@
-import { isInstance } from "class-validator";
+import { $Enums, BuildingEditors } from "@prisma/client";
 import { User } from "../graphqlSchemaTypes/User.js";
 import { Context } from "../utils/context.js";
 import { verifyAccessToken } from "./jwt.js";
@@ -12,7 +12,7 @@ import { GraphQLError } from "graphql";
  */
 export const validateUser = async (cookies: Context["cookies"]): Promise<User | null> => {
     try {
-        if(!cookies || !cookies.jwt){
+        if (!cookies || !cookies.jwt) {
             return null;
         }
         const [userData, token] = await verifyAccessToken(cookies.jwt);
@@ -20,7 +20,7 @@ export const validateUser = async (cookies: Context["cookies"]): Promise<User | 
     }
     catch (e) {
         //Invalid cookie JWT
-        if(e  == "JWT not valid"){
+        if (e == "JWT not valid") {
             return null;
         }
         console.error(e)
@@ -46,4 +46,102 @@ export const getUserOrThrowError = async (cookies: Context["cookies"]): Promise<
         });
     }
     return user;
+}
+
+const editorLevels = { "viewer": 0, "editor": 1, "owner": 2 }
+
+export const getUsersBuildingEditorStatus = async (user: User, building: number, ctx: Context): Promise<null | $Enums.EditorLevel> => {
+    if (!user) {
+        return null;
+    }
+    const buildingEditorRows = await ctx.prisma.buildingEditors.findMany({
+        where: {
+            buildingId: building,
+            userId: user.databaseId,
+        }
+    })
+    if (buildingEditorRows.length === 0) {
+        return null;
+    }
+    // Searches for the highest role that the user has in the building
+    let role: $Enums.EditorLevel = "viewer";
+    buildingEditorRows.forEach((row) => {
+        if (editorLevels[row.editorLevel] > editorLevels[role]) {
+            role = row.editorLevel;
+        }
+    })
+    return role;
+}
+
+export const checkAuthrizedBuildingEditor = async (buildingDatabaseId: number, ctx: Context) => {
+    const user = await getUserOrThrowError(ctx.cookies);
+    let status = await getUsersBuildingEditorStatus(user, buildingDatabaseId, ctx);
+    if (status === null || status === "viewer") {
+        return new GraphQLError('User is not authorized to edit this building', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    return null
+}
+
+export const checkAuthrizedFloorEditor = async (floorDatabaseId: number, ctx: Context) => {
+    const user = await getUserOrThrowError(ctx.cookies);
+    const building = await ctx.prisma.floor.findUnique({
+        where: {
+            id: floorDatabaseId,
+        },
+        select:{
+            buildingId: true,
+        }
+    })
+    if(!building){
+        return new GraphQLError('Building Not found', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    let status = await getUsersBuildingEditorStatus(user, building.buildingId, ctx);
+    if (status === null || status === "viewer") {
+        return new GraphQLError('User is not authorized to edit this building', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    return null
+}
+
+export const checkAuthrizedAreaEditor = async (areaDatasId: number, ctx: Context) => {
+    const user = await getUserOrThrowError(ctx.cookies);
+    const area = await ctx.prisma.area.findUnique({
+        where: {
+            id: areaDatasId,
+        },
+        select:{
+            floor: {
+                select:{
+                    buildingId: true,
+                }
+            }
+        }
+    })
+    if(!area){
+        return new GraphQLError('Area Not found', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    let status = await getUsersBuildingEditorStatus(user, area.floor.buildingId, ctx);
+    if (status === null || status === "viewer") {
+        return new GraphQLError('User is not authorized to edit this building', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+            },
+        });
+    }
+    return null
 }

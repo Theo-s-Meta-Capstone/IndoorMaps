@@ -6,7 +6,7 @@ import { Floor as DbFloor } from '@prisma/client'
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
-import { getUserOrThrowError } from '../auth/validateUser.js'
+import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
 
@@ -96,7 +96,10 @@ export class BuildingResolver {
         @Arg('data') data: InviteEditorInput,
         @Ctx() ctx: Context,
     ): Promise<MutationResult> {
-        const user = await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedBuildingEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
 
         const userToInvite = await ctx.prisma.user.findFirst({
             where: {
