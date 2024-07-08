@@ -146,6 +146,14 @@ type LatLng {
   lon: Float!
 }
 
+type LiveLocation {
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+  message: String!
+  name: String!
+}
+
 input LocationLookupInput {
   id: String
 }
@@ -164,6 +172,7 @@ type Mutation {
   inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
   modifyFloor(data: FloorModifyInput!): NewFloorResult!
+  setLocation: MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
@@ -202,6 +211,10 @@ type Query {
 
 type SignedOutSuccess {
   success: Boolean!
+}
+
+type Subscription {
+  newLiveLocation: LiveLocation!
 }
 
 type TitleHighlightsRange {

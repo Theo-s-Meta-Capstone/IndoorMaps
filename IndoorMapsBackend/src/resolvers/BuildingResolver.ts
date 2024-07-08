@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float } from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
@@ -9,6 +9,7 @@ import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeCo
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
+import { LiveLocation, pubSub } from './pubSub.js'
 
 @InputType()
 class BuildingUniqueInput {
@@ -189,5 +190,33 @@ export class BuildingResolver {
             buildings = await ctx.prisma.building.findMany({});
         }
         return buildings.map((building) => convertToGraphQLBuilding(building))
+    }
+
+    @Mutation((returns) => MutationResult)
+    async setLocation(
+        // @Arg('data') data: ,
+        @Ctx() ctx: Context,
+    ): Promise<MutationResult> {
+        pubSub.publish("LIVELOCATIONS", {
+            id: "1",
+            latitude: 1,
+            longitude: 1,
+            name: "test",
+            message: "test",
+        });
+        return {
+            success: true,
+        };
+    }
+
+    @Subscription((returns) => LiveLocation, {
+        topics: "LIVELOCATIONS",
+    })
+    async newLiveLocation(
+        @Root() liveLocaiton: LiveLocation,
+    ): Promise<LiveLocation> {
+        return {
+            ...liveLocaiton,
+        };
     }
 }
