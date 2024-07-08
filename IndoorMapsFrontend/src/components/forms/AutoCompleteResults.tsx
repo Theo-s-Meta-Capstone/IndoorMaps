@@ -40,11 +40,11 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
     }, [debouncedValue])
 
     const listOfAutocompleteElements = data.getAutocomplete.items.map(item => {
-        return (<li key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}>{item.title}</Button></li>)
+        return (<li className="autocompleteResultItem" key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}>{item.title}</Button></li>)
     })
 
     return (
-        <ul>
+        <ul className="autocompleteResultsContainer">
             {listOfAutocompleteElements}
         </ul>
     )

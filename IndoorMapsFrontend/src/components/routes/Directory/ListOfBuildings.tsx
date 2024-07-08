@@ -17,7 +17,7 @@ function ListOfBuildings({ buildings }: ListOfBuildingsProps) {
         <div className="buildingsTitle">
 
             <Group justify="space-between">
-                <h2>Public Building:</h2>
+                <h2>Public Buildings:</h2>
             </Group>
             <div className="buildingsContainer">
                 {buildingListElements}

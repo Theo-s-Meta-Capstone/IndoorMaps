@@ -11,6 +11,10 @@
     margin-bottom: 1em;
 }
 
+.buildingsContainer {
+    border: 1px solid black;
+}
+
 .buildingsContainer a {
     background-color: var(--main-1);
 }
@@ -26,4 +30,25 @@
 
 .buildingsContainer a:last-child {
     border-bottom-width: 0px;
+}
+
+.autocompleteResultsContainer {
+    margin: 0;
+    padding:0;
+}
+
+.autocompleteResultItem {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid black;
+}
+
+.autocompleteResultItem button {
+    border-radius: 0;
+    width: 100%;
+}
+
+.autocompleteResultItem + .autocompleteResultItem {
+    border-top: 0;
 }
