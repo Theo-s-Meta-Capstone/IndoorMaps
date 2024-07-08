@@ -42,3 +42,7 @@
 .leaflet-pm-icon-marker {
     background-image: url("/door.svg") !important;
 }
+
+.noAreaSelectedText {
+    vertical-align: middle;
+}

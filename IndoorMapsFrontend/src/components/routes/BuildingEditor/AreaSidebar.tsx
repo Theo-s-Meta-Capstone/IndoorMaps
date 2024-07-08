@@ -134,9 +134,11 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
         })
     }
 
-    const onEntranceCreate = (event: L.LeafletEvent) => {
+    const onMarkerCreate = (event: L.LeafletEvent) => {
         if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;
         areaEntranceMapLayer.addLayer(event.layer);
+        event.layer.on('pm:edit', onMarkerEdit)
+        event.layer.on('pm:remove', onMarkerDelete)
         onMarkerEdit();
     }
 
@@ -150,7 +152,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
             onAreaCreate(event);
         }
         else if (event.layer instanceof L.Marker) {
-            onEntranceCreate(event);
+            onMarkerCreate(event);
         }
         else {
             console.log(event.layer);
@@ -303,13 +305,13 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
 
     return (
         <>
-            <Button onClick={closeSidebar}>{"<- Back to floor " + floorData?.title}</Button>
+            <Button onClick={closeSidebar}>{"<- Back to floors"}</Button>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-            <h2>Area Sidebar</h2>
+            <h2>{floorData?.title} Area Editor</h2>
             {selectedArea ?
                 <EditAreaForm area={selectedArea} />
                 :
-                <p>Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool <br />
+                <p className="noAreaSelectedText">Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool <br />
                 Select an Area to edit its Name and Description
                 </p>
             }
