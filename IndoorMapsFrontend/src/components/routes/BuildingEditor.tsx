@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
+import HeaderNav from "../pageSections/HeaderNav";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -58,9 +59,7 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     return (
         <>
-            <h1>Editing building {getBuilding.title}</h1>
-            <Link to="/directory">Directory</Link>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"} />
             <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
     )

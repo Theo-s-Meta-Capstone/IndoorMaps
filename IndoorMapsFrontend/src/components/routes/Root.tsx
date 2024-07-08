@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import ButtonsContainer from "../pageSections/ButtonsContainer";
 import UserDataDisplay from "../pageSections/UserDataDisplay";
+import HeaderNav from "../pageSections/HeaderNav";
 
 const RootPageQuery = graphql`
     query RootQuery {
@@ -31,8 +32,6 @@ const Root = () => {
 
     return (
         <div>
-            <h1>Welcome to IndoorMaps</h1>
-            <Link to="/directory">Directory</Link>
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <RootBodyContainer queryReference={queryReference} />
@@ -51,7 +50,7 @@ function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
     const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
     return (
         <>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"}/>
             <UserDataDisplay getUserFromCookie={getUserFromCookie} />
         </>
     )

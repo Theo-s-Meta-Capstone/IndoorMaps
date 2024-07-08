@@ -1,10 +1,10 @@
+import "./Directory/styles/Directory.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
+import HeaderNav from "../pageSections/HeaderNav";
 
 const DirectoryPageQuery = graphql`
     query DirectoryQuery($autocompleteInput: AutocompleteInput!) {
@@ -14,7 +14,6 @@ const DirectoryPageQuery = graphql`
     }
     getUserFromCookie {
         ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment,
         ...ListOfConnectedBuildingsUserDataDisplayFragment
     }
     ...AutoCompleteResultsFragment
@@ -58,8 +57,7 @@ function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps)
     const { getUserFromCookie, allBuildings } = data;
     return (
         <>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Indoor Maps"} currentPage={"/directory"}/>
             <ListOfConnectedBuildings getUserFromCookie={getUserFromCookie} getGeocoder={data} />
             <ListOfBuildings buildings={allBuildings} />
         </>

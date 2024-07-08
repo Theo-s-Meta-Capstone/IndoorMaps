@@ -31,10 +31,11 @@ const refreshQuery = graphql`
 `;
 
 type UserButtonsProps = {
-  getUserFromCookie: ButtonsContainerFragment$key
+  getUserFromCookie: ButtonsContainerFragment$key;
+  className?: string;
 }
 
-function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
+function ButtonsContainer({ getUserFromCookie, className }: UserButtonsProps) {
   const [signOutFormError, setSignOutFormError] = useState<string | null>(null);
   const { isLogedIn, user } = useFragment(ButtonsUserFragment, getUserFromCookie);
   const environment = useRelayEnvironment();
@@ -72,10 +73,10 @@ function ButtonsContainer({ getUserFromCookie }: UserButtonsProps) {
   };
   if (isLogedIn && user) {
     return (
-      <UserButtons user={user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
+      <UserButtons className={className} user={user} logout={handleLogout} formError={signOutFormError} closeFormError={() => { setSignOutFormError(null) }} />
     )
   }
-  return (<AuthButtons refreshUserData={refreshUserData} />)
+  return (<AuthButtons className={className} refreshUserData={refreshUserData} />)
 }
 
 export default ButtonsContainer;

@@ -1,0 +1,20 @@
+header {
+    display: flex;
+    background-color: var(--main-2);
+}
+
+.pageTitle {
+    margin: 0;
+    padding: .25em;
+    text-align: left;
+}
+
+.nav {
+    flex-grow: 1;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.userButtons {
+    margin-left: auto;
+}
