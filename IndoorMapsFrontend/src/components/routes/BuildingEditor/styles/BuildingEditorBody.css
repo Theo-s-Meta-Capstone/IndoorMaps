@@ -38,3 +38,7 @@
 .FloorListItemDescription {
     text-align: left;
 }
+
+.leaflet-pm-icon-marker {
+    background-image: url("/door.svg") !important;
+}

@@ -5,7 +5,7 @@ import * as L from "leaflet";
 import FloorSidebar from "./FloorSidebar";
 import { useBooleanState } from "../../../utils/hooks";
 import AreaSidebar from "./AreaSidebar";
-import { Button, Group } from "@mantine/core";
+import { Group } from "@mantine/core";
 import { DoorMarkerIcon } from "../../../utils/markerIcon";
 import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
@@ -99,13 +99,11 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   return (
     <aside className="EditorSidebar">
       <Group justify="space-between">
-        <Button onClick={handleCloseAreaSidebar} disabled={!isAreaSidebarOpen}>Add + Edit Floors</Button>
-        <Button onClick={handleOpenAreaSidebar} disabled={isAreaSidebarOpen}>Add + Edit Areas</Button>
       </Group>
       {isAreaSidebarOpen ?
-        <AreaSidebar floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
+        <AreaSidebar closeSidebar={handleCloseAreaSidebar} floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
         :
-        <FloorSidebar setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+        <FloorSidebar openAreaSidebar={handleOpenAreaSidebar} setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }
     </aside>
   )

@@ -11,6 +11,7 @@ import * as L from "leaflet";
 import EditAreaForm from "../../forms/EditAreaForm";
 import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { Button } from "@mantine/core";
 
 // TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
@@ -18,6 +19,7 @@ const AreaSidebarFragment = graphql`
   {
     id
     databaseId
+    title
     areas {
         id
         databaseId
@@ -36,9 +38,10 @@ type Props = {
     map: L.Map;
     areasMapLayer: L.GeoJSON;
     areaEntranceMapLayer: L.GeoJSON;
+    closeSidebar: () => void;
 }
 
-const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer }: Props) => {
+const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer, closeSidebar }: Props) => {
     const floorData = useFragment(AreaSidebarFragment, floorFromParent);
     const [formError, setFormError] = useState<string | null>(null);
     const [selectedArea, setSelectedArea] = useState<L.Layer | null>(null);
@@ -82,7 +85,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
                     },
                 },
                 onCompleted(data) {
-                    console.log(event)
                     event.layer.feature = layerGeoJSON;
                     event.layer.feature.properties.databaseId = data.createArea.databaseId
                     event.layer.feature.properties.title = "";
@@ -121,7 +123,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
     const onMarkerDelete = (event: L.LeafletEvent) => {
         // TODO : invistage why it is .sourceTarget instead of layer and why sourceTarget works here but not anywhere else
         areaEntranceMapLayer.removeLayer(event.sourceTarget);
-        console.log(areaEntranceMapLayer.toGeoJSON())
         if (!selectedArea || !(selectedArea instanceof L.Polygon)) return;
         updateArea({
             data: {
@@ -302,12 +303,13 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
 
     return (
         <>
+            <Button onClick={closeSidebar}>{"<- Back to floor " + floorData?.title}</Button>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Area Sidebar</h2>
             {selectedArea ?
                 <EditAreaForm area={selectedArea} />
                 :
-                null
+                <p>Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool</p>
             }
             <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving area map ..." : "area map saved"}</div>
 
