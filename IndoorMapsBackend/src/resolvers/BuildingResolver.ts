@@ -1,13 +1,14 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float} from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float } from 'type-graphql'
 import { GraphQLError } from 'graphql'
-import { Floor as DbFloor } from '@prisma/client'
+import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
-import { getUserOrThrowError } from '../auth/validateUser.js'
+import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
+import { MutationResult } from '../utils/generic.js'
 
 @InputType()
 class BuildingUniqueInput {
@@ -28,6 +29,18 @@ class BuildingCreateInput {
 
     @Field(type => Float)
     startLon: number
+}
+
+@InputType()
+class InviteEditorInput extends BuildingUniqueInput {
+    @Field()
+    invitedUser: string
+}
+
+@InputType()
+class BuildingSearchInput {
+    @Field({ nullable: true })
+    searchQuery: string
 }
 
 @Resolver(of => Building)
@@ -84,6 +97,49 @@ export class BuildingResolver {
         return convertToGraphQLBuilding(newBuilding);
     }
 
+    @Mutation((returns) => MutationResult)
+    async inviteEditor(
+        @Arg('data') data: InviteEditorInput,
+        @Ctx() ctx: Context,
+    ): Promise<MutationResult> {
+        const authError = await checkAuthrizedBuildingEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
+
+        const userToInvite = await ctx.prisma.user.findFirst({
+            where: {
+                email: data.invitedUser,
+            },
+        })
+        if (userToInvite === null) {
+            throw new GraphQLError('User to invite is not signed up', {
+                extensions: {
+                    code: 'USER_TO_INVITE_NOT_FOUND',
+                },
+            });
+        }
+
+        await ctx.prisma.buildingEditors.create({
+            data: {
+                editorLevel: "editor",
+                user: {
+                    connect: {
+                        email: data.invitedUser,
+                    },
+                },
+                building: {
+                    connect: {
+                        id: data.id,
+                    }
+                }
+            }
+        });
+        return {
+            success: true,
+        };
+    }
+
     @Query((returns) => Building)
     async getBuilding(
         @Arg('data') data: BuildingUniqueInput,
@@ -105,13 +161,33 @@ export class BuildingResolver {
     }
 
     @Query(() => [Building])
-    async allBuildings(@Ctx() ctx: Context) {
-        const buildings = await ctx.prisma.building.findMany({
-            include: {
-                floors: true
-            }
-        });
+    async allBuildings(
+        @Arg('data') data: BuildingSearchInput,
+        @Ctx() ctx: Context
+    ): Promise<Building[]> {
+        let buildings;
+        if (data.searchQuery && data.searchQuery.length > 0) {
+            buildings = await ctx.prisma.building.findMany({
+                where: {
+                    OR: [
+                        {
+                            title: {
+                                contains: data.searchQuery,
+                                mode: 'insensitive',
+                            }
+                        },
+                        {
+                            address: {
+                                contains: data.searchQuery,
+                                mode: 'insensitive',
+                            }
+                        }
+                    ],
+                }
+            });
+        } else {
+            buildings = await ctx.prisma.building.findMany({});
+        }
         return buildings.map((building) => convertToGraphQLBuilding(building))
     }
-
 }

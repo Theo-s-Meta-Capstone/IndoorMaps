@@ -1,9 +1,8 @@
-import "./styles/ListOfConnectedBuildings.css"
 import { graphql, useFragment } from "react-relay";
 import ConnectedBuildingItem from "./ConnectedBuildingItem";
 import { ListOfConnectedBuildingsUserDataDisplayFragment$key } from "./__generated__/ListOfConnectedBuildingsUserDataDisplayFragment.graphql";
 import { useBooleanState } from "../../../utils/hooks";
-import { Button } from "@mantine/core";
+import { Button, Group } from "@mantine/core";
 import CreateBuildingModal from "../../forms/CreateBuildingModal";
 import { AutoCompleteResultsFragment$key } from "../../forms/__generated__/AutoCompleteResultsFragment.graphql";
 
@@ -41,10 +40,15 @@ function ListOfConnectedBuildings({ getUserFromCookie, getGeocoder }: ListOfConn
     })
 
     return (
-        <div className="connectedBuildingsContainer">
-            <Button onClick={handleOpenCreateBuilding}>Create Building</Button>
-            <CreateBuildingModal getGeocoder={getGeocoder} isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
-            {buildingItems}
+        <div className="buildingsTitle">
+            <Group justify="space-between">
+                <h2>Your Buildings:</h2>
+                <Button onClick={handleOpenCreateBuilding}>Create Building</Button>
+            </Group>
+            <div className="connectedBuildingsContainer buildingsContainer">
+                <CreateBuildingModal getGeocoder={getGeocoder} isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />
+                {buildingItems}
+            </div>
         </div>
     )
 

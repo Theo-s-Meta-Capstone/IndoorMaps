@@ -1,23 +1,19 @@
+import "./Directory/styles/Directory.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
+import HeaderNav from "../pageSections/HeaderNav";
 
 const DirectoryPageQuery = graphql`
-    query DirectoryQuery($autocompleteInput: AutocompleteInput!) {
-    allBuildings {
-        id
-        ...BuildingItemFragment
-    }
+    query DirectoryQuery($autocompleteInput: AutocompleteInput!, $buildingSearchInput: BuildingSearchInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment,
         ...ListOfConnectedBuildingsUserDataDisplayFragment
     }
     ...AutoCompleteResultsFragment
+    ...ListOfBuildingsFragment
 }`
 
 const Directory = () => {
@@ -34,6 +30,7 @@ const Directory = () => {
             autocompleteInput: {
                 p: null,
             },
+            buildingSearchInput: {}
         });
     }, []);
 
@@ -55,13 +52,12 @@ type DirectoryBodyContainerProps = {
 
 function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
     const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
-    const { getUserFromCookie, allBuildings } = data;
+    const { getUserFromCookie } = data;
     return (
         <>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
-            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Indoor Maps"} currentPage={"/directory"}/>
             <ListOfConnectedBuildings getUserFromCookie={getUserFromCookie} getGeocoder={data} />
-            <ListOfBuildings buildings={allBuildings} />
+            <ListOfBuildings graphQLData={data} />
         </>
     )
 }

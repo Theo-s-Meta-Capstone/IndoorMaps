@@ -1,10 +1,10 @@
 import "./BuildingViewer/BuildingViewer.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { Link, useParams } from "react-router-dom";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
+import { useParams } from "react-router-dom";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
+import HeaderNav from "../pageSections/HeaderNav";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
@@ -60,9 +60,7 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
     const {getUserFromCookie, getBuilding} = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     return (
         <>
-            <h1>{getBuilding.title}</h1>
-            <Link to="/directory">Directory</Link>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"}/>
             <BuildingViewerBody buildingFromParent={getBuilding} />
         </>
     )

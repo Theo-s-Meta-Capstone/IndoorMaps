@@ -1,7 +1,7 @@
 import { useRefetchableFragment } from "react-relay";
 import { graphql } from "relay-runtime";
 import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { Button } from "@mantine/core";
 import { useDebounce } from "../../utils/hooks";
 
@@ -16,8 +16,7 @@ type Props = {
 
 const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResult }: Props) => {
     const debouncedValue = useDebounce(searchString, "", debounceTime);
-    // TODO: convert to fetchQuery to avoid suspense after new load
-    // See https://relay.dev/docs/guided-tour/refetching/refetching-fragments-with-different-data/
+    const [, startTransition] = useTransition();
     const [data, refetch] = useRefetchableFragment(
         graphql`
           fragment AutoCompleteResultsFragment on Query
@@ -35,16 +34,18 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
 
     useEffect(() => {
         if (searchString.length > 0) {
-            refetch({ autocompleteInput: { p: searchString } }, { fetchPolicy: 'store-or-network' })
+            startTransition(() => {
+                refetch({ autocompleteInput: { p: searchString } }, { fetchPolicy: 'store-or-network' })
+            });
         }
     }, [debouncedValue])
 
     const listOfAutocompleteElements = data.getAutocomplete.items.map(item => {
-        return (<li key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}>{item.title}</Button></li>)
+        return (<li className="autocompleteResultItem" key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}>{item.title}</Button></li>)
     })
 
     return (
-        <ul>
+        <ul className="autocompleteResultsContainer">
             {listOfAutocompleteElements}
         </ul>
     )

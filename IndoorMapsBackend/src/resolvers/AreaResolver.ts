@@ -1,5 +1,5 @@
 import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query } from "type-graphql"
-import { getUserOrThrowError } from "../auth/validateUser.js"
+import { checkAuthrizedAreaEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js"
 import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 import { convertToGraphQlArea } from "../utils/typeConversions.js"
@@ -59,8 +59,10 @@ export class AreaResolver {
         @Arg('data') data: AreaCreateInput,
         @Ctx() ctx: Context,
     ): Promise<NewAreaResult> {
-        // TODO: check if user is alowed to edit this building
-        await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedFloorEditor(data.floorDatabseId, ctx);
+        if (authError) {
+            throw authError;
+        }
         const newArea = await ctx.prisma.area.create({
             data: {
                 title: data.title,
@@ -87,7 +89,10 @@ export class AreaResolver {
         @Arg('data') data: AreaModifyInput,
         @Ctx() ctx: Context,
     ): Promise<NewAreaResult> {
-        await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedAreaEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
         const updatedArea = await ctx.prisma.area.update({
             where: {
                 id: data.id
@@ -115,7 +120,10 @@ export class AreaResolver {
         @Arg('data') data: AreaUniqueInput,
         @Ctx() ctx: Context,
     ): Promise<NewAreaResult> {
-        await getUserOrThrowError(ctx.cookies);
+        const authError = await checkAuthrizedAreaEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
         const updatedArea = await ctx.prisma.area.delete({
             where: {
                 id: data.id

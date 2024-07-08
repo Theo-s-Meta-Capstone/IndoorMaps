@@ -27,7 +27,7 @@ function ConnectedBuildingItem({ buildingWithPermsFromParent }: ConnectedBuildin
     );
     return (
         <Link to={`/building/${buildingWithPerms.building.databaseId}/editor`}>
-            <Group>
+            <Group className="buildingListItem">
                 <h2>{buildingWithPerms.building.title}</h2>
                 <p>{buildingWithPerms.building.address}</p>
                 <p>you are: {buildingWithPerms.editorLevel}</p>

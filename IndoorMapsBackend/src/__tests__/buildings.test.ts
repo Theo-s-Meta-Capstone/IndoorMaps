@@ -123,7 +123,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         const getAllBuildingQuery = {
             query: `
             query Query {
-                allBuildings {
+                allBuildings(data: {}) {
                     id
                     databaseId
                     title

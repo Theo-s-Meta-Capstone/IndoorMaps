@@ -1,0 +1,54 @@
+.buildingsContainer,
+.buildingsTitle {
+    max-width: 800px;
+    margin: auto;
+}
+
+.connectedBuildingsContainer{
+    border: 1px solid black;
+    max-height: 50vh;
+    overflow: scroll;
+    margin-bottom: 1em;
+}
+
+.buildingsContainer {
+    border: 1px solid black;
+}
+
+.buildingsContainer a {
+    background-color: var(--main-1);
+}
+
+.buildingsContainer a:nth-child(odd) {
+    background-color: var(--main-2);
+}
+
+.buildingListItem {
+    background-color: inherit;
+    border-bottom: 1px solid black;
+}
+
+.buildingsContainer a:last-child {
+    border-bottom-width: 0px;
+}
+
+.autocompleteResultsContainer {
+    margin: 0;
+    padding:0;
+}
+
+.autocompleteResultItem {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid black;
+}
+
+.autocompleteResultItem button {
+    border-radius: 0;
+    width: 100%;
+}
+
+.autocompleteResultItem + .autocompleteResultItem {
+    border-top: 0;
+}

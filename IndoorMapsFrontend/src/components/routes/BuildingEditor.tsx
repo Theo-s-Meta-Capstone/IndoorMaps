@@ -1,9 +1,13 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { Link, useParams } from "react-router-dom";
-import ButtonsContainer from "../pageSections/ButtonsContainer";
+import { useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
+import HeaderNav from "../pageSections/HeaderNav";
+import { Button } from "@mantine/core";
+import { useClipboard } from "@mantine/hooks";
+import { useBooleanState } from "../../utils/hooks";
+import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -55,12 +59,21 @@ type BuildingEditorBodyContainerProps = {
 }
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
+    const [isInviteEditorOpen, handleCloseInviteEditor, handleOpenInviteEditor] = useBooleanState(false);
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const clipboard = useClipboard();
+    const { buildingId } = useParams();
     return (
         <>
-            <h1>Editing building {getBuilding.title}</h1>
-            <Link to="/directory">Directory</Link>
-            <ButtonsContainer getUserFromCookie={getUserFromCookie} />
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"}>
+                <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
+                    {clipboard.copied ? "Link Copied" : "Share"}
+                </Button>
+                <Button onClick={handleOpenInviteEditor}>
+                    Invite Editors
+                </Button>
+                <InviteEditorsModal isOpen={isInviteEditorOpen} closeModal={handleCloseInviteEditor} />
+            </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
         </>
     )

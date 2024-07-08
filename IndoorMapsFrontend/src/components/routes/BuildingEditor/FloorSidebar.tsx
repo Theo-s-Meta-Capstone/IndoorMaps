@@ -4,7 +4,7 @@ import FloorListItem from "./FloorListItem";
 import { Button, ScrollArea, Tooltip } from "@mantine/core";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 import CreateFloorModal from "../../forms/CreateFloorModal";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useBooleanState, useRefreshRelayCache } from "../../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
@@ -19,6 +19,7 @@ const FloorSidebarFragment = graphql`
     floors {
       id
       databaseId
+      title
       shape
       ...FloorListItemFragment
     }
@@ -31,13 +32,15 @@ type Props =  {
     currentFloor: number | null;
     floorMapLayer: L.GeoJSON;
     setCurrentFloor: (floor: number) => void;
+    openAreaSidebar: () => void;
 }
 
-const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor }: Props) => {
+const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
     const [refreshFloorData,] = useRefreshRelayCache();
+    const currentFloorData = useMemo(() => building.floors.find((floor) => floor.databaseId === currentFloor), [currentFloor]);
 
     const [commit, isInFlight] = useMutation<FloorSidebarFloorMutation>(graphql`
     mutation FloorSidebarFloorMutation($data: FloorModifyInput!) {
@@ -152,7 +155,9 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
     return (
         <>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-            <h2>Editor Sidebar</h2>
+            <h2>Editor Sidebar {currentFloorData ?
+                <Button onClick={openAreaSidebar}>Edit {currentFloorData.title} Areas</Button>
+            : null}</h2>
             <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
                 <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
             </Tooltip>

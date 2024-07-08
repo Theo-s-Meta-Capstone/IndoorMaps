@@ -7,13 +7,14 @@ type Props = {
     logout: () => void;
     formError: string | null;
     closeFormError: () => void;
+    className?: string;
 }
 
-const UserButtons = ({ user, logout, formError, closeFormError }: Props) => {
+const UserButtons = ({ user, logout, formError, closeFormError, className }: Props) => {
     if (user == null) return (<div>Error loading User</div>)
 
     return (
-        <Group className="userButtons">
+        <Group className={"userButtons "+className}>
             <FormErrorNotification formError={formError} onClose={() => { closeFormError() }} />
             <p>Hello {user.name}</p>
             <Button onClick={() => { logout() }} variant="default">Log Out</Button>

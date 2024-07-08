@@ -7,4 +7,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --main-1: #F8EFEC;
+  --main-2: #EED2CC;
+  --main-3: #DD9483;
+  --main-4: #EC6445;
+  --main-5: #9A3721;
 }
