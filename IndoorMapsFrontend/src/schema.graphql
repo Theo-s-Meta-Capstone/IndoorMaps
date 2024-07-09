@@ -147,6 +147,7 @@ type LatLng {
 }
 
 type LiveLocation {
+  buildingDatabaseId: Int!
   id: ID!
   latitude: Float!
   longitude: Float!
@@ -172,7 +173,7 @@ type Mutation {
   inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
   modifyFloor(data: FloorModifyInput!): NewFloorResult!
-  setLocation: MutationResult!
+  setLocation(data: BuildingUniqueInput!): MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
@@ -214,7 +215,7 @@ type SignedOutSuccess {
 }
 
 type Subscription {
-  newLiveLocation: LiveLocation!
+  newLiveLocation(data: BuildingUniqueInput!): LiveLocation!
 }
 
 type TitleHighlightsRange {

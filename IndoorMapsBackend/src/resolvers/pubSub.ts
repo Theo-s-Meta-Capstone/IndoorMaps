@@ -1,10 +1,13 @@
 import { createPubSub } from "graphql-yoga";
-import { ObjectType, Field, ID, Float } from 'type-graphql'
+import { ObjectType, Field, ID, Float, Int } from 'type-graphql'
 
 @ObjectType()
 export class LiveLocation {
   @Field(() => ID)
   id: string;
+
+  @Field(() => Int)
+  buildingDatabaseId: number;
 
   @Field(() => Float)
   latitude: number;

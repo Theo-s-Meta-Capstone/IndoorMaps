@@ -194,11 +194,12 @@ export class BuildingResolver {
 
     @Mutation((returns) => MutationResult)
     async setLocation(
-        // @Arg('data') data: ,
+        @Arg('data') data: BuildingUniqueInput,
         @Ctx() ctx: Context,
     ): Promise<MutationResult> {
         pubSub.publish("LIVELOCATIONS", {
             id: "1",
+            buildingDatabaseId: data.id,
             latitude: 1,
             longitude: 1,
             name: "test",
@@ -211,8 +212,12 @@ export class BuildingResolver {
 
     @Subscription((returns) => LiveLocation, {
         topics: "LIVELOCATIONS",
+        filter: ({ payload, args }) =>{
+            return payload.buildingDatabaseId === args.data.id
+        },
     })
     async newLiveLocation(
+        @Arg('data') data: BuildingUniqueInput,
         @Root() liveLocaiton: LiveLocation,
     ): Promise<LiveLocation> {
         return {

@@ -20,7 +20,7 @@ const BuildingViewerPageQuery = graphql`
 
 const subscription = graphql`
   subscription BuildingViewerSubscription {
-  newLiveLocation {
+  newLiveLocation(data: {id: 1}) {
     id
     latitude
     longitude
