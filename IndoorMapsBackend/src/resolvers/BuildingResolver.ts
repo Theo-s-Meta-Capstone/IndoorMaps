@@ -39,6 +39,21 @@ class InviteEditorInput extends BuildingUniqueInput {
 }
 
 @InputType()
+class LiveLocationInput extends BuildingUniqueInput {
+    @Field(() => Float)
+    latitude: number;
+
+    @Field(() => Float)
+    longitude: number;
+
+    @Field()
+    name: string;
+
+    @Field()
+    message: string;
+}
+
+@InputType()
 class BuildingSearchInput {
     @Field({ nullable: true })
     searchQuery: string
@@ -194,16 +209,17 @@ export class BuildingResolver {
 
     @Mutation((returns) => MutationResult)
     async setLocation(
-        @Arg('data') data: BuildingUniqueInput,
+        @Arg('data') data: LiveLocationInput,
         @Ctx() ctx: Context,
     ): Promise<MutationResult> {
+        const user = await getUserOrThrowError(ctx.cookies);
         pubSub.publish("LIVELOCATIONS", {
-            id: "1",
+            id: "liveLocation" + user.databaseId,
             buildingDatabaseId: data.id,
-            latitude: 1,
-            longitude: 1,
-            name: "test",
-            message: "test",
+            latitude: data.latitude,
+            longitude: data.longitude,
+            name: data.name,
+            message: data.message,
         });
         return {
             success: true,
