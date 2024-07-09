@@ -24,11 +24,24 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     }, (errorMessage: string) => {
         setFormError(errorMessage);
     });
+
+    const webSocket = new WebSocket('ws://localhost:4000/ws');
+
+    webSocket.onmessage = (event) => {
+        console.log(event.data);
+    };
+
+    // Connection opened
+    webSocket.addEventListener("open", (event) => {
+        console.log("Connected To Websocket!");
+        webSocket.send("Hello Server!");
+    });
+
     let countOfSteps = 0;
 
     const form = useForm({
         mode: 'controlled',
-        initialValues: { name: '', message: '', cords: ''},
+        initialValues: { name: '', message: '', cords: '' },
         validate: {
             name: hasLength({ min: 1, max: 16 }, 'Name must be between 1 and 16 characters long'),
         },
@@ -47,26 +60,26 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     }
 
     const handleSubmit = async (values: typeof form.values) => {
-        if(values.cords != null && values.cords.length > 0){
+        if (values.cords != null && values.cords.length > 0) {
             countOfSteps = 0;
             setIsRunningTimeout(setInterval(() => {
                 const cords = values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
                 const curPos = getPointBetweentwoPoints(
-                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint))%cords.length],
-                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint)+1)%cords.length],
-                    (countOfSteps%numberOfStepsBetweenEachGPSPoint)/numberOfStepsBetweenEachGPSPoint
+                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint)) % cords.length],
+                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint) + 1) % cords.length],
+                    (countOfSteps % numberOfStepsBetweenEachGPSPoint) / numberOfStepsBetweenEachGPSPoint
                 )
                 updateValues(form.values, curPos)
                 countOfSteps++;
             }, 3000))
-        }else{
+        } else {
             getUserLocaiton()
             closeModal();
         }
     }
 
     const updateValues = (values: typeof form.values, curPos: number[]) => {
-        if(buildingId == undefined){
+        if (buildingId == undefined) {
             setFormError("Building url param not found");
             return
         }
