@@ -76,7 +76,7 @@ type BuildingViewerBodyContainerProps = {
 function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     const [isShareLiveLocationOpen, handleCloseShareLiveLocation, handleOpenShareLiveLocation] = useBooleanState(false);
-    const [locationMarkers, setLocationMarkers] = useState<LiveLocationMarker[]>([]);
+    const [, setLocationMarkers] = useState<LiveLocationMarker[]>([]);
     const { buildingId } = useParams();
 
     // If a item exists in locationMarkers with the same id, that item is replaced with the new item
@@ -84,7 +84,7 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
     const handleSetLocationMarkers = (newLocation: LiveLocationMarker) => {
         setLocationMarkers(prev => {
             let changeFound = false
-            let newVal = prev.map((oldVal) => {
+            const newVal = prev.map((oldVal) => {
                 if(oldVal.id == newLocation.id){
                     changeFound = true;
                     return newLocation;
@@ -113,7 +113,7 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
             }
             handleSetLocationMarkers(response.newLiveLocation)
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
             console.error(err)
         },
         onCompleted: () => { },

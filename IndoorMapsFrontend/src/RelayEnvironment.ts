@@ -45,7 +45,7 @@ const fetchFn: FetchFunction = async (request, variables) => {
 function fetchOrSubscribe(
   operation: RequestParameters,
   variables: Variables,
-): Observable<any> {
+): Observable<any> { // eslint-disable-line @typescript-eslint/no-explicit-any
   return Observable.create((sink) => {
     if (!operation.text) {
       return sink.error(new Error('Operation text cannot be empty'));
