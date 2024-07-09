@@ -42,7 +42,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
 
 
     const updateValues = (values: typeof form.values) => {
-        const cords = values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseInt(cord)));
+        const cords = values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
         if(buildingId == undefined){
             setFormError("Building url param not found");
             return
