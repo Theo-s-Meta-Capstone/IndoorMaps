@@ -9,6 +9,7 @@ import { locationMarkerIcon } from "../../../utils/markerIcon";
 import { useUserLocation } from "../../../utils/hooks";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
+import DispalyLiveMarkers from "./DisplayLiveMarkers";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -105,6 +106,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                         }
                     </Button>
                     <Button onClick={resetMapToStartingLocation}><img src="/resetLocation.svg" alt="Reset Location" /></Button>
+                    <DispalyLiveMarkers map={map} />
                 </ViewerMapLoader>
                 : null
             }
