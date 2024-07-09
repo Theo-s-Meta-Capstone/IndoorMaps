@@ -44,13 +44,21 @@ const DispalyLiveMarkers = ({ map }: Props) => {
         }
         locationMarkers = newVal;
         locationMarkers.forEach((locationMarker) => {
-            if(!locationLeafletMarkers[locationMarker.id]) {
+            if (!locationLeafletMarkers[locationMarker.id]) {
                 locationLeafletMarkers[locationMarker.id] = L.marker([locationMarker.latitude, locationMarker.longitude], { icon: locationMarkerIcon });
                 locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
-                locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
+                if (locationMarker.message.length > 0) {
+                    locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
+                }
                 locationLeafletMarkers[locationMarker.id].addTo(map);
-            }else{
+            } else {
                 locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
+                locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
+                if (locationMarker.message.length > 0) {
+                    locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
+                } else {
+                    locationLeafletMarkers[locationMarker.id].unbindPopup()
+                }
             }
         })
     }

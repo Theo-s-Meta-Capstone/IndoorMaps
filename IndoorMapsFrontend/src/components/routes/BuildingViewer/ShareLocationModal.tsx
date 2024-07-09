@@ -5,6 +5,10 @@ import { graphql, useMutation } from "react-relay";
 import { useParams } from "react-router-dom";
 import { ShareLocationModalMutation } from "./__generated__/ShareLocationModalMutation.graphql";
 import FormErrorNotification from "../../forms/FormErrorNotification";
+import { getPointBetweentwoPoints } from "../../../utils/utils";
+import { useUserLocation } from "../../../utils/hooks";
+
+const numberOfStepsBetweenEachGPSPoint = 10;
 
 type Props = {
     isOpen: boolean,
@@ -15,6 +19,11 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
     const [isRunningTimeout, setIsRunningTimeout] = useState<NodeJS.Timeout | null>(null);
     const { buildingId } = useParams();
+    const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
+        updateValuesInjectForm([position.coords.latitude, position.coords.longitude]);
+    }, (errorMessage: string) => {
+        setFormError(errorMessage);
+    });
     let countOfSteps = 0;
 
     const form = useForm({
@@ -33,16 +42,30 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         }
     `);
 
+    const updateValuesInjectForm = (curPos: number[]) => {
+        updateValues(form.values, curPos);
+    }
+
     const handleSubmit = async (values: typeof form.values) => {
-        if(values.cords != null){
+        if(values.cords != null && values.cords.length > 0){
             countOfSteps = 0;
-            setIsRunningTimeout(setInterval(() => {updateValues(values)}, 3000))
+            setIsRunningTimeout(setInterval(() => {
+                const cords = values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
+                const curPos = getPointBetweentwoPoints(
+                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint))%cords.length],
+                    cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint)+1)%cords.length],
+                    (countOfSteps%numberOfStepsBetweenEachGPSPoint)/numberOfStepsBetweenEachGPSPoint
+                )
+                updateValues(form.values, curPos)
+                countOfSteps++;
+            }, 3000))
+        }else{
+            getUserLocaiton()
+            closeModal();
         }
     }
 
-
-    const updateValues = (values: typeof form.values) => {
-        const cords = values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
+    const updateValues = (values: typeof form.values, curPos: number[]) => {
         if(buildingId == undefined){
             setFormError("Building url param not found");
             return
@@ -52,14 +75,11 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 variables: {
                     data: {
                         id: parseInt(buildingId),
-                        latitude: cords[countOfSteps][0],
-                        longitude: cords[countOfSteps][1],
+                        latitude: curPos[0],
+                        longitude: curPos[1],
                         name: values.name,
                         message: values.message,
                     },
-                },
-                onCompleted() {
-                    closeModal();
                 },
                 onError(error) {
                     setFormError(error.message);
@@ -69,8 +89,6 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
             const errorMessage = (error as Error).message;
             setFormError(errorMessage);
         }
-        countOfSteps++;
-        countOfSteps%=cords.length;
     };
 
     return (
@@ -89,9 +107,9 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                     clearInterval(isRunningTimeout);
                     setIsRunningTimeout(null);
                 }}>Stop current location share</Button> : null}
-                <TextInput {...form.getInputProps('name')} label="Name to Display" placeholder="Zuck" />
+                <TextInput {...form.getInputProps('name')} label="Name to Display" required placeholder="Zuck" />
                 <TextInput {...form.getInputProps('message')} label="Message" placeholder="Ask me questions about new student orientation" />
-                <TextInput {...form.getInputProps('cords')} label="Mock coordinates" placeholder="lat1, lng1- lat2, lng2- lat3, lng3 " />
+                <TextInput {...form.getInputProps('cords')} label="Mock coordinates (default is your gps location, only set to override)" placeholder="lat1, lng1- lat2, lng2- lat3, lng3 " />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
