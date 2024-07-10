@@ -35,7 +35,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
 
     // Connection opened
     const msg = "Hello Serv".repeat(5000)
-    webSocket.addEventListener("open", (event) => {
+    webSocket.addEventListener("open", () => {
         console.log("Connected To Websocket!");
         webSocket.send(msg);
     });
