@@ -4,39 +4,25 @@ import { WebsocketUserTracker } from '../types';
 import { getUserOrThrowError } from '../auth/validateUser.js';
 import { pubSub } from '../resolvers/pubSub.js';
 
-const verbose = 0;
+// false for only essential logging, true for logging of all data related to connections
+const verbose = true;
 
+// helper funcitons
 function dec2bin(dec: number) {
     return (dec >>> 0).toString(2);
 }
 
 const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 
-`
-The WebSocket Frame (Quote from MDM "Either the client or the server can choose to send a message at any time — that's the magic of WebSockets. However, extracting information from these so-called "frames" of data is a not-so-magical experience.")
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-------+-+-------------+-------------------------------+
-|F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-|I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
-|N|V|V|V|       |S|             |   (if payload len==126/127)   |
-| |1|2|3|       |K|             |                               |
-+-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-|     Extended payload length continued, if payload len == 127  |
-+ - - - - - - - - - - - - - - - +-------------------------------+
-|                               |Masking-key, if MASK set to 1  |
-+-------------------------------+-------------------------------+
-| Masking-key (continued)       |          Payload Data         |
-+-------------------------------- - - - - - - - - - - - - - - - +
-:                     Payload Data continued ...                :
-+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-|                     Payload Data continued ...                |
-+---------------------------------------------------------------+
-`
-
 // based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
-const getPayloadHeader = (data: Buffer) => {
-    const FIN = data.readUInt8() & 255;
+/**
+ * Takes the data recieved from the client and returns the Mask to be used to decode the data.
+ * @param data - the data that was received from the client
+ * @returns {MASKcode: number[], dataLength: number, dataStart: number} - the mask, the length of the data, and the start byte of the data in the buffer.
+ * The content of the buffer is between (dataStart, dataStart + dataLength)
+ */
+const getPayloadHeader = (data: Buffer): { MASKcode: number[], dataLength: number, dataStart: number } => {
+    const FIN = (data.readUInt8() & 128) >>> 7;
     //OPCODE = 0x0 for continuation, 0x1 for text (which is always encoded in UTF-8), 0x2 for binary
     const OPCODE = (data.readUInt8() & 15);
     const MASK = (data.readUInt8(1) >>> 7);
@@ -104,12 +90,51 @@ const getPayloadHeader = (data: Buffer) => {
     return { dataLength, MASKcode, dataStart };
 }
 
+const getTextDataFromBuffer = (data: Buffer): string => {
+    const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
+    const dataBody = data.subarray(dataStart, dataStart + dataLength);
+    const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
+    return utf8decoder.decode(DECODED);
+}
+
 const openSockets: WebsocketUserTracker = {};
 
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 export const server = net.createServer(sock => {
     let client = sock.remoteAddress;
     if (verbose) console.log('serving stream to ' + client);
+
+    sock.on('data', data => {
+        const dataString = data.toString();
+        const dataLines = dataString.split("\r\n");
+        if (dataLines[0] == "GET /ws HTTP/1.1") {
+            estiblishWsConnection(dataLines);
+            return;
+        }
+        const OPCODE = (data.readUInt8() & 15);
+        if (verbose) console.log("OPCODE = " + OPCODE);
+        // Text Opcode Recieved
+        if (OPCODE === 0x1) {
+            receiveLocationSocket(data);
+            return;
+        }
+        // Ping Opcode Recieved
+        if (OPCODE === 0xA) {
+            if (verbose) console.log("Recieved Pong")
+            const decodedText = getTextDataFromBuffer(data);
+            if (verbose) console.log("Pong message = " + decodedText)
+            return;
+        }
+        // Ping Opcode Recieved
+        if (OPCODE === 0x9) {
+            if (verbose) console.log("Recieved Ping")
+            const decodedText = getTextDataFromBuffer(data);
+            if (verbose) console.log("Pong message = " + decodedText)
+            sendPong(Array.from(decodedText).map((char) => char.charCodeAt(0)));
+            return;
+        }
+        if (verbose) console.log("Recieved Unhandled Opcode = " + OPCODE);
+    });
 
     const estiblishWsConnection = (dataLines: string[]) => {
         let userWebsocketKey: string = "";
@@ -178,36 +203,20 @@ export const server = net.createServer(sock => {
         }
     }
 
-    sock.on('data', data => {
-        const dataString = data.toString();
-        const dataLines = dataString.split("\r\n");
-        if (dataLines[0] == "GET /ws HTTP/1.1") {
-            estiblishWsConnection(dataLines);
-            return;
+    const sendMessage = (message: string) => {
+        if (message.length > 125) {
+            throw new Error("message too long")
         }
-        const OPCODE = (data.readUInt8() & 15);
-        if (verbose) console.log("OPCODE = " + OPCODE);
-        if (OPCODE === 0x9) {
-            if (verbose) console.log("Recieved Ping")
-            const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
-            const dataBody = data.subarray(dataStart, dataStart + dataLength);
-            const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
-            const decodedText = utf8decoder.decode(DECODED);
-            if (verbose) console.log("Pong message = " + decodedText)
-            sendPong(Array.from(DECODED))
-            return;
-        }
-        if (OPCODE === 0xA) {
-            if (verbose) console.log("Recieved Pong")
-            const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
-            const dataBody = data.subarray(dataStart, dataStart + dataLength);
-            const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
-            const decodedText = utf8decoder.decode(DECODED);
-            if (verbose) console.log("Pong message = " + decodedText)
-            return;
-        }
-        receiveLocationSocket(data);
-    });
+        const messageLength = (message.length & 15);
+        // 0x81 is 1000 0001 indicating that the message is final (1000) and the opcode is 0001
+        const header = Buffer.from([0x81, messageLength])
+        const encodedData = Uint8Array.from(Array.from(message).map((char) => char.charCodeAt(0)));
+        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        mergedArray.set(header);
+        mergedArray.set(encodedData, header.length);
+        if (verbose) console.log("sending ping length: " + message.length);
+        sock.write(mergedArray);
+    }
 
     const sendPing = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
         if (message.length > 125) {
