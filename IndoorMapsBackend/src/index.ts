@@ -13,6 +13,7 @@ const proxy = httpProxy.createProxy();
 const options = {
     '/graphql': `http://localhost:${EXPRESS_PORT}`,
     '/ws': `http://localhost:${WEBSOCKET_PORT}`,
+    '/': `http://localhost:${EXPRESS_PORT}`
 }
 
 const port = process.env.PORT || 4000;
@@ -26,7 +27,7 @@ var proxyServer = http.createServer((req, res) => {
 
     for (const [pattern, target] of Object.entries(options)) {
         if (pathname === pattern ||
-            pathname.includes(pattern)
+            pathname.startsWith(pattern + '/')
         ) {
             proxy.web(req, res, {target});
         }
@@ -43,7 +44,7 @@ proxyServer.on('upgrade', function (req, socket, head) {
 
     for (const [pattern, target] of Object.entries(options)) {
         if (pathname === pattern ||
-            pathname.includes(pattern)
+            pathname.startsWith(pattern + '/')
         ) {
             proxy.ws(req, socket, head, {target});
         }
@@ -51,8 +52,7 @@ proxyServer.on('upgrade', function (req, socket, head) {
 });
 
 await new Promise<void>((resolve) => httpServer.listen({ port:EXPRESS_PORT }, resolve));
+console.log(`🚀 Server ready at http://localhost:${ port }/graphql`);
 
 await new Promise<void>((resolve) => server.listen({ port: WEBSOCKET_PORT }, resolve));
-
-console.log(`🚀 Server ready at http://localhost:${ port }/graphql`);
 console.log(`🚀 Websocket ready at http://localhost:${ port }/ws`);
