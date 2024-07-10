@@ -109,14 +109,12 @@ export const server = net.createServer(sock => {
     sock.on('data', data => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
-        if (verbose) {
-            console.log(dataLines[0]);
-        }
         if (dataLines[0] == "GET /ws HTTP/1.1") {
             estiblishWsConnection(dataLines);
             return;
         }
         if (dataLines[0].split(" ")[1] == "/") {
+            if (verbose) console.log(dataLines[0]);
             // this should not happen because / should be redirected to /graphql
             sock.end();
             return;
@@ -189,7 +187,7 @@ export const server = net.createServer(sock => {
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; Secure\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
     }
 
