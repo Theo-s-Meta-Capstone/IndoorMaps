@@ -1,19 +1,19 @@
 import http from "http"
 import url from "url"
-import { httpServer } from "./server.js";
-import { server } from "./utils/websocketServer.js";
 import httpProxy from "http-proxy"
-
-// Here both the websocket server and the Graphql Server are started on different ports
 const EXPRESS_PORT = 4500
 const WEBSOCKET_PORT = 9000
+
+// Here both the websocket server and the Graphql Server are started on different ports
+const EXPRESS_URL = process.env.EXPRESS_URL || `http://localhost:${EXPRESS_PORT}`;
+const WEBSOCKET_URL = process.env.WEBSOCKET_URL || `http://localhost:${WEBSOCKET_PORT}`;
 
 const proxy = httpProxy.createProxy();
 // When a url is send it is proxied to the correct port based on the base url path
 const options = {
-    '/graphql': `http://localhost:${EXPRESS_PORT}`,
-    '/ws': `http://localhost:${WEBSOCKET_PORT}`,
-    '/': `http://localhost:${EXPRESS_PORT}`
+    '/graphql': EXPRESS_URL,
+    '/ws': WEBSOCKET_URL,
+    '/': EXPRESS_URL
 }
 
 const port = process.env.PORT || 4000;
@@ -50,11 +50,3 @@ proxyServer.on('upgrade', function (req, socket, head) {
         }
     }
 });
-
-await new Promise<void>((resolve) => httpServer.listen({ port:EXPRESS_PORT }, resolve));
-console.log(`🚀 Server ready at http://localhost:${ port }/graphql`);
-
-await setTimeout(async () => {
-    await new Promise<void>((resolve) => server.listen({ port: WEBSOCKET_PORT }, resolve));
-    console.log(`🚀 Websocket ready at http://localhost:${ port }/ws`);
-}, 20000);
