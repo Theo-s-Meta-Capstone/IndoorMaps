@@ -51,14 +51,11 @@ const DispalyLiveMarkers = ({ map }: Props) => {
                     locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
                 }
                 locationLeafletMarkers[locationMarker.id].addTo(map);
+                locationLeafletMarkers[locationMarker.id].getElement()?.classList.add("liveLocationMarker");
+                locationLeafletMarkers[locationMarker.id].getTooltip()?.getElement()?.classList.add("liveLocationMarker");
+                locationLeafletMarkers[locationMarker.id].getPopup()?.getElement()?.classList.add("liveLocationMarker");
             } else {
                 locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
-                locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
-                if (locationMarker.message.length > 0) {
-                    locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
-                } else {
-                    locationLeafletMarkers[locationMarker.id].unbindPopup()
-                }
             }
         })
     }

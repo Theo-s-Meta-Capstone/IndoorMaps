@@ -1,7 +1,10 @@
 import net from 'net';
 import crypto from 'crypto';
+import { WebsocketUserTracker } from '../types';
+import { getUserOrThrowError } from '../auth/validateUser.js';
+import { pubSub } from '../resolvers/pubSub.js';
 
-const verbose = true;
+const verbose = false;
 
 function dec2bin(dec: number) {
     return (dec >>> 0).toString(2);
@@ -43,8 +46,8 @@ const getPayloadHeader = (data: Buffer) => {
 
     if (verbose) {
         console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") + dec2bin(data.readUInt32BE(4)).padStart(32, "0"));
-        console.log("0         1         2         3         4        5         6         7         8         9")
-        console.log("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890")
+        console.log("0         1         2         3         4         5         6         7         8         9        0")
+        console.log("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
         console.log(dec2bin(FIN) + " FIN bit ");
         console.log("    " + dec2bin(OPCODE).padStart(4, '0') + " OPCODE ");
         console.log("        " + dec2bin(MASK) + " MASK bit ");
@@ -101,6 +104,8 @@ const getPayloadHeader = (data: Buffer) => {
     return { dataLength, MASKcode, dataStart };
 }
 
+const openSockets: WebsocketUserTracker = {};
+
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 export const server = net.createServer(sock => {
     let client = sock.remoteAddress;
@@ -122,10 +127,52 @@ export const server = net.createServer(sock => {
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
+        const uniqueKey = crypto.randomUUID()
+        const jwtCookie = cookiesHeader.split(";").find(cookie => cookie.startsWith("jwt="));
+        if (!jwtCookie) {
+            console.log("no jwt cookie found")
+            return;
+        }
+
+        openSockets[uniqueKey] = {
+            jwt: jwtCookie.trim().slice("jwt=".length),
+            timeCreated: Date.now(),
+        }
+
         console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey};\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
+    }
+
+    const receiveLocationSocket = async (data: Buffer) => {
+        try {
+            const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
+            if (dataLength + dataStart > data.length) {
+                console.log("data length is too big to be handled by this buffer");
+            }
+            const dataBody = data.subarray(dataStart, dataStart + dataLength);
+            const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
+            const decodedText = utf8decoder.decode(DECODED);
+            const decodedJson = JSON.parse(decodedText);
+            if(!openSockets[decodedJson.wsKey]){
+                console.error("invalid wsKey")
+                return;
+            }
+            const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
+            pubSub.publish("LIVELOCATIONS", {
+                id: "liveLocation" + user.databaseId,
+                buildingDatabaseId: decodedJson.id,
+                latitude: decodedJson.latitude,
+                longitude: decodedJson.longitude,
+                name: decodedJson.name,
+                message: decodedJson.message,
+            });
+        } catch (e) {
+            // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
+            console.error(e)
+            return
+        }
     }
 
     sock.on('data', data => {
@@ -135,21 +182,6 @@ export const server = net.createServer(sock => {
             estiblishWsConnection(dataLines);
             return;
         }
-        else {
-            try {
-                const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
-                if (dataLength + dataStart > data.length) {
-                    console.log("data length is too big to be handled by this buffer");
-                }
-                const dataBody = data.subarray(dataStart, dataStart + dataLength);
-                const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
-                const decodedText = utf8decoder.decode(DECODED);
-                console.log(decodedText)
-            } catch (e) {
-                // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
-                console.error(e)
-                return
-            }
-        }
+        receiveLocationSocket(data);
     });
 });

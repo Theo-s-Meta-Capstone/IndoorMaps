@@ -25,3 +25,7 @@
 .area:hover {
     fill: yellow
 }
+
+.liveLocationMarker{
+    transition: .5s;
+}
