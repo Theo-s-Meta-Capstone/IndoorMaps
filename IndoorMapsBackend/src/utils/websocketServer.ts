@@ -4,7 +4,7 @@ import { WebsocketUserTracker } from '../types';
 import { getUserOrThrowError } from '../auth/validateUser.js';
 import { pubSub } from '../resolvers/pubSub.js';
 
-const verbose = false;
+const verbose = 0;
 
 function dec2bin(dec: number) {
     return (dec >>> 0).toString(2);
@@ -13,7 +13,7 @@ function dec2bin(dec: number) {
 const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 
 `
-The WebSocket Frame
+The WebSocket Frame (Quote from MDM "Either the client or the server can choose to send a message at any time — that's the magic of WebSockets. However, extracting information from these so-called "frames" of data is a not-so-magical experience.")
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-------+-+-------------+-------------------------------+
@@ -39,7 +39,7 @@ const getPayloadHeader = (data: Buffer) => {
     const FIN = data.readUInt8() & 255;
     //OPCODE = 0x0 for continuation, 0x1 for text (which is always encoded in UTF-8), 0x2 for binary
     const OPCODE = (data.readUInt8() & 15);
-    const MASK = (data.readUInt16BE() & 256) >>> 8;
+    const MASK = (data.readUInt8(1) >>> 7);
     // converting from 8 bit number to 7 bit number by anding with 0111 1111 to get rid of the first bit
     let dataLength = data.readUInt8(1) & 127
     let MASKcode = [0, 0, 0, 0];
@@ -54,7 +54,7 @@ const getPayloadHeader = (data: Buffer) => {
         console.log("         " + dec2bin(dataLength).padStart(7, '0') + " data length = " + dataLength);
     }
     // The MASK bit tells whether the message is encoded. Messages from the client must be masked, so your server must expect this to be 1. (In fact, section 5.1 of the spec says that your server must disconnect from a client if that client sends an unmasked message.)
-    if (MASK != 1) {
+    if (MASK != 1 && OPCODE != 0xA) {
         throw new Error("masking not implemented");
     }
 
@@ -109,7 +109,7 @@ const openSockets: WebsocketUserTracker = {};
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 export const server = net.createServer(sock => {
     let client = sock.remoteAddress;
-    if(verbose) console.log('serving stream to ' + client);
+    if (verbose) console.log('serving stream to ' + client);
 
     const estiblishWsConnection = (dataLines: string[]) => {
         let userWebsocketKey: string = "";
@@ -123,7 +123,7 @@ export const server = net.createServer(sock => {
             }
         })
 
-        if(verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
+        if (verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
@@ -139,7 +139,7 @@ export const server = net.createServer(sock => {
             timeCreated: Date.now(),
         }
 
-        if(verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
+        if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
             `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey};\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
@@ -155,11 +155,11 @@ export const server = net.createServer(sock => {
             const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
             const decodedText = utf8decoder.decode(DECODED);
             const decodedJson = JSON.parse(decodedText);
-            if(!openSockets[decodedJson.wsKey]){
+            if (!openSockets[decodedJson.wsKey]) {
                 console.error("invalid wsKey")
                 return;
             }
-            if(verbose) console.log(decodedJson);
+            if (verbose) console.log(decodedJson);
             const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
             pubSub.publish("LIVELOCATIONS", {
                 id: "liveLocation" + user.databaseId,
@@ -169,6 +169,8 @@ export const server = net.createServer(sock => {
                 name: decodedJson.name,
                 message: decodedJson.message,
             });
+            // Sending a ping with the text "Whats Up dog" because I can
+            sendPing([0x57, 0x68, 0x61, 0x74, 0x73, 0x20, 0x55, 0x70, 0x20, 0x64, 0x6f, 0x67]);
         } catch (e) {
             // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
             console.error(e)
@@ -183,6 +185,56 @@ export const server = net.createServer(sock => {
             estiblishWsConnection(dataLines);
             return;
         }
+        const OPCODE = (data.readUInt8() & 15);
+        if (verbose) console.log("OPCODE = " + OPCODE);
+        if (OPCODE === 0x9) {
+            if (verbose) console.log("Recieved Ping")
+            const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
+            const dataBody = data.subarray(dataStart, dataStart + dataLength);
+            const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
+            const decodedText = utf8decoder.decode(DECODED);
+            if (verbose) console.log("Pong message = " + decodedText)
+            sendPong(Array.from(DECODED))
+            return;
+        }
+        if (OPCODE === 0xA) {
+            if (verbose) console.log("Recieved Pong")
+            const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
+            const dataBody = data.subarray(dataStart, dataStart + dataLength);
+            const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
+            const decodedText = utf8decoder.decode(DECODED);
+            if (verbose) console.log("Pong message = " + decodedText)
+            return;
+        }
         receiveLocationSocket(data);
     });
+
+    const sendPing = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
+        if (message.length > 125) {
+            throw new Error("message too long")
+        }
+        const messageLength = (message.length & 15);
+        const header = Buffer.from([0x89, messageLength])
+        const encodedData = Uint8Array.from(message);
+        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        mergedArray.set(header);
+        mergedArray.set(encodedData, header.length);
+        if (verbose) console.log("sending ping length: " + message.length);
+        sock.write(mergedArray);
+    }
+
+    // I'm finding it hard to test this, looking for a resource that alow me to send arbitray pings from a websocket client.
+    const sendPong = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
+        if (message.length > 125) {
+            throw new Error("message too long")
+        }
+        const messageLength = (message.length & 15);
+        const header = Buffer.from([0x8A, messageLength])
+        const encodedData = Uint8Array.from(message);
+        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        mergedArray.set(header);
+        mergedArray.set(encodedData, header.length);
+        if (verbose) console.log("sending pong length: " + message.length);
+        sock.write(mergedArray);
+    }
 });
