@@ -134,6 +134,8 @@ export const server = net.createServer(sock => {
             return;
         }
         if (verbose) console.log("Recieved Unhandled Opcode = " + OPCODE);
+        const decodedText = getTextDataFromBuffer(data);
+        if (verbose) console.log("Unknown message = " + decodedText)
     });
 
     const estiblishWsConnection = (dataLines: string[]) => {
