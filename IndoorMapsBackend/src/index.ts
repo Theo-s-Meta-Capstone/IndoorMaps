@@ -50,6 +50,8 @@ proxyServer.on('upgrade', function (req, socket, head) {
     }
 });
 
+await new Promise(resolve => setTimeout(resolve, 10000));
+
 await new Promise<void>((resolve) => httpServer.listen({ port:EXPRESS_PORT }, resolve));
 
 await new Promise<void>((resolve) => server.listen({ port: WEBSOCKET_PORT }, resolve));
