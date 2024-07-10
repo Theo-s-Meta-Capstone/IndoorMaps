@@ -11,7 +11,7 @@ const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 
 
 `
-
+The WebSocket Frame
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-------+-+-------------+-------------------------------+
@@ -33,7 +33,6 @@ const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 `
 
 // based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
-// WIP
 const getPayloadHeader = (data: Buffer) => {
     const FIN = data.readUInt8() & 255;
     //OPCODE = 0x0 for continuation, 0x1 for text (which is always encoded in UTF-8), 0x2 for binary
@@ -44,7 +43,7 @@ const getPayloadHeader = (data: Buffer) => {
     let MASKcode = [0, 0, 0, 0];
 
     if (verbose) {
-        console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") +dec2bin(data.readUInt32BE(4)).padStart(32, "0") );
+        console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") + dec2bin(data.readUInt32BE(4)).padStart(32, "0"));
         console.log("0         1         2         3         4        5         6         7         8         9")
         console.log("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890")
         console.log(dec2bin(FIN) + " FIN bit ");
@@ -70,7 +69,6 @@ const getPayloadHeader = (data: Buffer) => {
         dataStart = 8;
         if (verbose) {
             console.log("                " + dec2bin(dataLength).padStart(16, '0') + " data length = " + dataLength);
-            console.log("Masks                           "+dec2bin(data.readUInt8(4)).padStart(8, '0') + dec2bin(data.readUInt8(5)).padStart(8, '0'));
             console.log("Masks                           " + dec2bin(MASKcode[0]).padStart(8, '0') + "        " + dec2bin(MASKcode[2]).padStart(8, '0'));
             console.log("                                        " + dec2bin(MASKcode[1]).padStart(8, '0') + "        " + dec2bin(MASKcode[3]).padStart(8, '0'));
         }
@@ -78,24 +76,30 @@ const getPayloadHeader = (data: Buffer) => {
     // Read the next 64 bits and interpret those as an unsigned integer. (The most significant bit must be 0.) You're done.
     // Not tested
     else if (dataLength == 127) {
-        console.log("step 3");
-        console.error("packets this long not yet proccessable")
-        // dataLength = data.readUint16LE(2)*(2 << (32+16)) + data.readUint16LE(3)*(2 << 32) + data.readUInt32BE(4);;
+        // This covers the case where the size is too big for 16 bits, but not larger then a int
+        dataLength = Number(data.readBigUInt64BE(2))
+        MASKcode[0] = data.readUInt8(10)
+        MASKcode[1] = data.readUInt8(11)
+        MASKcode[2] = data.readUInt8(12)
+        MASKcode[3] = data.readUInt8(13)
+        if (verbose) {
+            console.log("                " + dec2bin(dataLength).padStart(64, '0') + " data length = " + dataLength);
+            console.log("Masks           " + " ".repeat(64) + dec2bin(MASKcode[0]).padStart(8, '0') + "        " + dec2bin(MASKcode[2]).padStart(8, '0'));
+            console.log("                " + " ".repeat(72) + dec2bin(MASKcode[1]).padStart(8, '0') + "        " + dec2bin(MASKcode[3]).padStart(8, '0'));
+        }
     } else {
         // Runs if the length was below 126
-        // MASKcode = data.readUInt8(1);
         MASKcode[0] = data.readUInt8(2)
         MASKcode[1] = data.readUInt8(3)
         MASKcode[2] = data.readUInt8(4)
         MASKcode[3] = data.readUInt8(5)
         if (verbose) {
-            console.log("Masks           "+dec2bin(data.readUInt8(2)).padStart(8, '0') + dec2bin(data.readUInt8(3)).padStart(8, '0'));
             console.log("Masks           " + dec2bin(MASKcode[0]).padStart(8, '0') + "        " + dec2bin(MASKcode[2]).padStart(8, '0'));
             console.log("                        " + dec2bin(MASKcode[1]).padStart(8, '0') + "        " + dec2bin(MASKcode[3]).padStart(8, '0'));
         }
     }
 
-    return {dataLength, MASKcode, dataStart};
+    return { dataLength, MASKcode, dataStart };
 }
 
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
@@ -132,10 +136,20 @@ export const server = net.createServer(sock => {
             estiblishWsConnection(dataLines);
             return;
         }
-        const {dataLength, MASKcode, dataStart} = getPayloadHeader(data);
-        const dataBody = data.subarray(dataStart, dataStart + dataLength);
-        const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
-        const decodedText = utf8decoder.decode(DECODED);
-        console.log(decodedText)
+        else {
+            try {
+                const { dataLength, MASKcode, dataStart } = getPayloadHeader(data);
+                if (dataLength + dataStart > data.length) {
+                    console.log("data length is too big to be handled by this buffer");
+                }
+                const dataBody = data.subarray(dataStart, dataStart + dataLength);
+                const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
+                const decodedText = utf8decoder.decode(DECODED);
+            } catch (e) {
+                // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
+                console.error(e)
+                return
+            }
+        }
     });
 });
