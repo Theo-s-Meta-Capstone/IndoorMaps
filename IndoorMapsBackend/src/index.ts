@@ -35,7 +35,6 @@ var proxyServer = http.createServer((req, res) => {
 
 // Websockets use a different protocal (ws://) so http.createServer doesn't listen to them by default
 proxyServer.on('upgrade', function (req, socket, head) {
-    console.log("ws url= "+req.url)
     if(!req.url) return;
 
     const pathname = url.parse(req.url).pathname;
