@@ -8,7 +8,7 @@ import FormErrorNotification from "../../forms/FormErrorNotification";
 import { getPointBetweentwoPoints } from "../../../utils/utils";
 import { useUserLocation } from "../../../utils/hooks";
 
-const WS_ENDPOINT = import.meta.env.VITE_BACKEND_GRAPHQL_URL;
+const WS_ENDPOINT = import.meta.env.VITE_BACKEND_WEBSOCKET_URL;
 
 const numberOfStepsBetweenEachGPSPoint = 10;
 
@@ -34,7 +34,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     };
 
     // Connection opened
-    const msg = "Hello Serv".repeat(5000)
+    const msg = "Hello Serv".repeat(10)
     webSocket.addEventListener("open", () => {
         console.log("Connected To Websocket!");
         webSocket.send(msg);

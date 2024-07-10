@@ -9,7 +9,6 @@ function dec2bin(dec: number) {
 
 const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 
-
 `
 The WebSocket Frame
  0                   1                   2                   3
@@ -145,6 +144,7 @@ export const server = net.createServer(sock => {
                 const dataBody = data.subarray(dataStart, dataStart + dataLength);
                 const DECODED = Uint8Array.from(dataBody, (elt, i) => elt ^ MASKcode[i % 4]); // Perform an XOR on the mask)
                 const decodedText = utf8decoder.decode(DECODED);
+                console.log(decodedText)
             } catch (e) {
                 // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
                 console.error(e)
