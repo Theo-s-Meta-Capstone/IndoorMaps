@@ -13,7 +13,7 @@ import { createClient } from 'graphql-ws';
 const HTTP_ENDPOINT = import.meta.env.VITE_BACKEND_GRAPHQL_URL;
 
 // Subscription from https://the-guild.dev/graphql/ws/recipes#client-usage-with-relay
-const WS_ENDPOINT = 'ws://localhost:4000/graphql';
+const WS_ENDPOINT = import.meta.env.VITE_BACKEND_GRAPHQL_URL.replace('http', 'ws');
 
 const subscriptionsClient = createClient({
   url: WS_ENDPOINT,
