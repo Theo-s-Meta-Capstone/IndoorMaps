@@ -63,6 +63,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 }
                 return;
             }
+            console.log(Cookies.get('wsKey'))
             webSocket.send(
                 JSON.stringify({
                     wsKey: Cookies.get('wsKey'),
