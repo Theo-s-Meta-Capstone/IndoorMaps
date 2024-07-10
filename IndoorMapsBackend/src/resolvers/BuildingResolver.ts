@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float } from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
@@ -9,6 +9,7 @@ import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeCo
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
+import { LiveLocation, pubSub } from './pubSub.js'
 
 @InputType()
 class BuildingUniqueInput {
@@ -35,6 +36,21 @@ class BuildingCreateInput {
 class InviteEditorInput extends BuildingUniqueInput {
     @Field()
     invitedUser: string
+}
+
+@InputType()
+class LiveLocationInput extends BuildingUniqueInput {
+    @Field(() => Float)
+    latitude: number;
+
+    @Field(() => Float)
+    longitude: number;
+
+    @Field()
+    name: string;
+
+    @Field()
+    message: string;
 }
 
 @InputType()
@@ -189,5 +205,39 @@ export class BuildingResolver {
             buildings = await ctx.prisma.building.findMany({});
         }
         return buildings.map((building) => convertToGraphQLBuilding(building))
+    }
+
+    @Mutation((returns) => MutationResult)
+    async setLocation(
+        @Arg('data') data: LiveLocationInput,
+        @Ctx() ctx: Context,
+    ): Promise<MutationResult> {
+        const user = await getUserOrThrowError(ctx.cookies);
+        pubSub.publish("LIVELOCATIONS", {
+            id: "liveLocation" + user.databaseId,
+            buildingDatabaseId: data.id,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            name: data.name,
+            message: data.message,
+        });
+        return {
+            success: true,
+        };
+    }
+
+    @Subscription((returns) => LiveLocation, {
+        topics: "LIVELOCATIONS",
+        filter: ({ payload, args }) =>{
+            return payload.buildingDatabaseId === args.data.id
+        },
+    })
+    async newLiveLocation(
+        @Arg('data') data: BuildingUniqueInput,
+        @Root() liveLocaiton: LiveLocation,
+    ): Promise<LiveLocation> {
+        return {
+            ...liveLocaiton,
+        };
     }
 }

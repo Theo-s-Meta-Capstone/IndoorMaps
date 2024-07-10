@@ -5,12 +5,15 @@ import { useParams } from "react-router-dom";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 import HeaderNav from "../pageSections/HeaderNav";
+import { useBooleanState } from "../../utils/hooks";
+import { Button } from "@mantine/core";
+import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment
-        }
+    }
     getBuilding(data: $data) {
         title
         ...BuildingViewerBodyFragment
@@ -57,10 +60,17 @@ type BuildingViewerBodyContainerProps = {
 }
 
 function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
-    const {getUserFromCookie, getBuilding} = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
+    const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
+    const [isShareLiveLocationOpen, handleCloseShareLiveLocation, handleOpenShareLiveLocation] = useBooleanState(false);
+
     return (
         <>
-            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"}/>
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"}>
+                <Button onClick={handleOpenShareLiveLocation}>
+                    Share Location Live
+                </Button>
+                <ShareLocationModal isOpen={isShareLiveLocationOpen} closeModal={handleCloseShareLiveLocation} />
+            </HeaderNav>
             <BuildingViewerBody buildingFromParent={getBuilding} />
         </>
     )

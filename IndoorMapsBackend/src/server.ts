@@ -7,9 +7,12 @@ import http from 'http';
 import cors from 'cors';
 import cookieParser from "cookie-parser"
 import * as tq from 'type-graphql'
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 // only required due to Prisma no longer automaticly load .env files in v16
 import 'dotenv/config'
 
+import { pubSub } from "./resolvers/pubSub.js";
 import { prisma, Context } from "./utils/context.js";
 import { UserResolver } from "./resolvers/UserResolver.js";
 import { BuildingResolver } from "./resolvers/BuildingResolver.js";
@@ -29,10 +32,33 @@ async function main() {
         resolvers: [GeododerResolver, UserResolver, AreaResolver, FloorResolver, BuildingResolver],
         validate: { forbidUnknownValues: false },
         emitSchemaFile: "../IndoorMapsFrontend/src/schema.graphql",
+        pubSub,
     })
+
+    // Creating the WebSocket server
+    const wsServer = new WebSocketServer({
+        // This is the `httpServer` we created in a previous step.
+        server: httpServer,
+    });
+
+    // Hand in the schema we just created and have the
+    // WebSocketServer start listening.
+    const serverCleanup = useServer({ schema }, wsServer);
+
     const server = new ApolloServer({
         schema,
-        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+        plugins: [ApolloServerPluginDrainHttpServer({ httpServer }),
+        // Proper shutdown for the WebSocket server.
+        {
+            async serverWillStart() {
+                return {
+                    async drainServer() {
+                        await serverCleanup.dispose();
+                    },
+                };
+            },
+        },
+        ],
     });
 
     await server.start();

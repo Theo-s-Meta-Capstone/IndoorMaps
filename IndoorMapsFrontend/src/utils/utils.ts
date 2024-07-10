@@ -5,3 +5,10 @@ export const removeAllLayersFromLayerGroup = (layerGroup: L.LayerGroup, mapRef: 
         layerGroup.removeLayer(layer);
     })
 }
+
+export const getPointBetweentwoPoints = (point1: number[], point2: number[], position: number) => {
+    return [
+        point1[0] + (point2[0] - point1[0]) * position,
+        point1[1] + (point2[1] - point1[1]) * position
+    ]
+}
