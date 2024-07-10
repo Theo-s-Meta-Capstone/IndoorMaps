@@ -111,6 +111,12 @@ export const server = net.createServer(sock => {
             estiblishWsConnection(dataLines);
             return;
         }
+        if (dataLines[0].split(" ")[1] == "/") {
+            if (verbose) console.log(dataLines[0]);
+            // this should not happen because / should be redirected to /graphql
+            sock.end();
+            return;
+        }
         const OPCODE = (data.readUInt8() & 15);
         if (verbose) console.log("OPCODE = " + OPCODE);
         // Text Opcode Recieved
@@ -134,6 +140,16 @@ export const server = net.createServer(sock => {
             return;
         }
         if (verbose) console.log("Recieved Unhandled Opcode = " + OPCODE);
+        try {
+            const decodedText = getTextDataFromBuffer(data);
+            if (verbose) console.log("Unknown message = " + decodedText)
+        } catch (e) {
+            if (e instanceof Error) {
+                console.error(e.message)
+            }
+            console.log(dataLines);
+        }
+
     });
 
     const estiblishWsConnection = (dataLines: string[]) => {
@@ -152,14 +168,15 @@ export const server = net.createServer(sock => {
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
-        const uniqueKey = crypto.randomUUID()
+        const wsKey = crypto.randomUUID()
         const jwtCookie = cookiesHeader.split(";").find(cookie => cookie.startsWith("jwt="));
         if (!jwtCookie) {
             console.log("no jwt cookie found")
+            sock.write(`HTTP/1.1 401 Unauthorized`)
             return;
         }
 
-        openSockets[uniqueKey] = {
+        openSockets[wsKey] = {
             jwt: jwtCookie.trim().slice("jwt=".length),
             timeCreated: Date.now(),
             lastRecieved: Date.now(),
@@ -167,8 +184,10 @@ export const server = net.createServer(sock => {
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey};\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
+
+        sendMessage(JSON.stringify({ wsKey }))
     }
 
     const receiveLocationSocket = async (data: Buffer) => {
@@ -203,26 +222,30 @@ export const server = net.createServer(sock => {
         }
     }
 
-    const sendMessage = (message: string) => {
+    const sendMessage = (messageString: string) => {
+        if (verbose) console.log("sending message: " + messageString)
+        const message = Uint8Array.from(Array.from(messageString).map((char) => char.charCodeAt(0)));
+        if (verbose) console.log("sending message: " + message)
         if (message.length > 125) {
             throw new Error("message too long")
         }
-        const messageLength = (message.length & 15);
+        const messageLength = (message.length & 255);
         // 0x81 is 1000 0001 indicating that the message is final (1000) and the opcode is 0001
         const header = Buffer.from([0x81, messageLength])
-        const encodedData = Uint8Array.from(Array.from(message).map((char) => char.charCodeAt(0)));
-        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        console.log(header)
+        var mergedArray = new Uint8Array(header.length + message.length);
         mergedArray.set(header);
-        mergedArray.set(encodedData, header.length);
-        if (verbose) console.log("sending ping length: " + message.length);
-        sock.write(mergedArray);
+        mergedArray.set(message, header.length);
+        if (verbose) console.log("sending message length: " + message.length);
+        if (verbose) console.log(Buffer.from(mergedArray))
+        sock.write(Buffer.from(mergedArray));
     }
 
     const sendPing = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
         if (message.length > 125) {
             throw new Error("message too long")
         }
-        const messageLength = (message.length & 15);
+        const messageLength = (message.length & 255);
         const header = Buffer.from([0x89, messageLength])
         const encodedData = Uint8Array.from(message);
         var mergedArray = new Uint8Array(header.length + encodedData.length);
@@ -237,7 +260,7 @@ export const server = net.createServer(sock => {
         if (message.length > 125) {
             throw new Error("message too long")
         }
-        const messageLength = (message.length & 15);
+        const messageLength = (message.length & 255);
         const header = Buffer.from([0x8A, messageLength])
         const encodedData = Uint8Array.from(message);
         var mergedArray = new Uint8Array(header.length + encodedData.length);

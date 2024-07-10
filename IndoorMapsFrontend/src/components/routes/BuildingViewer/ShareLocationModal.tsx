@@ -21,6 +21,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     const [isRunningTimeout, setIsRunningTimeout] = useState<NodeJS.Timeout | null>(null);
     const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
     const { buildingId } = useParams();
+    // Fuctions that
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         updateValuesInjectForm([position.coords.latitude, position.coords.longitude]);
     }, (errorMessage: string) => {
@@ -62,16 +63,23 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 }
                 return;
             }
-            webSocket.send(
-                JSON.stringify({
-                    wsKey: Cookies.get('wsKey'),
-                    id: parseInt(buildingId),
-                    latitude: curPos[0],
-                    longitude: curPos[1],
-                    name: values.name,
-                    message: values.message,
-                })
-            )
+            if(!Cookies.get('wsKey')){
+                console.error("wsKey cookie not found")
+                setTimeout(() => {
+                    updateValues(form.values, curPos)
+                }, 100)
+            }else{
+                webSocket.send(
+                    JSON.stringify({
+                        wsKey: Cookies.get('wsKey'),
+                        id: parseInt(buildingId),
+                        latitude: curPos[0],
+                        longitude: curPos[1],
+                        name: values.name,
+                        message: values.message,
+                    })
+                )
+            }
         } catch (error) {
             const errorMessage = (error as Error).message;
             setFormError(errorMessage);
@@ -106,10 +114,12 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         };
         // Currently the websocket should never send anything
         webSocket.onmessage = (event) => {
-            console.error(event.data);
+            const data = JSON.parse(event.data);
+            Cookies.set('wsKey', data.wsKey)
         };
         webSocket.onerror = (e) => {
-            console.error(`ERROR: ${e}`);
+            setFormError("Connection to the server not estabilished, Make sure you are logged in and try again")
+            console.error(e);
         };
     }, [webSocket])
 
@@ -117,13 +127,14 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         <Modal
             opened={isOpen}
             onClose={() => closeModal()}
-            title={"Create a New Building Map"}
+            title={"Share you location (or a series of GPS points)"}
             overlayProps={{
                 backgroundOpacity: 0.55,
                 blur: 3,
             }}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
+                <i>You must be logged in to share your location</i><br />
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 {(webSocket && webSocket.readyState !== 1) ? "Setting up connection" : null}
                 {isRunningTimeout ? <Button onClick={() => {
