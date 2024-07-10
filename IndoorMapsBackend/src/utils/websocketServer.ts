@@ -5,7 +5,7 @@ import { getUserOrThrowError } from '../auth/validateUser.js';
 import { pubSub } from '../resolvers/pubSub.js';
 
 // false for only essential logging, true for logging of all data related to connections
-const verbose = true;
+const verbose = false;
 
 // helper funcitons
 function dec2bin(dec: number) {
