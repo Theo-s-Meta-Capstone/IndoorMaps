@@ -57,4 +57,4 @@ console.log(`🚀 Server ready at http://localhost:${ port }/graphql`);
 await setTimeout(async () => {
     await new Promise<void>((resolve) => server.listen({ port: WEBSOCKET_PORT }, resolve));
     console.log(`🚀 Websocket ready at http://localhost:${ port }/ws`);
-}, 20000);
+}, 3000);

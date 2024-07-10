@@ -186,8 +186,9 @@ export const server = net.createServer(sock => {
         }
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
+        if (verbose) console.log(FRONTEND_URL?.replace("http://", ""))
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure\r\n\r\n`
         )
     }
 
