@@ -109,7 +109,7 @@ const openSockets: WebsocketUserTracker = {};
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 export const server = net.createServer(sock => {
     let client = sock.remoteAddress;
-    console.log('serving stream to ' + client);
+    if(verbose) console.log('serving stream to ' + client);
 
     const estiblishWsConnection = (dataLines: string[]) => {
         let userWebsocketKey: string = "";
@@ -123,7 +123,7 @@ export const server = net.createServer(sock => {
             }
         })
 
-        console.log("sec-websocket-key request = " + userWebsocketKey)
+        if(verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
@@ -139,7 +139,7 @@ export const server = net.createServer(sock => {
             timeCreated: Date.now(),
         }
 
-        console.log("Sec-WebSocket-Accept computed response = " + magicString)
+        if(verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
             `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey};\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
@@ -159,6 +159,7 @@ export const server = net.createServer(sock => {
                 console.error("invalid wsKey")
                 return;
             }
+            if(verbose) console.log(decodedJson);
             const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
             pubSub.publish("LIVELOCATIONS", {
                 id: "liveLocation" + user.databaseId,
