@@ -107,7 +107,7 @@ export const server = net.createServer(sock => {
     sock.on('data', data => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
-        if (verbose && dataLines[0].startsWith("GET")) {
+        if (verbose && (dataLines[0].startsWith("GET"))) {
             console.log(dataLines);
         }
         if (dataLines[0] == "GET /ws HTTP/1.1") {
@@ -141,7 +141,10 @@ export const server = net.createServer(sock => {
             const decodedText = getTextDataFromBuffer(data);
             if (verbose) console.log("Unknown message = " + decodedText)
         }catch(e){
-            console.error(e)
+            if(e instanceof Error){
+                console.error(e.message)
+            }
+            console.log(dataLines);
         }
 
     });
