@@ -116,7 +116,7 @@ export const server = net.createServer(sock => {
             estiblishWsConnection(dataLines);
             return;
         }
-        if (dataLines[0] == "HEAD / HTTP/1.1") {
+        if (dataLines[0].split(" ")[1] == "/") {
             // this should not happen because / should be redirected to /graphql
             sock.end();
             return;
