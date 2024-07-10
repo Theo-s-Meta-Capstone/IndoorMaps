@@ -162,6 +162,7 @@ export const server = net.createServer(sock => {
         openSockets[uniqueKey] = {
             jwt: jwtCookie.trim().slice("jwt=".length),
             timeCreated: Date.now(),
+            lastRecieved: Date.now(),
         }
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
@@ -184,6 +185,7 @@ export const server = net.createServer(sock => {
                 console.error("invalid wsKey")
                 return;
             }
+            openSockets[decodedJson.wsKey].lastRecieved = Date.now();
             if (verbose) console.log(decodedJson);
             const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
             pubSub.publish("LIVELOCATIONS", {
@@ -194,8 +196,6 @@ export const server = net.createServer(sock => {
                 name: decodedJson.name,
                 message: decodedJson.message,
             });
-            // Sending a ping with the text "Whats Up dog" because I can
-            sendPing([0x57, 0x68, 0x61, 0x74, 0x73, 0x20, 0x55, 0x70, 0x20, 0x64, 0x6f, 0x67]);
         } catch (e) {
             // a common error is caused by the input being split up into 2 packets. The system is not prepared for an input of that size.
             console.error(e)

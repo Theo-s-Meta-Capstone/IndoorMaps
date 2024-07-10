@@ -9,6 +9,7 @@ const EXPRESS_PORT = 4500
 const WEBSOCKET_PORT = 9000
 
 const proxy = httpProxy.createProxy();
+// When a url is send it is proxied to the correct port based on the base url path
 const options = {
     '/graphql': `http://localhost:${EXPRESS_PORT}`,
     '/ws': `http://localhost:${WEBSOCKET_PORT}`,
