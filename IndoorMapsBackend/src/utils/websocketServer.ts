@@ -4,6 +4,8 @@ import { WebsocketUserTracker } from '../types';
 import { getUserOrThrowError } from '../auth/validateUser.js';
 import { pubSub } from '../resolvers/pubSub.js';
 
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
 // false for only essential logging, true for logging of all data related to connections
 const verbose = true;
 
@@ -185,7 +187,7 @@ export const server = net.createServer(sock => {
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure; Domain=${FRONTEND_URL}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
     }
 
