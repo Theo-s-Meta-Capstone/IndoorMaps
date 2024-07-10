@@ -21,6 +21,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
     const [isRunningTimeout, setIsRunningTimeout] = useState<NodeJS.Timeout | null>(null);
     const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
     const { buildingId } = useParams();
+    // Fuctions that
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         updateValuesInjectForm([position.coords.latitude, position.coords.longitude]);
     }, (errorMessage: string) => {
