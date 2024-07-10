@@ -107,6 +107,9 @@ export const server = net.createServer(sock => {
     sock.on('data', data => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
+        if (verbose && dataLines[0].startsWith("GET")) {
+            console.log(dataLines);
+        }
         if (dataLines[0] == "GET /ws HTTP/1.1") {
             estiblishWsConnection(dataLines);
             return;
@@ -134,8 +137,13 @@ export const server = net.createServer(sock => {
             return;
         }
         if (verbose) console.log("Recieved Unhandled Opcode = " + OPCODE);
-        const decodedText = getTextDataFromBuffer(data);
-        if (verbose) console.log("Unknown message = " + decodedText)
+        try{
+            const decodedText = getTextDataFromBuffer(data);
+            if (verbose) console.log("Unknown message = " + decodedText)
+        }catch(e){
+            console.error(e)
+        }
+
     });
 
     const estiblishWsConnection = (dataLines: string[]) => {
