@@ -176,6 +176,8 @@ export const server = net.createServer(sock => {
         const jwtCookie = cookiesHeader.split(";").find(cookie => cookie.startsWith("jwt="));
         if (!jwtCookie) {
             console.log("no jwt cookie found")
+            sock.write(`HTTP/1.1 401 Unauthorized`)
+            sock.end();
             return;
         }
 
@@ -187,7 +189,7 @@ export const server = net.createServer(sock => {
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
         sock.write(
-            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure; Domain=${FRONTEND_URL}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
+            `HTTP/1.1 101 Switching Protocols\r\nSet-Cookie: wsKey=${uniqueKey}; SameSite=None; Secure; Domain=${FRONTEND_URL?.replace("https://", "")}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ${magicString}\r\n\r\n`
         )
     }
 
