@@ -2,6 +2,7 @@ import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../pageSections/HeaderNav";
+import { Link } from "react-router-dom";
 
 const RootPageQuery = graphql`
     query RootQuery {
@@ -47,6 +48,9 @@ function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
     return (
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"}/>
+            <h2>Welcome To IndoorMaps.</h2>
+            <p>IndoorMaps is the easy way to create useful and accurate maps of any building.</p>
+            <p>Find maps on the <Link to={"/directory"}>Directory</Link></p>
         </>
     )
 }

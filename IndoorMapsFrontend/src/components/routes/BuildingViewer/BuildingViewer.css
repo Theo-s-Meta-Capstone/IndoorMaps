@@ -1,5 +1,6 @@
 .ViewerMain {
     position: relative;
+    height: 100%;
 }
 
 .floorsContainer{

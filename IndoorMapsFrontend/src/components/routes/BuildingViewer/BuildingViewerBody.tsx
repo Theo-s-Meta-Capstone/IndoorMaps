@@ -31,7 +31,7 @@ type Props = {
 const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const building = useFragment(BuildingViewerFragment, buildingFromParent);
     const buildingAnkerLatLon = new L.LatLng(building.startPos.lat, building.startPos.lon)
-    const mapStyle = { height: '70vh', width: '100%', padding: 0, zIndex: 50 };
+    const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
     const [pageError, setPageError] = useState<string | null>(null);
 
     const [map, setMap] = useState<L.Map | null>(null);

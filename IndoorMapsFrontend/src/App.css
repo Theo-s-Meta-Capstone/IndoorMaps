@@ -2,3 +2,9 @@
   margin: 0 auto;
   text-align: center;
 }
+
+.everythingContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
