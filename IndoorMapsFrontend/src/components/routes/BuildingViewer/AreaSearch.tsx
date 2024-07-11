@@ -27,7 +27,13 @@ const AreaSearch = ({ buildingId }: Props) => {
             environment,
             graphql`
             query AreaSearchQuery($data: AreaSearchInput!) {
-                areaSearch(data: $data)
+                areaSearch(data: $data) {
+                    id
+                    databaseId
+                    title
+                    floorDatabaseId
+                    description
+                }
             }
             `,
             {
@@ -49,7 +55,7 @@ const AreaSearch = ({ buildingId }: Props) => {
                         return;
                     }
                     startTransition(() => {
-                        setResults(data.areaSearch)
+                        setResults(data.areaSearch.map((area) => JSON.stringify(area)).join(","))
                     });
                 }
             });
