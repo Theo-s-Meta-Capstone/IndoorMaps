@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int, Directive } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
@@ -39,6 +39,12 @@ class InviteEditorInput extends BuildingUniqueInput {
 }
 
 @InputType()
+class AreaSearchInput {
+    @Field()
+    query: string
+}
+
+@InputType()
 class LiveLocationInput extends BuildingUniqueInput {
     @Field(() => Float)
     latitude: number;
@@ -65,7 +71,7 @@ export class BuildingResolver {
     async floors(
         @Root() building: Building,
         @Ctx() ctx: Context,
-    ) {
+    ): Promise<Floor[]> {
         //TODO: investigate why using findUnique throws a error
         const dbFloors = await ctx.prisma.building.findFirst({
             where: {
@@ -239,5 +245,14 @@ export class BuildingResolver {
         return {
             ...liveLocaiton,
         };
+    }
+
+    @Query((type) => String)
+    async areaSearch(
+        @Arg('data') data: AreaSearchInput,
+        @Ctx() ctx: Context,
+    ): Promise<String> {
+        console.log(data)
+        return data.query
     }
 }

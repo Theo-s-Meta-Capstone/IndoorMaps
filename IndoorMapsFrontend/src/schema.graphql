@@ -36,6 +36,10 @@ input AreaModifyInput {
   traversable: Boolean
 }
 
+input AreaSearchInput {
+  query: String!
+}
+
 input AreaUniqueInput {
   id: Int!
 }
@@ -210,6 +214,7 @@ input NewShape {
 type Query {
   allBuildings(data: BuildingSearchInput!): [Building!]!
   allUsers: [User!]!
+  areaSearch(data: AreaSearchInput!): String!
   getArea(data: AreaUniqueInput!): Area!
   getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!
