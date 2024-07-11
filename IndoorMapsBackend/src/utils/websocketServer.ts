@@ -157,10 +157,10 @@ export const server = net.createServer(sock => {
         let cookiesHeader: string = "";
         dataLines.forEach(line => {
             if (line.startsWith("sec-websocket-key: ")) {
-                userWebsocketKey = line.split(" ")[1];
+                userWebsocketKey = line.slice("sec-websocket-key: ".length);
             }
             else if (line.startsWith("cookie: ")) {
-                cookiesHeader = line.split(" ")[1];
+                cookiesHeader = line.slice("cookie: ".length);
             }
         })
 
@@ -169,7 +169,7 @@ export const server = net.createServer(sock => {
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
         const wsKey = crypto.randomUUID()
-        const jwtCookie = cookiesHeader.split(";").find(cookie => cookie.startsWith("jwt="));
+        const jwtCookie = cookiesHeader.split("; ").find(cookie => cookie.startsWith("jwt="));
         if (!jwtCookie) {
             console.log("no jwt cookie found")
             sock.write(`HTTP/1.1 401 Unauthorized`)
