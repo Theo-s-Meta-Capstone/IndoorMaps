@@ -8,6 +8,7 @@ type Area {
   databaseId: Int!
   description: String!
   entrances: String
+  floorDatabaseId: Int!
   id: ID!
   shape: String!
   title: String!
@@ -215,7 +216,7 @@ input NewShape {
 type Query {
   allBuildings(data: BuildingSearchInput!): [Building!]!
   allUsers: [User!]!
-  areaSearch(data: AreaSearchInput!): String!
+  areaSearch(data: AreaSearchInput!): [Area!]!
   getArea(data: AreaUniqueInput!): Area!
   getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!

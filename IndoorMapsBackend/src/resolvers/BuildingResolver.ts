@@ -5,11 +5,12 @@ import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
-import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
 import { LiveLocation, pubSub } from './pubSub.js'
+import { Area } from '../graphqlSchemaTypes/Area.js'
 
 function formatSearchQuery(query: string) {
     return query.replace(" ", "+") + ":*"
@@ -293,16 +294,16 @@ export class BuildingResolver {
         };
     }
 
-    @Query((type) => String)
+    @Query((type) => [Area]!)
     async areaSearch(
         @Arg('data') data: AreaSearchInput,
         @Ctx() ctx: Context,
-    ): Promise<String> {
+    ): Promise<Area[]> {
         if (data.query.length === 0) {
-            return "";
+            return [];
         }
         const query = formatSearchQuery(data.query)
-        // Remove after running on all floors in prod
+        // TODO: Remove after running on all floors in prod
         await connectAllAreasToBuilding(data.id, ctx)
         const building = await ctx.prisma.building.findUnique({
             where: {
@@ -321,6 +322,9 @@ export class BuildingResolver {
                 }
             }
         })
-        return JSON.stringify(building)
+        if(!building) {
+            return [];
+        }
+        return building.areas.map((area) => convertToGraphQlArea(area));
     }
 }

@@ -42,4 +42,5 @@
     min-width: 30%;
     max-width: 30%;
     padding: 0 1em;
+    overflow: hidden;
 }
