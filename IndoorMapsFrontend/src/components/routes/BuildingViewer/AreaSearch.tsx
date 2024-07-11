@@ -11,17 +11,16 @@ const debounceTime = 140;
 
 type Props = {
     map: L.Map;
+    buildingId: number;
 }
 
-const AreaSearch = ({ map }: Props) => {
+const AreaSearch = ({ buildingId }: Props) => {
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
     const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
     const [results, setResults] = useState("");
-
-    map.getMaxZoom();
 
     useEffect(() => {
         fetchQuery<AreaSearchQuery>(
@@ -33,6 +32,7 @@ const AreaSearch = ({ map }: Props) => {
             `,
             {
                 data: {
+                    "id": buildingId,
                     "query": debouncedSearchQuery
                 }
             },

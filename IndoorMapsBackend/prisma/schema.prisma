@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -29,25 +30,28 @@ model Floor {
 }
 
 model Building {
-  id          Int               @id @default(autoincrement())
-  title       String
-  address     String
-  startLat    Float
-  startLon    Float
-  floors      Floor[]
-  editors     BuildingEditors[]
+  id       Int               @id @default(autoincrement())
+  title    String
+  address  String
+  startLat Float
+  startLon Float
+  floors   Floor[]
+  editors  BuildingEditors[]
+  areas    Area[]
 }
 
 model Area {
-  id          Int     @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   shape       Json
   traversable Boolean
   category    String
-  floor       Floor   @relation(fields: [floorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  floor       Floor     @relation(fields: [floorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   floorId     Int
   entrances   Json?
+  building    Building? @relation(fields: [buildingId], references: [id])
+  buildingId  Int?
 }
 
 enum EditorLevel {
