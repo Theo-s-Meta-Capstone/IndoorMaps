@@ -37,6 +37,7 @@ input AreaModifyInput {
 }
 
 input AreaSearchInput {
+  id: Float!
   query: String!
 }
 

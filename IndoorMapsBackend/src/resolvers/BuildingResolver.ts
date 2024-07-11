@@ -39,7 +39,7 @@ class InviteEditorInput extends BuildingUniqueInput {
 }
 
 @InputType()
-class AreaSearchInput {
+class AreaSearchInput extends BuildingUniqueInput {
     @Field()
     query: string
 }
@@ -63,6 +63,55 @@ class LiveLocationInput extends BuildingUniqueInput {
 class BuildingSearchInput {
     @Field({ nullable: true })
     searchQuery: string
+}
+
+const connectAllAreasToBuilding = async (databaseId: number, ctx: Context) => {
+    const data = await ctx.prisma.building.findFirst({
+        where: {
+            id: databaseId
+        },
+        select: {
+            floors: {
+                select: {
+                    areas: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+    if (!data) return;
+    let areas: { id: number }[] = [];
+    data.floors.forEach((floor) => {
+        floor.areas.forEach((area) => {
+            areas.push({ id: area.id })
+            ctx.prisma.area.update({
+                where: {
+                    id: area.id
+                },
+                data: {
+                    building: {
+                        connect: {
+                            id: databaseId
+                        }
+                    }
+                }
+            })
+        })
+    })
+    await ctx.prisma.building.update({
+        where: {
+            id: databaseId
+        },
+        data: {
+            areas: {
+                connect: areas
+            }
+        }
+    })
+
 }
 
 @Resolver(of => Building)
@@ -234,7 +283,7 @@ export class BuildingResolver {
 
     @Subscription((returns) => LiveLocation, {
         topics: "LIVELOCATIONS",
-        filter: ({ payload, args }) =>{
+        filter: ({ payload, args }) => {
             return payload.buildingDatabaseId === args.data.id
         },
     })
@@ -252,7 +301,29 @@ export class BuildingResolver {
         @Arg('data') data: AreaSearchInput,
         @Ctx() ctx: Context,
     ): Promise<String> {
-        console.log(data)
-        return data.query
+        if(data.query.length === 0){
+            return "";
+        }
+        const query = data.query.replace(" ", "+") + ":*"
+        // Remove after running on all floors in prod
+        await connectAllAreasToBuilding(data.id, ctx)
+        const building = await ctx.prisma.building.findUnique({
+            where: {
+                id: data.id
+            },
+            select: {
+                areas: {
+                    where: {
+                        description: {
+                            search: query,
+                        },
+                        title: {
+                            search: query,
+                        }
+                    }
+                }
+            }
+        })
+        return JSON.stringify(building)
     }
 }

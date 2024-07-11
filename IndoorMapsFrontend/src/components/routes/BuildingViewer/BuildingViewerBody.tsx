@@ -61,7 +61,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                     maxZoom={27}
                 />
             </MapContainer>
-            {map ? <AreaSearch map={map} /> : null}
+            {map ? <AreaSearch buildingId={building.databaseId} map={map} /> : null}
         </main>
     )
 }
