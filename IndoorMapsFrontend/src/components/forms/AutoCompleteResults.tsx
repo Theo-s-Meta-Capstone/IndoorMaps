@@ -51,8 +51,8 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
         if(item.highlights && item.highlights.title){
             let newTitle = "";
             // supposedly the newer versions of ts are better at using filters to remove null and undefired, here we need as number[]
-            let starts: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.start).filter((val) => (val !== null && val !== undefined)) as number[];
-            let ends: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.end).filter((val) => (val !== null && val !== undefined)) as number[];
+            const starts: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.start).filter((val) => (val !== null && val !== undefined)) as number[];
+            const ends: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.end).filter((val) => (val !== null && val !== undefined)) as number[];
             for(let i = 0; i < titleToDispaly.length; i++){
                 if(starts.includes(i)){
                     newTitle += "<span class=\"selectedText\">"

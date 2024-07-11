@@ -1,9 +1,12 @@
+import "../pageSections/style/FixedFooter.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../pageSections/HeaderNav";
 import { Link } from "react-router-dom";
 import Footer from "../pageSections/Footer";
+import { useMediaQuery } from "@mantine/hooks";
+import { em } from "@mantine/core";
 
 const RootPageQuery = graphql`
     query RootQuery {
@@ -35,7 +38,6 @@ const Root = () => {
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <Footer />
         </div>
     )
 }
@@ -46,12 +48,15 @@ type RootBodyContainerProps = {
 
 function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
     const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
+    const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
+
     return (
         <>
-            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"}/>
+            <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"}/>
             <h2>Welcome To IndoorMaps.</h2>
             <p>IndoorMaps is the easy way to create useful and accurate maps of any building.</p>
             <p>Find maps on the <Link to={"/directory"}>Directory</Link></p>
+            <Footer className="notFlexboxPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>
         </>
     )
 }

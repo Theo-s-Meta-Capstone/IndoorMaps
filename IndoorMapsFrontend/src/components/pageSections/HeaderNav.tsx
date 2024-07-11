@@ -9,9 +9,10 @@ type HeaderNavProps = {
     pageTitle: string;
     currentPage: string;
     children?: React.ReactNode;
+    showDesktopContent?: boolean
 }
 
-const HeaderNav = ({ getUserFromCookie, pageTitle, children }: HeaderNavProps) => {
+const HeaderNav = ({ getUserFromCookie, pageTitle, children, showDesktopContent = true }: HeaderNavProps) => {
     return (<>
         <header>
             <h1 className="pageTitle">
@@ -20,11 +21,17 @@ const HeaderNav = ({ getUserFromCookie, pageTitle, children }: HeaderNavProps) =
                 </Link>
                 {pageTitle}
             </h1>
-            <Group component="nav" className="nav">
-                <Link to="/directory">Directory</Link>
-                {children}
-                <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
-            </Group>
+            {showDesktopContent ?
+                <Group component="nav" className="nav">
+                    <Link to="/directory">Directory</Link>
+                    {children}
+                    <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
+                </Group>
+                :
+                <Group component="nav" className="nav">
+                    {children}
+                </Group>
+            }
         </header>
     </>
     );

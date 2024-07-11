@@ -1,12 +1,23 @@
+import { Link } from "react-router-dom";
+import ButtonsContainer from "./ButtonsContainer";
+import { ButtonsContainerFragment$key } from "./__generated__/ButtonsContainerFragment.graphql";
+
 type Props = {
     children?: React.ReactNode;
+    showDesktopContent?: boolean
+    getUserFromCookie: ButtonsContainerFragment$key;
+    className?: string
 }
 
-const Footer = ({ children }: Props) => {
+const Footer = ({className, getUserFromCookie, showDesktopContent = true }: Props) => {
     return (
-        <footer>
-            <p className="creditFooter">Created by <a href="https://theoh.dev">Theo Halpern</a></p>
-            {children}
+        <footer className={className}>
+            {showDesktopContent ? <p className="creditFooter">Created by <a href="https://theoh.dev">Theo Halpern</a></p>
+                :
+                <>
+                    <Link className={"footerButton"} to="/directory"><img alt={"directory"} src={"/directory.svg"} /></Link>
+                    <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
+                </>}
         </footer>
     )
 }

@@ -8,3 +8,17 @@
   flex-direction: column;
   height: 100vh;
 }
+
+footer {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  gap: 1em;
+}
+
+.footerButton {
+  background-color: var(--main-2);
+  padding: .3em;
+  border-radius: .3em;
+  display: flex;
+}
