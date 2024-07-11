@@ -43,9 +43,8 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const accurecyMarker = L.circle([0, 0], { radius: 0 })
 
     let mapHasBeenDragged = false
-    // I don't want a new user locaiton to trigger a react rerender so I'm not using a state to store the location
-    // After incoking the getlocation function, what ever funciton is here will be called with the new location when ever it's ready
-    const getLocation = useUserLocation((position: GeolocationPosition) => {
+
+    const updateUserLocation = (position: GeolocationPosition) => {
         if (!map) return;
         setLocationLoading(false)
         gpsMarker.setLatLng([position.coords.latitude, position.coords.longitude])
@@ -54,6 +53,11 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
         if (!mapHasBeenDragged) {
             map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
         }
+    }
+    // I don't want a new user locaiton to trigger a react rerender so I'm not using a state to store the location
+    // After incoking the getlocation function, what ever funciton is here will be called with the new location when ever it's ready
+    const getLocation = useUserLocation((position: GeolocationPosition) => {
+        updateUserLocation(position)
     }, (errorMessage: string) => {
         setLocationLoading(false)
         setPageError(errorMessage)
