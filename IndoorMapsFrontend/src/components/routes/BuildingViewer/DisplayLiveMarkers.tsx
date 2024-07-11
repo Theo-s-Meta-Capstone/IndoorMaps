@@ -28,6 +28,22 @@ const DispalyLiveMarkers = ({ map }: Props) => {
     const { buildingId } = useParams();
     let locationMarkers: LiveLocationMarker[] = [];
 
+    const addLocationMarkerToMap = (locationMarker: LiveLocationMarker) => {
+        if (!locationLeafletMarkers[locationMarker.id]) {
+            locationLeafletMarkers[locationMarker.id] = L.marker([locationMarker.latitude, locationMarker.longitude], { icon: locationMarkerIcon });
+            locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
+            if (locationMarker.message.length > 0) {
+                locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
+            }
+            locationLeafletMarkers[locationMarker.id].addTo(map);
+            locationLeafletMarkers[locationMarker.id].getElement()?.classList.add("liveLocationMarker");
+            locationLeafletMarkers[locationMarker.id].getTooltip()?.getElement()?.classList.add("liveLocationMarker");
+            locationLeafletMarkers[locationMarker.id].getPopup()?.getElement()?.classList.add("liveLocationMarker");
+        } else {
+            locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
+        }
+    }
+
     // // If a item exists in locationMarkers with the same id, that item is replaced with the new item
     // // otherwise the new item is added at the end
     const handleSetLocationMarkers = (newLocation: LiveLocationMarker) => {
@@ -43,21 +59,7 @@ const DispalyLiveMarkers = ({ map }: Props) => {
             newVal.push(newLocation);
         }
         locationMarkers = newVal;
-        locationMarkers.forEach((locationMarker) => {
-            if (!locationLeafletMarkers[locationMarker.id]) {
-                locationLeafletMarkers[locationMarker.id] = L.marker([locationMarker.latitude, locationMarker.longitude], { icon: locationMarkerIcon });
-                locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
-                if (locationMarker.message.length > 0) {
-                    locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
-                }
-                locationLeafletMarkers[locationMarker.id].addTo(map);
-                locationLeafletMarkers[locationMarker.id].getElement()?.classList.add("liveLocationMarker");
-                locationLeafletMarkers[locationMarker.id].getTooltip()?.getElement()?.classList.add("liveLocationMarker");
-                locationLeafletMarkers[locationMarker.id].getPopup()?.getElement()?.classList.add("liveLocationMarker");
-            } else {
-                locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
-            }
-        })
+        locationMarkers.forEach((locationMarker) => {addLocationMarkerToMap(locationMarker)})
     }
 
     const config = useMemo(() => ({

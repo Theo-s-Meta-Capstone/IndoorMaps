@@ -160,7 +160,6 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
 
     const floorListElements = building.floors.map((floor) => (<Button onClick={() => setCurrentFloor(floor.databaseId)} key={floor.id}>{floor.title}</Button>));
 
-
     return (
         <Group className="floorsContainer" >
             {floorListElements}

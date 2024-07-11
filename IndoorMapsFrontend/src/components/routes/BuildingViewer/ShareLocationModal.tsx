@@ -55,19 +55,19 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 setFormError("connection to the server not estabilished")
                 return;
             }
-            if(webSocket.readyState !== 1) {
+            if (webSocket.readyState !== 1) {
                 setFormError("connection to the server not estabilished, please try again")
-                if(isRunningTimeout) {
+                if (isRunningTimeout) {
                     clearInterval(isRunningTimeout)
                 }
                 return;
             }
-            if(!Cookies.get('wsKey')){
+            if (!Cookies.get('wsKey')) {
                 console.error("wsKey cookie not found")
                 setTimeout(() => {
                     updateValues(form.values, curPos)
                 }, 100)
-            }else{
+            } else {
                 webSocket.send(
                     JSON.stringify({
                         wsKey: Cookies.get('wsKey'),
@@ -85,6 +85,17 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         }
     };
 
+    const sendCurrentPositionAlongInputedCords = () => {
+        const cords = form.values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
+        const curPos = getPointBetweentwoPoints(
+            cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint)) % cords.length],
+            cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint) + 1) % cords.length],
+            (countOfSteps % numberOfStepsBetweenEachGPSPoint) / numberOfStepsBetweenEachGPSPoint
+        )
+        updateValues(form.values, curPos)
+        countOfSteps++;
+    }
+
     // set up the websocket connection
     useEffect(() => {
         if (!webSocket) {
@@ -93,20 +104,12 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         webSocket.onopen = () => {
             if (form.values.cords != null && form.values.cords.length > 0) {
                 countOfSteps = 0;
-                if(isRunningTimeout) {
+                if (isRunningTimeout) {
                     clearInterval(isRunningTimeout)
                 }
-                setIsRunningTimeout(setInterval(() => {
-                    const cords = form.values.cords.split("- ").map((cord) => cord.split(", ").map((cord) => parseFloat(cord)));
-                    const curPos = getPointBetweentwoPoints(
-                        cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint)) % cords.length],
-                        cords[(Math.floor(countOfSteps / numberOfStepsBetweenEachGPSPoint) + 1) % cords.length],
-                        (countOfSteps % numberOfStepsBetweenEachGPSPoint) / numberOfStepsBetweenEachGPSPoint
-                    )
-                    updateValues(form.values, curPos)
-                    countOfSteps++;
-                }, 1000))
+                setIsRunningTimeout(setInterval(sendCurrentPositionAlongInputedCords, 1000))
             } else {
+                // starts running the funciton that was given as a param to useUserLocation
                 getUserLocaiton()
             }
             closeModal();
