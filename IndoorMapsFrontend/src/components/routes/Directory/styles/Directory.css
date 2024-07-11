@@ -52,3 +52,7 @@
 .autocompleteResultItem + .autocompleteResultItem {
     border-top: 0;
 }
+
+.selectedText {
+    background-color: HotPink;
+}

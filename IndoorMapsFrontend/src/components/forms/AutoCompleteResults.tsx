@@ -25,6 +25,12 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
                 items {
                     id
                     title
+                    highlights {
+                        title {
+                            start
+                            end
+                        }
+                    }
                 }
             }
           }
@@ -41,7 +47,24 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
     }, [debouncedValue])
 
     const listOfAutocompleteElements = data.getAutocomplete.items.map(item => {
-        return (<li className="autocompleteResultItem" key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}>{item.title}</Button></li>)
+        let titleToDispaly = item.title;
+        if(item.highlights && item.highlights.title){
+            let newTitle = "";
+            // supposedly the newer versions of ts are better at using filters to remove null and undefired, here we need as number[]
+            let starts: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.start).filter((val) => (val !== null && val !== undefined)) as number[];
+            let ends: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.end).filter((val) => (val !== null && val !== undefined)) as number[];
+            for(let i = 0; i < titleToDispaly.length; i++){
+                if(starts.includes(i)){
+                    newTitle += "<span class=\"selectedText\">"
+                }
+                if(ends.includes(i)){
+                    newTitle += "</span>"
+                }
+                newTitle += titleToDispaly.charAt(i);
+            }
+            titleToDispaly = newTitle
+        }
+        return (<li className="autocompleteResultItem" key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}><p dangerouslySetInnerHTML={{ __html: titleToDispaly }} /></Button></li>)
     })
 
     return (
