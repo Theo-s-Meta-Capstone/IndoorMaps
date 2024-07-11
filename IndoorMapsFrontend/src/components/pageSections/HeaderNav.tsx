@@ -21,7 +21,6 @@ const HeaderNav = ({ getUserFromCookie, pageTitle, children }: HeaderNavProps) =
                 {pageTitle}
             </h1>
             <Group component="nav" className="nav">
-                <Link to="/">Home</Link>
                 <Link to="/directory">Directory</Link>
                 {children}
                 <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
