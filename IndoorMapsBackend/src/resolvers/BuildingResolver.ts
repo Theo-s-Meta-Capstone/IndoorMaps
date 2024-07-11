@@ -11,6 +11,10 @@ import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
 import { LiveLocation, pubSub } from './pubSub.js'
 
+function formatSearchQuery(query: string) {
+    return query.replace(" ", "+") + ":*"
+}
+
 @InputType()
 class BuildingUniqueInput {
     @Field()
@@ -238,22 +242,15 @@ export class BuildingResolver {
     ): Promise<Building[]> {
         let buildings;
         if (data.searchQuery && data.searchQuery.length > 0) {
+            const query = formatSearchQuery(data.searchQuery);
             buildings = await ctx.prisma.building.findMany({
                 where: {
-                    OR: [
-                        {
-                            title: {
-                                contains: data.searchQuery,
-                                mode: 'insensitive',
-                            }
-                        },
-                        {
-                            address: {
-                                contains: data.searchQuery,
-                                mode: 'insensitive',
-                            }
-                        }
-                    ],
+                    address: {
+                        search: query,
+                    },
+                    title: {
+                        search: query,
+                    }
                 }
             });
         } else {
@@ -301,10 +298,10 @@ export class BuildingResolver {
         @Arg('data') data: AreaSearchInput,
         @Ctx() ctx: Context,
     ): Promise<String> {
-        if(data.query.length === 0){
+        if (data.query.length === 0) {
             return "";
         }
-        const query = data.query.replace(" ", "+") + ":*"
+        const query = formatSearchQuery(data.query)
         // Remove after running on all floors in prod
         await connectAllAreasToBuilding(data.id, ctx)
         const building = await ctx.prisma.building.findUnique({
