@@ -29,3 +29,8 @@
 .liveLocationMarker{
     transition: .5s;
 }
+
+.title {
+    opacity: 0;
+    transition: opacity .4s;
+}
