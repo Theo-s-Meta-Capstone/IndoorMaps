@@ -17,8 +17,8 @@ export const getPointBetweentwoPoints = (point1: number[], point2: number[], pos
 export const getAreaOfPolygon = (polygon: L.Polygon) => {
     const points = polygon.getLatLngs()[0] as L.LatLng[];
     let sum = 0;
-    for (let i = 0; i < points.length - 1; i++) {
-        sum += (points[i].lng + points[i + 1].lng) * (points[i].lat - points[i + 1].lat)
+    for (let i = 0; i < points.length; i++) {
+        sum += (points[i].lng + points[(i + 1)%points.length].lng) * (points[i].lat - points[(i + 1)%points.length].lat)
     }
-    return Math.abs(sum / 2)
+    return Math.abs(sum / 2)*1000000
 }

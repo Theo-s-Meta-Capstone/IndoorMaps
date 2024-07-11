@@ -49,6 +49,7 @@ const areasMapLayer = L.geoJSON(null, {
 
 const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
+    // note, an increase in size and/or textLenght causes the result to decrease
     return Math.floor(-40*size*textLength + 40)/2
 }
 
