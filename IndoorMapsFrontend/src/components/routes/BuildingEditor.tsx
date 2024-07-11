@@ -8,6 +8,7 @@ import { Button } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useBooleanState } from "../../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
+import Footer from "../pageSections/Footer";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -49,7 +50,7 @@ const BuildingEditor = () => {
                     <BuildingEditorBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <p>Created by <a href="https://theoh.dev">Theo Halpern</a></p>
+            <Footer />
         </div>
     )
 }

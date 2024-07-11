@@ -3,6 +3,7 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../pageSections/HeaderNav";
 import { Link } from "react-router-dom";
+import Footer from "../pageSections/Footer";
 
 const RootPageQuery = graphql`
     query RootQuery {
@@ -34,7 +35,7 @@ const Root = () => {
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <p>Created by <a href="https://theoh.dev">Theo Halpern</a></p>
+            <Footer />
         </div>
     )
 }

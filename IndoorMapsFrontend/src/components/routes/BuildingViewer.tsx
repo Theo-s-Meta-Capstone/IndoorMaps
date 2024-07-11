@@ -8,6 +8,7 @@ import HeaderNav from "../pageSections/HeaderNav";
 import { useBooleanState } from "../../utils/hooks";
 import { Button } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
+import Footer from "../pageSections/Footer";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
@@ -50,7 +51,7 @@ const BuildingViewer = () => {
                     <BuildingViewerBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <p>Created by <a href="https://theoh.dev">Theo Halpern</a></p>
+            <Footer />
         </div>
     )
 }
