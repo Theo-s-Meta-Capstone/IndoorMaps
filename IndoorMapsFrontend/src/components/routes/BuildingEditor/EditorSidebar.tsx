@@ -59,7 +59,6 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   }, [building.floors])
 
   const handleCloseAreaSidebar = () => {
-    removeAllLayersFromLayerGroup(areasMapLayer, map);
     removeAllLayersFromLayerGroup(areaEntranceMapLayer, map);
     floorMapLayer.getLayers().map((layer) => {
       if (layer instanceof L.Polygon) {
@@ -67,9 +66,33 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       }
     })
     floorMapLayer.pm.enable()
+
+    areasMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.Polygon) {
+        layer.setStyle({ color: 'black' });
+      }
+    })
+    // Both of these are needed to disable editing
+    // This one makes it so if you are currently in edit mode it stops being editable
+    // this only seems to work for the vetector move edit mode and not the dragging or rotating
+    areasMapLayer.pm.disable()
+    // This one makes it so enter edit mode it doesn't show as editable
+    areasMapLayer.pm.setOptions({
+      allowEditing: false,
+      allowRemoval: false,
+      allowRotation: false,
+      draggable: false,
+    })
     floorMapLayer.pm.setOptions({
       allowEditing: true,
+      allowRemoval: true,
+      allowRotation: true,
+      draggable: true,
     })
+    // disable drawing, useful if the user was drawing while on the floor sidebar
+    map.pm.disableDraw()
+    // Stops a bug with leaflet and addData:this._layer.getLatLngs is not a function
+    map.pm.disableGlobalRotateMode();
     closeAreaSidebar();
   }
 
@@ -79,20 +102,21 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
         layer.setStyle({ color: 'black' });
       }
     })
-    // Both of these are needed to disable editing
-    // This one makes it so if you are currently in edit mode it stops being editable
-    // this only seems to work for the vetector move edit mode and not the dragging or rotating
     floorMapLayer.pm.disable()
-    // This one makes it so enter edit mode it doesn't show as editable
     floorMapLayer.pm.setOptions({
       allowEditing: false,
-      allowCutting: false,
       allowRemoval: false,
       allowRotation: false,
       draggable: false,
     })
-    // disable drawing, useful if the user was drawing while on the floor sidebar
+    areasMapLayer.pm.setOptions({
+      allowEditing: true,
+      allowRemoval: true,
+      allowRotation: true,
+      draggable: true,
+    })
     map.pm.disableDraw();
+    map.pm.disableGlobalRotateMode();
     openAreaSidebar();
   }
 
