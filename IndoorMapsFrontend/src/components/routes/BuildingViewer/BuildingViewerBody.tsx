@@ -8,6 +8,7 @@ import FormErrorNotification from "../../forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
+import AreaSearch from "./AreaSearch";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -39,13 +40,6 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     return (
         <main className="ViewerMain">
             <FormErrorNotification className="MapViewerNotification" formError={pageError} onClose={() => setPageError(null)} />
-            {map ?
-                <ViewerMapLoader map={map} buildingFromParent={building}>
-                    <DisplayMyLiveLocation setPageError={(errorMessage) => {setPageError(errorMessage)}} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
-                    <DispalyLiveMarkers map={map} />
-                </ViewerMapLoader>
-                : null
-            }
             <MapContainer
                 center={buildingAnkerLatLon}
                 zoom={19}
@@ -53,6 +47,13 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 style={mapStyle}
                 ref={setMap}
             >
+                {map ?
+                    <ViewerMapLoader map={map} buildingFromParent={building}>
+                        <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
+                        <DispalyLiveMarkers map={map} />
+                    </ViewerMapLoader>
+                    : null
+                }
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -60,6 +61,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                     maxZoom={27}
                 />
             </MapContainer>
+            {map ? <AreaSearch map={map} /> : null}
         </main>
     )
 }

@@ -1,6 +1,7 @@
 .ViewerMain {
     position: relative;
     height: 100%;
+    display: flex;
 }
 
 .floorsContainer{
@@ -8,7 +9,7 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    z-index: 100;
+    z-index: 1000;
     max-height: 70vh;
 }
 
@@ -35,4 +36,9 @@
 .title {
     opacity: 0;
     transition: opacity .4s;
+}
+
+.AreaSearch {
+    min-width: 30%;
+    padding: 0 1em;
 }
