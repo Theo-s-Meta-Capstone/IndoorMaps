@@ -50,7 +50,7 @@ const areasMapLayer = L.geoJSON(null, {
 const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
     // note, an increase in size and/or textLenght causes the result to decrease
-    return Math.floor(-40*size*textLength + 40)/2
+    return Math.floor(-40 * size * textLength + 40) / 2
 }
 
 const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
@@ -62,9 +62,9 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
     const updateDisplayedTags = () => {
         const zoomLevel = map.getZoom();
         const toolTips = document.getElementsByClassName("title") as HTMLCollectionOf<HTMLElement>;
-        for(let i = 0; i < toolTips.length; i++){
+        for (let i = 0; i < toolTips.length; i++) {
             const zoomLevelToShow = toolTips[i].classList.toString().split("showAtZoom")[1];
-            if(parseInt(zoomLevelToShow) > zoomLevel){
+            if (parseInt(zoomLevelToShow) > zoomLevel) {
                 toolTips[i].style.opacity = "0";
             }
             else {
@@ -135,7 +135,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
                 if (layer.feature) {
                     if (layer.feature.properties.title) {
                         const size = getAreaOfPolygon(layer);
-                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom"+getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length)+"showAtZoom" });
+                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom" });
                     }
                     if (layer.feature.properties.description) {
                         layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
@@ -159,7 +159,16 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
 
     }, [currentFloor])
 
-    const floorListElements = building.floors.map((floor) => (<Button onClick={() => setCurrentFloor(floor.databaseId)} key={floor.id}>{floor.title}</Button>));
+    const floorListElements = building.floors.map((floor) => {
+        console.log((currentFloor+ "==="+ floor.databaseId))
+        return (
+        <Button
+            color={(currentFloor=== floor.databaseId) ? "red" : "blue"}
+            onClick={() => setCurrentFloor(floor.databaseId)}
+            key={floor.id}>
+            {floor.title}
+        </Button>
+    )});
 
     return (
         <Group className="floorsContainer" >
