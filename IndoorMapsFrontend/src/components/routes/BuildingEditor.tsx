@@ -4,10 +4,11 @@ import { useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../pageSections/HeaderNav";
-import { Button } from "@mantine/core";
-import { useClipboard } from "@mantine/hooks";
+import { Button, em } from "@mantine/core";
+import { useClipboard, useMediaQuery } from "@mantine/hooks";
 import { useBooleanState } from "../../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
+import Footer from "../pageSections/Footer";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {
@@ -43,13 +44,12 @@ const BuildingEditor = () => {
     }, []);
 
     return (
-        <div>
+        <div className="everythingContainer">
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingEditorBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <p>Created by <a href="https://theoh.dev">Theo Halpern</a></p>
         </div>
     )
 }
@@ -63,9 +63,11 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
     const clipboard = useClipboard();
     const { buildingId } = useParams();
+    const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
+
     return (
         <>
-            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"}>
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"} showDesktopContent={isNotMobile}>
                 <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
                     {clipboard.copied ? "Link Copied" : "Share"}
                 </Button>
@@ -75,6 +77,7 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
                 <InviteEditorsModal isOpen={isInviteEditorOpen} closeModal={handleCloseInviteEditor} />
             </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
+            <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>
         </>
     )
 }

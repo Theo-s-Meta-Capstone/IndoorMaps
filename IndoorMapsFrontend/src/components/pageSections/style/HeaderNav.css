@@ -7,6 +7,8 @@ header {
     margin: 0;
     padding: .25em;
     text-align: left;
+    display: inline-flex;
+    align-items: center;
 }
 
 .nav {
@@ -17,4 +19,8 @@ header {
 
 .userButtons {
     margin-left: auto;
+}
+
+.pageTitleImage {
+   height: 1em;
 }

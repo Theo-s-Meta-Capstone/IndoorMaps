@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
+import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../../utils/utils";
 import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../../utils/markerIcon";
 import * as L from "leaflet";
 import { graphql, useFragment } from "react-relay";
@@ -47,11 +47,30 @@ const areasMapLayer = L.geoJSON(null, {
     }
 });
 
+const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
+    // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
+    return Math.floor(-40*size*textLength + 40)/2
+}
+
 const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
     const building = useFragment(ViewerMapFragment, buildingFromParent);
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
+
+    const updateDisplayedTags = () => {
+        const zoomLevel = map.getZoom();
+        const toolTips = document.getElementsByClassName("title") as HTMLCollectionOf<HTMLElement>;
+        for(let i = 0; i < toolTips.length; i++){
+            const zoomLevelToShow = toolTips[i].classList.toString().split("showAtZoom")[1];
+            if(parseInt(zoomLevelToShow) > zoomLevel){
+                toolTips[i].style.opacity = "0";
+            }
+            else {
+                toolTips[i].style.opacity = "1";
+            }
+        }
+    }
 
     const setUpMapBuilder = () => {
         if (mapIsSetUp) return;
@@ -114,10 +133,11 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
             if (layer instanceof L.Polygon) {
                 if (layer.feature) {
                     if (layer.feature.properties.title) {
-                        layer.bindTooltip(layer.feature.properties.title, { permanent: true, className: "title", offset: [0, 0] });
+                        const size = getAreaOfPolygon(layer);
+                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom"+getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length)+"showAtZoom" });
                     }
                     if (layer.feature.properties.description) {
-                        layer.bindPopup(layer.feature.properties.description, { className: "description", offset: [0, 0] });
+                        layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
                     }
                 }
                 // The class lists property on set style doesn't work if the layer group has already been added to the map
@@ -133,10 +153,12 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
             }
         })
 
+        updateDisplayedTags()
+        map.on("zoomend", updateDisplayedTags);
+
     }, [currentFloor])
 
     const floorListElements = building.floors.map((floor) => (<Button onClick={() => setCurrentFloor(floor.databaseId)} key={floor.id}>{floor.title}</Button>));
-
 
     return (
         <Group className="floorsContainer" >

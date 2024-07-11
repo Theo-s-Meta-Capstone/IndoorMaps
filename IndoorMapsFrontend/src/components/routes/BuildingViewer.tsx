@@ -6,8 +6,10 @@ import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 import HeaderNav from "../pageSections/HeaderNav";
 import { useBooleanState } from "../../utils/hooks";
-import { Button } from "@mantine/core";
+import { Button, em } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
+import Footer from "../pageSections/Footer";
+import { useMediaQuery } from "@mantine/hooks";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
@@ -44,13 +46,12 @@ const BuildingViewer = () => {
     }, []);
 
     return (
-        <div>
+        <div className="everythingContainer">
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingViewerBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
-            <p>Created by <a href="https://theoh.dev">Theo Halpern</a></p>
         </div>
     )
 }
@@ -62,16 +63,18 @@ type BuildingViewerBodyContainerProps = {
 function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     const [isShareLiveLocationOpen, handleCloseShareLiveLocation, handleOpenShareLiveLocation] = useBooleanState(false);
+    const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
 
     return (
         <>
-            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"}>
+            <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"} showDesktopContent={isNotMobile}>
                 <Button onClick={handleOpenShareLiveLocation}>
                     Share Location Live
                 </Button>
                 <ShareLocationModal isOpen={isShareLiveLocationOpen} closeModal={handleCloseShareLiveLocation} />
             </HeaderNav>
             <BuildingViewerBody buildingFromParent={getBuilding} />
+            <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>
     )
 }

@@ -12,3 +12,13 @@ export const getPointBetweentwoPoints = (point1: number[], point2: number[], pos
         point1[1] + (point2[1] - point1[1]) * position
     ]
 }
+
+// Based on the Trapezoid fomula https://en.wikipedia.org/wiki/Shoelace_formula
+export const getAreaOfPolygon = (polygon: L.Polygon) => {
+    const points = polygon.getLatLngs()[0] as L.LatLng[];
+    let sum = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+        sum += (points[i].lng + points[i + 1].lng) * (points[i].lat - points[i + 1].lat)
+    }
+    return Math.abs(sum / 2)
+}

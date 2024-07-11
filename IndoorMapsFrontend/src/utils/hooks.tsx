@@ -104,6 +104,10 @@ export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500)
 
 // Based on expample on https://www.w3schools.com/html/html5_geolocation.asp
 // enableHighAcuracy and fallback based on https://stackoverflow.com/questions/9053262/geolocation-html5-enablehighaccuracy-true-false-or-best-option
+// I decided to not return a state that changes based on the position/error and instead have the consumers of this hook
+    // write functions (the params) that are called when the position is updated or when an error occurs. This is because
+    // anything to do with the map, espeically things that happen a lot (like the position marker updating) shouldn't cause React to even consider re-render
+    // The leaflet map response far better to updates that come from tridtional JS as aposed to React so using states just results in more re-renders and a worse expreience.
 export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void, setUserLocationError: (errorMessage: string) => void) => {
     let alreadyWatching = false;
     const getLocation = () => {
