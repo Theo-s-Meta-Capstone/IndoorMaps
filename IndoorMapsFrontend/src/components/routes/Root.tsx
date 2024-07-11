@@ -1,14 +1,12 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
-import UserDataDisplay from "../pageSections/UserDataDisplay";
 import HeaderNav from "../pageSections/HeaderNav";
 
 const RootPageQuery = graphql`
     query RootQuery {
     getUserFromCookie {
         ...ButtonsContainerFragment,
-        ...UserDataDisplayFragment
     }
 }`
 
@@ -49,7 +47,6 @@ function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
     return (
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"}/>
-            <UserDataDisplay getUserFromCookie={getUserFromCookie} />
         </>
     )
 }

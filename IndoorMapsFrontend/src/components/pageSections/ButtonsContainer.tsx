@@ -24,7 +24,6 @@ const refreshQuery = graphql`
   query ButtonsContainerGetUserFromCookieQuery {
   getUserFromCookie {
     ...ButtonsContainerFragment,
-    ...UserDataDisplayFragment,
     ...ListOfConnectedBuildingsUserDataDisplayFragment
   }
 }
