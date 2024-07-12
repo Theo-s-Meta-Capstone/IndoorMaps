@@ -165,7 +165,6 @@ export const server = net.createServer(sock => {
         const wsKey = crypto.randomUUID()
         // match anything that isn't a ; because cookies end with a new line or a ;
         const jwtCookie = (cookiesHeader.match(/jwt=([^;]*)/)??["",""])[1];
-        console.log(jwtCookie)
         if (!jwtCookie) {
             console.log("no jwt cookie found")
             sock.write(`'HTTP/1.1 401 Unauthorized\r\n\r\n'`)
@@ -228,7 +227,6 @@ export const server = net.createServer(sock => {
         const messageLength = (message.length & 255);
         // 0x81 is 1000 0001 indicating that the message is final (1000) and the opcode is 0001
         const header = Buffer.from([0x81, messageLength])
-        console.log(header)
         var mergedArray = new Uint8Array(header.length + message.length);
         mergedArray.set(header);
         mergedArray.set(message, header.length);
