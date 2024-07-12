@@ -58,7 +58,6 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
         // if the user drags the map, the map no loger updates to the users new location
         map.on('dragstart', () => {
             mapHasBeenDragged = true;
-            map.removeEventListener('dragstart');
         });
     }
 
