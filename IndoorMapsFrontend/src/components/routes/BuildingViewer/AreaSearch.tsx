@@ -72,15 +72,17 @@ const AreaSearch = ({ buildingId }: Props) => {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
             />
-            {results ? results.areaSearch.map((area) => {
-                return (
-                    <div className="areaResultsItem">
-                        <p>{area.title}</p>
-                        <p>{area.description}</p>
-                    </div>
-                )
-            })
-            : null}
+            <div className="searchResultsContainer">
+                {results ? results.areaSearch.map((area) => {
+                    return (
+                        <div className="areaResultsItem">
+                            <p>{area.title}</p>
+                            <p>{area.description}</p>
+                        </div>
+                    )
+                })
+                    : null}
+            </div>
         </aside>
     )
 }

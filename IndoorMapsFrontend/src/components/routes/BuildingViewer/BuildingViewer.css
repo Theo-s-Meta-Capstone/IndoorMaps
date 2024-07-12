@@ -43,6 +43,10 @@
     max-width: 30%;
     padding: 0 1em;
     overflow: hidden;
+    white-space: pre-line;
+    text-align: left;
+    /* https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container */
+    min-height: 0;
 }
 
 .description {
