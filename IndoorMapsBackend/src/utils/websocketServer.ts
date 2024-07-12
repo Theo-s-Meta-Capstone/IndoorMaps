@@ -108,7 +108,7 @@ export const server = net.createServer(sock => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
         if (dataLines[0] == "GET /ws HTTP/1.1") {
-            estiblishWsConnection(dataLines);
+            estiblishWsConnection(dataString);
             return;
         }
         if (dataLines[0].split(" ")[1] == "/") {
@@ -152,32 +152,28 @@ export const server = net.createServer(sock => {
 
     });
 
-    const estiblishWsConnection = (dataLines: string[]) => {
-        let userWebsocketKey: string = "";
-        let cookiesHeader: string = "";
-        dataLines.forEach(line => {
-            if (line.startsWith("sec-websocket-key: ")) {
-                userWebsocketKey = line.slice("sec-websocket-key: ".length);
-            }
-            else if (line.startsWith("cookie: ")) {
-                cookiesHeader = line.slice("cookie: ".length);
-            }
-        })
+    const estiblishWsConnection = (dataString: string) => {
+        // Using Regex to find the needed Https headers, if the match returns null, then the ?? operator returns ["",""] and the [1] can return an empty string
+        // This works because . doesn't match new line characters so the second group should only return the rest of the line
+        let userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/)??["",""])[1];
+        let cookiesHeader: string = (dataString.match(/cookie: (.*)/)??["",""])[1];
 
         if (verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         magicString = crypto.createHash('sha1').update(magicString).digest('base64');
 
         const wsKey = crypto.randomUUID()
-        const jwtCookie = cookiesHeader.split("; ").find(cookie => cookie.startsWith("jwt="));
+        // match anything that isn't a ; because cookies end with a new line or a ;
+        const jwtCookie = (cookiesHeader.match(/jwt=([^;]*)/)??["",""])[1];
+        console.log(jwtCookie)
         if (!jwtCookie) {
             console.log("no jwt cookie found")
-            sock.write(`HTTP/1.1 401 Unauthorized`)
+            sock.write(`'HTTP/1.1 401 Unauthorized\r\n\r\n'`)
             return;
         }
 
         openSockets[wsKey] = {
-            jwt: jwtCookie.trim().slice("jwt=".length),
+            jwt: jwtCookie,
             timeCreated: Date.now(),
             lastRecieved: Date.now(),
         }
