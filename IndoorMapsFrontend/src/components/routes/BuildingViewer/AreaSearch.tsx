@@ -3,7 +3,7 @@ import { IconSearch } from "@tabler/icons-react";
 import { useEffect, useState, useTransition } from "react";
 import { useDebounce } from "../../../utils/hooks";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
-import { AreaSearchQuery } from "./__generated__/AreaSearchQuery.graphql";
+import { AreaSearchQuery, AreaSearchQuery$data } from "./__generated__/AreaSearchQuery.graphql";
 import FormErrorNotification from "../../forms/FormErrorNotification";
 
 const iconSearch = <IconSearch style={{ width: rem(16), height: rem(16) }} />
@@ -20,7 +20,7 @@ const AreaSearch = ({ buildingId }: Props) => {
     const [, startTransition] = useTransition();
     const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
-    const [results, setResults] = useState("");
+    const [results, setResults] = useState<AreaSearchQuery$data>();
 
     useEffect(() => {
         fetchQuery<AreaSearchQuery>(
@@ -55,7 +55,7 @@ const AreaSearch = ({ buildingId }: Props) => {
                         return;
                     }
                     startTransition(() => {
-                        setResults(data.areaSearch.map((area) => JSON.stringify(area)).join(","))
+                        setResults(data)
                     });
                 }
             });
@@ -72,9 +72,15 @@ const AreaSearch = ({ buildingId }: Props) => {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
             />
-            <div>
-                {results}
-            </div>
+            {results ? results.areaSearch.map((area) => {
+                return (
+                    <div className="areaResultsItem">
+                        <p>{area.title}</p>
+                        <p>{area.description}</p>
+                    </div>
+                )
+            })
+            : null}
         </aside>
     )
 }
