@@ -44,7 +44,7 @@ const BuildingEditor = () => {
     }, []);
 
     return (
-        <div className="everythingContainer">
+        <div className="mainVerticalFlexContainer">
             {queryReference == null ? <div>Waiting for useEffect</div> :
                 <Suspense fallback="Loading GraphQL">
                     <BuildingEditorBodyContainer queryReference={queryReference} />

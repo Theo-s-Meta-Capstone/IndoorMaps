@@ -3,7 +3,7 @@
   text-align: center;
 }
 
-.everythingContainer {
+.mainVerticalFlexContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
