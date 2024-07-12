@@ -66,7 +66,7 @@ function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps)
                 <ListOfConnectedBuildings getUserFromCookie={getUserFromCookie} getGeocoder={data} />
                 <ListOfBuildings graphQLData={data} />
             </main>
-            <Footer className="notFlexboxPage" showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} />
+            <Footer className="notDeviceHeightPage" showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} />
         </>
     )
 }
