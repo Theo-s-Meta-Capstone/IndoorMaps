@@ -50,7 +50,7 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
         let titleToDispaly = item.title;
         if(item.highlights && item.highlights.title){
             let newTitle = "";
-            // supposedly the newer versions of ts are better at using filters to remove null and undefired, here we need as number[]
+            // creates arrays of all of the highlight starts (where an opening span tag needs to be inserted) and the highlight ends (where a closing tag needs to be inserted)
             const starts: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.start).filter((val) => (val !== null && val !== undefined)) as number[];
             const ends: number[] = item.highlights.title.map((titleHighlight) => titleHighlight.end).filter((val) => (val !== null && val !== undefined)) as number[];
             for(let i = 0; i < titleToDispaly.length; i++){
