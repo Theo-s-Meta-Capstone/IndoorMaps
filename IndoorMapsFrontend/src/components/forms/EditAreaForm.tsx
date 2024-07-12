@@ -79,7 +79,11 @@ const EditAreaForm = ({ area }: Props) => {
         <div>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <TextInput {...form.getInputProps('title')} label="Area Name" placeholder="101" />
-            <Textarea {...form.getInputProps('description')} label="Area Description" placeholder="Classes: Geology 101 930, ..." />
+            <Textarea {...form.getInputProps('description')}
+                autosize
+                minRows={2}
+                label="Area Description"
+                placeholder="Classes: Geology 101 930, ..." />
             <Checkbox {...form.getInputProps('traversable')} checked={form.getValues().traversable} label="Traversable" />
             <div>{(isInFlight) ? "saving area details ..." : "area details saved"}</div>
         </div>

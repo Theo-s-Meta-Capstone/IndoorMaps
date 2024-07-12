@@ -160,7 +160,6 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
     }, [currentFloor])
 
     const floorListElements = building.floors.map((floor) => {
-        console.log((currentFloor+ "==="+ floor.databaseId))
         return (
         <Button
             color={(currentFloor=== floor.databaseId) ? "red" : "blue"}
