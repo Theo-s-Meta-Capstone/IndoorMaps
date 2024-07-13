@@ -1,4 +1,4 @@
-import "./BuildingViewer/BuildingViewer.css"
+import "./BuildingViewer/styles/BuildingViewer.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { useParams } from "react-router-dom";

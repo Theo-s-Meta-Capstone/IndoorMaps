@@ -75,8 +75,8 @@ const AreaSearch = ({ buildingId }: Props) => {
             <div className="searchResultsContainer">
                 {results ? results.areaSearch.map((area) => {
                     return (
-                        <div className="areaResultsItem">
-                            <p>{area.title}</p>
+                        <div key={area.id} className="areaResultsItem">
+                            <p className="areaResultsItemTitle">{area.title}</p>
                             <p>{area.description}</p>
                         </div>
                     )

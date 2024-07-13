@@ -4,13 +4,15 @@
     display: flex;
 }
 
-.floorsContainer{
+.floorsContainer {
     flex-direction: column;
     position: absolute;
     top: 15px;
     right: 15px;
     z-index: 1000;
     max-height: 70vh;
+    max-width: min-content;
+    flex-wrap: nowrap;
 }
 
 .locationMarker {
@@ -18,7 +20,7 @@
 }
 
 .MapViewerNotification {
-    z-index: 110;
+    z-index: 3000;
     position: absolute;
     width: 70%;
     left: 15px;
@@ -29,7 +31,7 @@
     fill: yellow
 }
 
-.liveLocationMarker{
+.liveLocationMarker {
     transition: .5s;
 }
 
@@ -51,4 +53,37 @@
 
 .description {
     white-space: pre-wrap;
+}
+
+.areaResultsItem {
+    background-color: var(--main-3);
+    padding: .5em;
+    border-radius: .4em;
+    margin-bottom: 1em;
+}
+
+.areaResultsItem p {
+    margin: 0px;
+}
+
+.areaResultsItemTitle {
+    font-size: large;
+}
+
+@media only screen and (max-width: 600px) {
+    .AreaSearch {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        min-width: unset;
+        max-width: unset;
+        width: 70%;
+        z-index: 2000;
+        margin: auto;
+        margin-right: 20%;
+    }
+    .searchResultsContainer {
+        max-height: 40vh;
+        overflow-y: scroll;
+    }
 }
