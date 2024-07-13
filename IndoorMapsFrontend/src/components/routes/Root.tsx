@@ -56,7 +56,7 @@ function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
             <h2>Welcome To IndoorMaps.</h2>
             <p>IndoorMaps is the easy way to create useful and accurate maps of any building.</p>
             <p>Find maps on the <Link to={"/directory"}>Directory</Link></p>
-            <Footer className="notFlexboxPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>
+            <Footer className="notDeviceHeightPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>
         </>
     )
 }

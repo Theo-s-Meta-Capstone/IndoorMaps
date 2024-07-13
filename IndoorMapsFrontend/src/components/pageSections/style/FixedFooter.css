@@ -2,7 +2,7 @@
     margin-bottom: 5em;
 }
 
-footer.notFlexboxPage  {
+footer.notDeviceHeightPage  {
     position: fixed;
     display: flex;
     justify-content: center;
@@ -12,6 +12,6 @@ footer.notFlexboxPage  {
     background-color: white;
 }
 
-footer.notFlexboxPage .userButtons {
+footer.notDeviceHeightPage .userButtons {
     margin: 0;
 }
