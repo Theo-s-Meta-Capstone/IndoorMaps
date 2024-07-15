@@ -189,7 +189,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
             }else{
                 flyToArea(areaToAreaRouteInfo.to.areaDatabaseId);
             }
-        };
+        }
     }, [areaToAreaRouteInfo])
 
     const floorListElements = building.floors.map((floor) => {
