@@ -1,7 +1,8 @@
 .ViewerMain {
     position: relative;
-    height: 100%;
+    flex-grow: 2;
     display: flex;
+    min-height: 0;
 }
 
 .floorsContainer {
@@ -49,6 +50,8 @@
     text-align: left;
     /* https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container */
     min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .description {
@@ -60,6 +63,8 @@
     padding: .5em;
     border-radius: .4em;
     margin-bottom: 1em;
+    text-align: left;
+    width: 100%;
 }
 
 .areaResultsItem p {
@@ -70,7 +75,11 @@
     font-size: large;
 }
 
-@media only screen and (max-width: 600px) {
+.searchResultsContainer {
+    overflow-y: scroll;
+}
+
+@media only screen and (max-width: 840px) {
     .AreaSearch {
         position: absolute;
         left: 0px;
@@ -82,6 +91,7 @@
         margin: auto;
         margin-right: 20%;
     }
+
     .searchResultsContainer {
         max-height: 40vh;
         overflow-y: scroll;
