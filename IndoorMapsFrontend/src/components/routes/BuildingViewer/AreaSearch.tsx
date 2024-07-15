@@ -5,22 +5,34 @@ import { useDebounce } from "../../../utils/hooks";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { AreaSearchQuery, AreaSearchQuery$data } from "./__generated__/AreaSearchQuery.graphql";
 import FormErrorNotification from "../../forms/FormErrorNotification";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 
 const iconSearch = <IconSearch style={{ width: rem(16), height: rem(16) }} />
 const debounceTime = 140;
 
 type Props = {
-    map: L.Map;
     buildingId: number;
+    areaToAreaRouteInfo: AreaToAreaRouteInfo,
+    setAreaToAreaRouteInfo: (newdata: AreaToAreaRouteInfo) => void,
 }
 
-const AreaSearch = ({ buildingId }: Props) => {
+const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }: Props) => {
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
     const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
     const [results, setResults] = useState<AreaSearchQuery$data>();
+
+    function goToArea(area: AreaSearchQuery$data["areaSearch"][number]): void {
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            to: {
+                areaDatabaseId: area.databaseId,
+                floorDatabaseId: area.floorDatabaseId,
+            }
+        })
+    }
 
     useEffect(() => {
         fetchQuery<AreaSearchQuery>(
@@ -75,10 +87,12 @@ const AreaSearch = ({ buildingId }: Props) => {
             <div className="searchResultsContainer">
                 {results ? results.areaSearch.map((area) => {
                     return (
-                        <div key={area.id} className="areaResultsItem">
+                        <button onClick={() => goToArea(area)} key={area.id} className="areaResultsItem">
                             <p className="areaResultsItemTitle">{area.title}</p>
-                            <p>{area.description}</p>
-                        </div>
+                            {area.description ?
+                                <p>Description:<br />{area.description}</p>
+                                : null}
+                        </button>
                     )
                 })
                     : null}

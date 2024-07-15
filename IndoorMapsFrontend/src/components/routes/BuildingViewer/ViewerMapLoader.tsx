@@ -5,6 +5,7 @@ import * as L from "leaflet";
 import { graphql, useFragment } from "react-relay";
 import { ViewerMapLoaderFragment$key } from "./__generated__/ViewerMapLoaderFragment.graphql";
 import { Button, Group } from "@mantine/core";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -33,6 +34,7 @@ const ViewerMapFragment = graphql`
 type Props = {
     map: L.Map;
     buildingFromParent: ViewerMapLoaderFragment$key;
+    areaToAreaRouteInfo: AreaToAreaRouteInfo;
     children: React.ReactNode;
 }
 
@@ -53,11 +55,29 @@ const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     return Math.floor(-40 * size * textLength + 40) / 2
 }
 
-const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
+const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, children }: Props) => {
     const building = useFragment(ViewerMapFragment, buildingFromParent);
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
+
+    const flyToArea = (layer: L.Polygon | number) => {
+        const layerToFlyTo: L.Polygon | undefined = layer instanceof L.Polygon ?
+            layer
+            :
+            areasMapLayer.getLayers().find((foundLayer) => {
+                return foundLayer instanceof L.Polygon && foundLayer.feature && foundLayer.feature.properties.databaseId == layer
+            // only finds layers that are an instance of L.Polygon so it is safe to use typescript as
+            }) as (L.Polygon | undefined)
+        if(!layerToFlyTo) return;
+        if (layerToFlyTo.feature) {
+            const size = getAreaOfPolygon(layerToFlyTo);
+            map.flyTo(layerToFlyTo.getCenter(), Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()));
+            layerToFlyTo.setStyle({
+                fillColor: 'lightblue',
+            });
+        }
+    }
 
     const updateDisplayedTags = () => {
         const zoomLevel = map.getZoom();
@@ -132,15 +152,6 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
 
         areasMapLayer.getLayers().map((layer) => {
             if (layer instanceof L.Polygon) {
-                if (layer.feature) {
-                    if (layer.feature.properties.title) {
-                        const size = getAreaOfPolygon(layer);
-                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom" });
-                    }
-                    if (layer.feature.properties.description) {
-                        layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
-                    }
-                }
                 // The class lists property on set style doesn't work if the layer group has already been added to the map
                 // Likly related to this old issue: https://github.com/leaflet/leaflet/issues/2662
                 layer.setStyle({
@@ -151,6 +162,18 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
                 });
                 // getElement relys on the layer being already added to the map,
                 layer.getElement()?.classList.add("area")
+                if (layer.feature) {
+                    const size = getAreaOfPolygon(layer);
+                    if (areaToAreaRouteInfo.to && layer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                        flyToArea(layer);
+                    }
+                    if (layer.feature.properties.title) {
+                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom" });
+                    }
+                    if (layer.feature.properties.description) {
+                        layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
+                    }
+                }
             }
         })
 
@@ -159,15 +182,26 @@ const ViewerMapLoader = ({ map, buildingFromParent, children }: Props) => {
 
     }, [currentFloor])
 
+    useEffect(() => {
+        if (areaToAreaRouteInfo.to) {
+            if(areaToAreaRouteInfo.to.floorDatabaseId != currentFloor){
+                setCurrentFloor(areaToAreaRouteInfo.to.floorDatabaseId)
+            }else{
+                flyToArea(areaToAreaRouteInfo.to.areaDatabaseId);
+            }
+        };
+    }, [areaToAreaRouteInfo])
+
     const floorListElements = building.floors.map((floor) => {
         return (
-        <Button
-            color={(currentFloor=== floor.databaseId) ? "red" : "blue"}
-            onClick={() => setCurrentFloor(floor.databaseId)}
-            key={floor.id}>
-            {floor.title}
-        </Button>
-    )});
+            <Button
+                color={(currentFloor === floor.databaseId) ? "red" : "blue"}
+                onClick={() => setCurrentFloor(floor.databaseId)}
+                key={floor.id}>
+                {floor.title}
+            </Button>
+        )
+    });
 
     return (
         <Group className="floorsContainer" >

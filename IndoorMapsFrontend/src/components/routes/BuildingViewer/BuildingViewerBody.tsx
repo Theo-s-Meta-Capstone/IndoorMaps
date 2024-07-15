@@ -9,6 +9,7 @@ import ViewerMapLoader from "./ViewerMapLoader";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
 import AreaSearch from "./AreaSearch";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -34,8 +35,12 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const buildingAnkerLatLon = new L.LatLng(building.startPos.lat, building.startPos.lon)
     const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
     const [pageError, setPageError] = useState<string | null>(null);
-
+    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({});
     const [map, setMap] = useState<L.Map | null>(null);
+
+    const handleUpdateAreaToAreaRouteInfo = (newRouteData: AreaToAreaRouteInfo) => {
+        setAreaToAreaRouteInfo(newRouteData);
+    }
 
     return (
         <main className="ViewerMain">
@@ -48,7 +53,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 ref={setMap}
             >
                 {map ?
-                    <ViewerMapLoader map={map} buildingFromParent={building}>
+                    <ViewerMapLoader areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
                         <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
                         <DispalyLiveMarkers map={map} />
                     </ViewerMapLoader>
@@ -61,7 +66,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                     maxZoom={27}
                 />
             </MapContainer>
-            {map ? <AreaSearch buildingId={building.databaseId} map={map} /> : null}
+            <AreaSearch areaToAreaRouteInfo={areaToAreaRouteInfo} setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} buildingId={building.databaseId} />
         </main>
     )
 }
