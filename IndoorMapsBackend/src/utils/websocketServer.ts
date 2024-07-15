@@ -31,13 +31,13 @@ const getPayloadHeader = (data: Buffer): { MASKcode: number[], dataLength: numbe
     let MASKcode = [0, 0, 0, 0];
 
     if (verbose) {
-        console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") + dec2bin(data.readUInt32BE(4)).padStart(32, "0"));
-        console.log("0         1         2         3         4         5         6         7         8         9        0")
+        console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") + dec2bin(data.readUInt32BE(4)).padStart(32, "0") + " = raw binary data");
+        console.log("0     bit 1 number  2         3         4         5         6         7  bit num8er       9        0")
         console.log("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
         console.log(dec2bin(FIN) + " FIN bit ");
         console.log("    " + dec2bin(OPCODE).padStart(4, '0') + " OPCODE ");
         console.log("        " + dec2bin(MASK) + " MASK bit ");
-        console.log("         " + dec2bin(dataLength).padStart(7, '0') + " data length = " + dataLength);
+        console.log("         " + dec2bin(dataLength).padStart(7, '0') + " data length = " + dataLength + " (special case if 126 or 127)");
     }
     // The MASK bit tells whether the message is encoded. Messages from the client must be masked, so your server must expect this to be 1. (In fact, section 5.1 of the spec says that your server must disconnect from a client if that client sends an unmasked message.)
     if (MASK != 1 && OPCODE != 0xA) {
@@ -200,6 +200,7 @@ export const server = net.createServer(sock => {
                 return;
             }
             openSockets[decodedJson.wsKey].lastRecieved = Date.now();
+            if (verbose) console.log("recieved json:")
             if (verbose) console.log(decodedJson);
             const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
             pubSub.publish("LIVELOCATIONS", {
