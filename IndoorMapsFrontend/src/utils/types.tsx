@@ -10,9 +10,13 @@ export type AreaToAreaRouteInfo = {
     to?: {
         areaDatabaseId: number,
         floorDatabaseId: number,
+        title: string,
+        description: string
     }
     from?: {
         areaDatabaseId: number,
         floorDatabaseId: number,
+        title: string,
+        description: string
     } | "gpsLocation",
 }

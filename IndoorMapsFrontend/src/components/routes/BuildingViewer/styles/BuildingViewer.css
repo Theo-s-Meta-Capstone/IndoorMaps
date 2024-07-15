@@ -79,6 +79,10 @@
     overflow-y: scroll;
 }
 
+.navigationInputs {
+    flex-grow: 2;
+}
+
 @media only screen and (max-width: 840px) {
     .AreaSearch {
         position: absolute;
