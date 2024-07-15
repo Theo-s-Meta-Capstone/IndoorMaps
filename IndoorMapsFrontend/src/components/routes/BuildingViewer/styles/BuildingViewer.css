@@ -93,7 +93,12 @@
     }
 
     .searchResultsContainer {
-        max-height: 40vh;
+        max-height: 36vh;
         overflow-y: scroll;
+    }
+
+    .areaResultsItem {
+        /* I didn't use opacity because I wanted the text to remain solid */
+        background-color: var(--overlay-1);
     }
 }
