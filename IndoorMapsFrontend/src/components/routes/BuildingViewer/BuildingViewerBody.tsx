@@ -8,7 +8,7 @@ import FormErrorNotification from "../../forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
-import AreaSearch from "./AreaSearch";
+import AreaSearch from "./Navigation/AreaSearchSidbar";
 import { AreaToAreaRouteInfo } from "../../../utils/types";
 
 const BuildingViewerFragment = graphql`
