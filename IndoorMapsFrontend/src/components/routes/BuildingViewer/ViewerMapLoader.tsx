@@ -65,11 +65,18 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
         const layerToFlyTo: L.Polygon | undefined = layer instanceof L.Polygon ?
             layer
             :
-            areasMapLayer.getLayers().find((foundLayer) => {
+            // using Filter instead of find so that all layers are processed and received the change to their original fill color
+            areasMapLayer.getLayers().filter((foundLayer) => {
+                // Reset all the layers fill colors
+                if(foundLayer instanceof L.Polygon){
+                    foundLayer.setStyle({
+                        fillColor: 'white',
+                    });
+                }
                 return foundLayer instanceof L.Polygon && foundLayer.feature && foundLayer.feature.properties.databaseId == layer
-            // only finds layers that are an instance of L.Polygon so it is safe to use typescript as
-            }) as (L.Polygon | undefined)
-        if(!layerToFlyTo) return;
+                // only finds layers that are an instance of L.Polygon so it is safe to use typescript as
+            })[0] as (L.Polygon | undefined)
+        if (!layerToFlyTo) return;
         if (layerToFlyTo.feature) {
             const size = getAreaOfPolygon(layerToFlyTo);
             map.flyTo(layerToFlyTo.getCenter(), Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()));
@@ -184,9 +191,9 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
 
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
-            if(areaToAreaRouteInfo.to.floorDatabaseId != currentFloor){
+            if (areaToAreaRouteInfo.to.floorDatabaseId != currentFloor) {
                 setCurrentFloor(areaToAreaRouteInfo.to.floorDatabaseId)
-            }else{
+            } else {
                 flyToArea(areaToAreaRouteInfo.to.areaDatabaseId);
             }
         }
