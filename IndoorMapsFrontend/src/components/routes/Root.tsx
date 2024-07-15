@@ -34,7 +34,7 @@ const Root = () => {
     return (
         <div>
             {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback="Loading GraphQL">
+                <Suspense fallback="Loading GraphQL... This can take up to 2 minutes after a cold start">
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
