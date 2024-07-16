@@ -1,6 +1,6 @@
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../pageSections/HeaderNav";
@@ -64,12 +64,16 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     const clipboard = useClipboard();
     const { buildingId } = useParams();
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
+    const navigate = useNavigate();
 
     return (
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"} showDesktopContent={isNotMobile}>
                 <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
                     {clipboard.copied ? "Link Copied" : "Share"}
+                </Button>
+                <Button onClick={() => navigate(`/building/${buildingId}/viewer?preview=true`)}>
+                    Preview
                 </Button>
                 <Button onClick={handleOpenInviteEditor}>
                     Invite Editors

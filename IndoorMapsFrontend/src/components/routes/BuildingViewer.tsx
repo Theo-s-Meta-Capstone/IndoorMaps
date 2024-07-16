@@ -1,7 +1,7 @@
 import "./BuildingViewer/styles/BuildingViewer.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 import HeaderNav from "../pageSections/HeaderNav";
@@ -9,7 +9,7 @@ import { useBooleanState } from "../../utils/hooks";
 import { Button, em } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
 import Footer from "../pageSections/Footer";
-import { useMediaQuery } from "@mantine/hooks";
+import { useClipboard, useMediaQuery } from "@mantine/hooks";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
@@ -18,6 +18,7 @@ const BuildingViewerPageQuery = graphql`
     }
     getBuilding(data: $data) {
         title
+        databaseId
         ...BuildingViewerBodyFragment
     }
 }`
@@ -64,6 +65,9 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     const [isShareLiveLocationOpen, handleCloseShareLiveLocation, handleOpenShareLiveLocation] = useBooleanState(false);
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
+    const [searchParams,] = useSearchParams();
+    const clipboard = useClipboard();
+    const navigate = useNavigate();
 
     return (
         <>
@@ -72,6 +76,17 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
                     Share Location Live
                 </Button>
                 <ShareLocationModal isOpen={isShareLiveLocationOpen} closeModal={handleCloseShareLiveLocation} />
+                {searchParams.get("preview") !== null && searchParams.get("preview") === "true" ?
+                    <>
+                        <Button onClick={() => navigate(`/building/${getBuilding.databaseId}/editor`)}>
+                            Back To Editor
+                        </Button>
+                        <Button onClick={() => clipboard.copy(window.location.origin + `/building/${getBuilding.databaseId}/viewer`)}>
+                            {clipboard.copied ? "Link Copied" : "Share"}
+                        </Button>
+                    </>
+                    : null
+                }
             </HeaderNav>
             <BuildingViewerBody buildingFromParent={getBuilding} />
             <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
