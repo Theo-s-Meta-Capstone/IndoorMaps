@@ -4,6 +4,7 @@ import { GraphQLError } from "graphql";
 import { Context } from "../utils/context.js";
 import { generateNavMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
+import { findPolygonCenter, findshortestPath } from "../navMesh/helpers.js";
 
 @InputType()
 class NavigationInput {
@@ -22,7 +23,7 @@ class NavigationResult {
 
 @Resolver()
 export class NavResolver {
-    @Query((returns) => Number)
+    @Query((returns) => NavigationResult)
     async getNavBetweenAreas(
         @Arg('data') data: NavigationInput,
         @Ctx() ctx: Context,
@@ -39,16 +40,38 @@ export class NavResolver {
                 }
             }
         })
-        if (!toArea) {
+
+        const fromArea = await ctx.prisma.area.findUnique({
+            where: {
+                id: data.areaToId,
+            }
+        })
+
+        if (!toArea || !toArea.shape) {
             throw new GraphQLError('To Area not found', {
                 extensions: {
                     code: 'BAD_USER_INPUT',
                 },
             });
         }
-        generateNavMesh(toArea.floor)
+        if (!fromArea || !fromArea.shape) {
+            throw new GraphQLError('From Area not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+        const toLatLon = findPolygonCenter(toArea.shape as unknown as GeoJSON.Feature)
+        const fromLatLon = findPolygonCenter(fromArea.shape as unknown as GeoJSON.Feature)
+        if(!toLatLon || !fromLatLon) {
+            throw new GraphQLError('Issue with starting or ending GPS locations', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
         return {
-            path: [],
+            path: findshortestPath(generateNavMesh(toArea.floor), toLatLon, fromLatLon),
         };
     }
 }

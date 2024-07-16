@@ -29,12 +29,12 @@ class EdgeWithWeight {
     }
 }
 
-type NavMeshVertex = {
+export type NavMeshVertex = {
     point: LatLng
     edges: EdgeWithWeight[]
 }
 
-type NavMesh = NavMeshVertex[]
+export type NavMesh = NavMeshVertex[]
 
 export const generateNavMesh = (floor: FloorIncludeAreas): NavMesh => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;

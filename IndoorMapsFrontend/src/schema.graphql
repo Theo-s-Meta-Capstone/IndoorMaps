@@ -198,6 +198,15 @@ type MutationResult {
   success: Boolean!
 }
 
+input NavigationInput {
+  areaFromId: Float!
+  areaToId: Float!
+}
+
+type NavigationResult {
+  path: [LatLng!]!
+}
+
 type NewAreaResult {
   databaseId: Int!
   floorDatabaseId: Int!
@@ -223,6 +232,7 @@ type Query {
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getLocationLookup(data: LocationLookupInput!): LatLng
+  getNavBetweenAreas(data: NavigationInput!): NavigationResult!
   getUserFromCookie: LogedInUser!
 }
 
