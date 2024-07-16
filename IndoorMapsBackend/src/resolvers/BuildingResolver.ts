@@ -1,15 +1,20 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int, Directive } from 'type-graphql'
 import { GraphQLError } from 'graphql'
 import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
-import { convertToGraphQLBuilding, convertToGraphQLFloor } from '../utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult } from '../utils/generic.js'
 import { LiveLocation, pubSub } from './pubSub.js'
+import { Area } from '../graphqlSchemaTypes/Area.js'
+
+function formatSearchQuery(query: string) {
+    return query.trim().replaceAll(" ", ":*|") + ":*"
+}
 
 @InputType()
 class BuildingUniqueInput {
@@ -39,6 +44,12 @@ class InviteEditorInput extends BuildingUniqueInput {
 }
 
 @InputType()
+class AreaSearchInput extends BuildingUniqueInput {
+    @Field()
+    query: string
+}
+
+@InputType()
 class LiveLocationInput extends BuildingUniqueInput {
     @Field(() => Float)
     latitude: number;
@@ -59,13 +70,62 @@ class BuildingSearchInput {
     searchQuery: string
 }
 
+const connectAllAreasToBuilding = async (databaseId: number, ctx: Context) => {
+    const data = await ctx.prisma.building.findFirst({
+        where: {
+            id: databaseId
+        },
+        select: {
+            floors: {
+                select: {
+                    areas: {
+                        select: {
+                            id: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+    if (!data) return;
+    let areas: { id: number }[] = [];
+    data.floors.forEach((floor) => {
+        floor.areas.forEach((area) => {
+            areas.push({ id: area.id })
+            ctx.prisma.area.update({
+                where: {
+                    id: area.id
+                },
+                data: {
+                    building: {
+                        connect: {
+                            id: databaseId
+                        }
+                    }
+                }
+            })
+        })
+    })
+    await ctx.prisma.building.update({
+        where: {
+            id: databaseId
+        },
+        data: {
+            areas: {
+                connect: areas
+            }
+        }
+    })
+
+}
+
 @Resolver(of => Building)
 export class BuildingResolver {
     @FieldResolver((type) => [Floor]!)
     async floors(
         @Root() building: Building,
         @Ctx() ctx: Context,
-    ) {
+    ): Promise<Floor[]> {
         //TODO: investigate why using findUnique throws a error
         const dbFloors = await ctx.prisma.building.findFirst({
             where: {
@@ -182,23 +242,16 @@ export class BuildingResolver {
         @Ctx() ctx: Context
     ): Promise<Building[]> {
         let buildings;
-        if (data.searchQuery && data.searchQuery.length > 0) {
+        if (data.searchQuery && data.searchQuery.trim().length > 0) {
+            const query = formatSearchQuery(data.searchQuery);
             buildings = await ctx.prisma.building.findMany({
                 where: {
-                    OR: [
-                        {
-                            title: {
-                                contains: data.searchQuery,
-                                mode: 'insensitive',
-                            }
-                        },
-                        {
-                            address: {
-                                contains: data.searchQuery,
-                                mode: 'insensitive',
-                            }
-                        }
-                    ],
+                    address: {
+                        search: query,
+                    },
+                    title: {
+                        search: query,
+                    }
                 }
             });
         } else {
@@ -228,7 +281,7 @@ export class BuildingResolver {
 
     @Subscription((returns) => LiveLocation, {
         topics: "LIVELOCATIONS",
-        filter: ({ payload, args }) =>{
+        filter: ({ payload, args }) => {
             return payload.buildingDatabaseId === args.data.id
         },
     })
@@ -239,5 +292,39 @@ export class BuildingResolver {
         return {
             ...liveLocaiton,
         };
+    }
+
+    @Query((type) => [Area]!)
+    async areaSearch(
+        @Arg('data') data: AreaSearchInput,
+        @Ctx() ctx: Context,
+    ): Promise<Area[]> {
+        if (data.query.trim().length === 0) {
+            return [];
+        }
+        const query = formatSearchQuery(data.query)
+        // TODO: Remove after running on all floors in prod
+        await connectAllAreasToBuilding(data.id, ctx)
+        const building = await ctx.prisma.building.findUnique({
+            where: {
+                id: data.id
+            },
+            select: {
+                areas: {
+                    where: {
+                        description: {
+                            search: query,
+                        },
+                        title: {
+                            search: query,
+                        }
+                    }
+                }
+            }
+        })
+        if(!building) {
+            return [];
+        }
+        return building.areas.map((area) => convertToGraphQlArea(area));
     }
 }

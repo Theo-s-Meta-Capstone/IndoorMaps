@@ -134,6 +134,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 backgroundOpacity: 0.55,
                 blur: 3,
             }}
+            zIndex={3000}
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <i>You must be logged in to share your location</i><br />

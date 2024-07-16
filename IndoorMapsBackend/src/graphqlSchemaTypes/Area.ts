@@ -37,4 +37,7 @@ export class Area {
 
   @Field({nullable: true})
   entrances?: string
+
+  @Field(type => Int)
+  floorDatabaseId: number
 }

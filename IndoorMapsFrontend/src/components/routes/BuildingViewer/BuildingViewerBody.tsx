@@ -8,6 +8,8 @@ import FormErrorNotification from "../../forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
+import AreaSearch from "./Navigation/AreaSearchSidbar";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building
@@ -33,19 +35,16 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const buildingAnkerLatLon = new L.LatLng(building.startPos.lat, building.startPos.lon)
     const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
     const [pageError, setPageError] = useState<string | null>(null);
-
+    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({});
     const [map, setMap] = useState<L.Map | null>(null);
+
+    const handleUpdateAreaToAreaRouteInfo = (newRouteData: AreaToAreaRouteInfo) => {
+        setAreaToAreaRouteInfo(newRouteData);
+    }
 
     return (
         <main className="ViewerMain">
             <FormErrorNotification className="MapViewerNotification" formError={pageError} onClose={() => setPageError(null)} />
-            {map ?
-                <ViewerMapLoader map={map} buildingFromParent={building}>
-                    <DisplayMyLiveLocation setPageError={(errorMessage) => {setPageError(errorMessage)}} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
-                    <DispalyLiveMarkers map={map} />
-                </ViewerMapLoader>
-                : null
-            }
             <MapContainer
                 center={buildingAnkerLatLon}
                 zoom={19}
@@ -53,6 +52,13 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 style={mapStyle}
                 ref={setMap}
             >
+                {map ?
+                    <ViewerMapLoader areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
+                        <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
+                        <DispalyLiveMarkers map={map} />
+                    </ViewerMapLoader>
+                    : null
+                }
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -60,6 +66,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                     maxZoom={27}
                 />
             </MapContainer>
+            <AreaSearch areaToAreaRouteInfo={areaToAreaRouteInfo} setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} buildingId={building.databaseId} />
         </main>
     )
 }

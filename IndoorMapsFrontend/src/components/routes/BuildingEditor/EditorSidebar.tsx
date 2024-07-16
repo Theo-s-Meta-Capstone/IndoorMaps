@@ -120,6 +120,11 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     openAreaSidebar();
   }
 
+  // If the floor changes any left over areas from the previous floor needs to be removed
+  useEffect(() => {
+    removeAllLayersFromLayerGroup(areasMapLayer, map);
+  }, [currentFloor])
+
   return (
     <aside className="EditorSidebar">
       <Group justify="space-between">

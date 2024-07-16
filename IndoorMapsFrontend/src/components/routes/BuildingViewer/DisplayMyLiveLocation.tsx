@@ -13,10 +13,10 @@ type Props = {
 
 const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props) => {
     const [isLocationLoading, setLocationLoading] = useState(false)
-    const gpsMarker = L.marker([0, 0], { icon: locationMarkerIcon });
-    const accurecyMarker = L.circle([0, 0], { radius: 0 })
-
-    let mapHasBeenDragged = false
+    const [alreadyWatching, setAlreadyWatching] = useState(false)
+    const [gpsMarker,] = useState(L.marker([0, 0], { icon: locationMarkerIcon }));
+    const [accurecyMarker,] = useState(L.circle([0, 0], { radius: 0 }))
+    const [mapHasBeenDragged, setMapHasBeenDragged] = useState(false)
 
     const updateUserLocation = (position: GeolocationPosition) => {
         setLocationLoading(false)
@@ -40,29 +40,28 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
         map.panTo(accurecyMarker.getLatLng());
     };
 
-    let alreadyWatching = false;
     const startTrackingUserLocation = () => {
         // if the user is already watching, just zoom to the location
         if (alreadyWatching) {
             zoomToUserLocation();
         } else {
+            // otherwise place the marker and add the event listener
             setLocationLoading(true);
+            gpsMarker.addTo(map);
+            accurecyMarker.addTo(map);
+            getLocation()
         }
-        // otherwise place the marker and add the event listener
-        alreadyWatching = true;
-        getLocation()
-        gpsMarker.addTo(map);
-        accurecyMarker.addTo(map);
+        setAlreadyWatching(true)
         // after clicking the location button location is updated where a gps watch event occurs
-        mapHasBeenDragged = false;
+        setMapHasBeenDragged(false);
         // if the user drags the map, the map no loger updates to the users new location
         map.on('dragstart', () => {
-            mapHasBeenDragged = true;
+            setMapHasBeenDragged(true);
         });
     }
 
     const resetMapToStartingLocation = () => {
-        mapHasBeenDragged = true;
+        setMapHasBeenDragged(true);
         map.panTo(buildingAnkerLatLon);
     }
     return (<>
