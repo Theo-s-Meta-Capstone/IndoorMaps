@@ -61,28 +61,45 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
 
-    const flyToArea = (layer: L.Polygon | number) => {
-        const layerToFlyTo: L.Polygon | undefined = layer instanceof L.Polygon ?
+    const getLayerFromRefOrId = (layer: L.Polygon | number): L.Polygon | undefined => {
+        return layer instanceof L.Polygon ?
             layer
             :
             // using Filter instead of find so that all layers are processed and received the change to their original fill color
-            areasMapLayer.getLayers().filter((foundLayer) => {
-                // Reset all the layers fill colors
-                if(foundLayer instanceof L.Polygon){
+            areasMapLayer.getLayers().find((foundLayer) => {
+                return foundLayer instanceof L.Polygon && foundLayer.feature && foundLayer.feature.properties.databaseId == layer
+                // only finds layers that are an instance of L.Polygon so it is safe to use typescript as
+            }) as (L.Polygon | undefined)
+    }
+
+    const updateAreaColors = () => {
+        areasMapLayer.getLayers().forEach((foundLayer) => {
+            if (foundLayer instanceof L.Polygon && foundLayer.feature) {
+                if (areaToAreaRouteInfo.from instanceof Object && foundLayer.feature.properties.databaseId === areaToAreaRouteInfo.from.areaDatabaseId) {
+                    foundLayer.setStyle({
+                        fillColor: 'lightgreen',
+                    });
+                }
+                else if (areaToAreaRouteInfo.to && foundLayer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                    foundLayer.setStyle({
+                        fillColor: 'lightblue',
+                    });
+                }
+                else {
                     foundLayer.setStyle({
                         fillColor: 'white',
                     });
                 }
-                return foundLayer instanceof L.Polygon && foundLayer.feature && foundLayer.feature.properties.databaseId == layer
-                // only finds layers that are an instance of L.Polygon so it is safe to use typescript as
-            })[0] as (L.Polygon | undefined)
+            }
+        })
+    }
+
+    const flyToArea = (layer: L.Polygon | number) => {
+        const layerToFlyTo: L.Polygon | undefined = getLayerFromRefOrId(layer);
         if (!layerToFlyTo) return;
         if (layerToFlyTo.feature) {
             const size = getAreaOfPolygon(layerToFlyTo);
             map.flyTo(layerToFlyTo.getCenter(), Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()));
-            layerToFlyTo.setStyle({
-                fillColor: 'lightblue',
-            });
         }
     }
 
@@ -182,12 +199,17 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
                     }
                 }
             }
+            updateAreaColors();
         })
 
         updateDisplayedTags()
         map.on("zoomend", updateDisplayedTags);
 
     }, [currentFloor])
+
+    useEffect(() => {
+        updateAreaColors();
+    }, [areaToAreaRouteInfo.from])
 
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
@@ -197,7 +219,8 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
                 flyToArea(areaToAreaRouteInfo.to.areaDatabaseId);
             }
         }
-    }, [areaToAreaRouteInfo])
+        updateAreaColors();
+    }, [areaToAreaRouteInfo.to])
 
     const floorListElements = building.floors.map((floor) => {
         return (
