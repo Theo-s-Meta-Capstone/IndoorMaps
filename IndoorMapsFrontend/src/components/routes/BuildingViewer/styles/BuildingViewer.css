@@ -82,6 +82,13 @@
 
 .navigationInputs {
     flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.backToSearchAreaButton {
+    flex-shrink: 0;
 }
 
 @media only screen and (max-width: 840px) {

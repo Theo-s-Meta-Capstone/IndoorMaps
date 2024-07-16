@@ -13,7 +13,7 @@ import { LiveLocation, pubSub } from './pubSub.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
 
 function formatSearchQuery(query: string) {
-    return query.replace(" ", "+") + ":*"
+    return query.trim().replace(" ", ":*|") + ":*"
 }
 
 @InputType()

@@ -15,9 +15,10 @@ type Props = {
     searchQuery: string,
     setSearchQuery: (newVal: string) => void;
     children?: React.ReactNode;
+    showResults?: boolean
 }
 
-const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children }: Props) => {
+const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children, showResults = true }: Props) => {
     const environment = useRelayEnvironment();
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
@@ -69,9 +70,11 @@ const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, build
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
             />
+
             <div className="searchResultsContainer">
                 {children}
-                {results ? results.areaSearch.map((area) => {
+
+                {showResults && results ? results.areaSearch.map((area) => {
                     return (
                         <button onClick={() => setSelectedResponse(area)} key={area.id} className="areaResultsItem">
                             <p className="areaResultsItemTitle">{area.title}</p>
