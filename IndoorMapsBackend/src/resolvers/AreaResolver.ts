@@ -22,6 +22,9 @@ class AreaCreateInput {
 
     @Field({ nullable: true })
     category: string
+
+    @Field()
+    buildingDatabaseId: number
 }
 
 @InputType()
@@ -75,6 +78,11 @@ export class AreaResolver {
                         id: data.floorDatabseId,
                     },
                 },
+                building: {
+                    connect: {
+                        id: data.buildingDatabaseId
+                    }
+                }
             },
         });
         return {

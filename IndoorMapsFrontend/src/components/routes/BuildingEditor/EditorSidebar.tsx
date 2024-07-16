@@ -130,7 +130,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       <Group justify="space-between">
       </Group>
       {isAreaSidebarOpen ?
-        <AreaSidebar closeSidebar={handleCloseAreaSidebar} floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
+        <AreaSidebar buildingId={building.databaseId} closeSidebar={handleCloseAreaSidebar} floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
         :
         <FloorSidebar openAreaSidebar={handleOpenAreaSidebar} setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }

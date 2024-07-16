@@ -39,9 +39,10 @@ type Props = {
     areasMapLayer: L.GeoJSON;
     areaEntranceMapLayer: L.GeoJSON;
     closeSidebar: () => void;
+    buildingId: number;
 }
 
-const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer, closeSidebar }: Props) => {
+const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer, closeSidebar, buildingId }: Props) => {
     const floorData = useFragment(AreaSidebarFragment, floorFromParent);
     const [formError, setFormError] = useState<string | null>(null);
     const [selectedArea, setSelectedArea] = useState<L.Layer | null>(null);
@@ -82,6 +83,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
                         "title": "",
                         "description": "",
                         "shape": JSON.stringify(layerGeoJSON),
+                        "buildingDatabaseId": buildingId
                     },
                 },
                 onCompleted(data) {
