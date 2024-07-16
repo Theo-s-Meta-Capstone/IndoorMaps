@@ -13,7 +13,7 @@ import { LiveLocation, pubSub } from './pubSub.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
 
 function formatSearchQuery(query: string) {
-    return query.trim().replace(" ", ":*|") + ":*"
+    return query.trim().replaceAll(" ", ":*|") + ":*"
 }
 
 @InputType()
@@ -242,7 +242,7 @@ export class BuildingResolver {
         @Ctx() ctx: Context
     ): Promise<Building[]> {
         let buildings;
-        if (data.searchQuery && data.searchQuery.length > 0) {
+        if (data.searchQuery && data.searchQuery.trim().length > 0) {
             const query = formatSearchQuery(data.searchQuery);
             buildings = await ctx.prisma.building.findMany({
                 where: {
@@ -299,7 +299,7 @@ export class BuildingResolver {
         @Arg('data') data: AreaSearchInput,
         @Ctx() ctx: Context,
     ): Promise<Area[]> {
-        if (data.query.length === 0) {
+        if (data.query.trim().length === 0) {
             return [];
         }
         const query = formatSearchQuery(data.query)
