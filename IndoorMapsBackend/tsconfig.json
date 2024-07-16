@@ -11,7 +11,8 @@
         "module": "ESNext",
         "moduleResolution": "Node",
         "types": [
-            "node"
+            "node",
+            "GeoJSON"
         ],
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,

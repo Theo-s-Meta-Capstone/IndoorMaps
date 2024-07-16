@@ -223,7 +223,6 @@ type Query {
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getLocationLookup(data: LocationLookupInput!): LatLng
-  getNavBetweenAreas(data: FloorUniqueInput!): Floor!
   getUserFromCookie: LogedInUser!
 }
 

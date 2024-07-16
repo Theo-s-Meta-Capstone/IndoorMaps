@@ -3,7 +3,7 @@ import { GraphQLError } from "graphql";
 
 import { Context } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
-import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js";
+import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
 
