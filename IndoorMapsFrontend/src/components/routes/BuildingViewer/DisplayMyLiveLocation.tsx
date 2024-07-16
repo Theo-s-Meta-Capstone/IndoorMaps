@@ -49,6 +49,7 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
             setLocationLoading(true);
             gpsMarker.addTo(map);
             accurecyMarker.addTo(map);
+            accurecyMarker.getElement()?.classList.add("accurecyMarker")
             getLocation()
         }
         setAlreadyWatching(true)

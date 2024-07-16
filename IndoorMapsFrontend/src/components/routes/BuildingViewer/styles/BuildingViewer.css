@@ -92,6 +92,11 @@
     margin-top: 3em;
 }
 
+.accurecyMarker {
+    z-index: 900;
+    pointer-events: none !important;
+}
+
 @media only screen and (max-width: 840px) {
     .AreaSearch {
         position: absolute;
