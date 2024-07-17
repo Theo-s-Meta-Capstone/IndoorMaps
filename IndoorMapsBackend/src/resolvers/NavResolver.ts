@@ -2,9 +2,10 @@ import { Arg, Ctx, Field, InputType, Int, ObjectType, Query, Resolver } from "ty
 import { GraphQLError } from "graphql";
 
 import { Context } from "../utils/context.js";
-import { generateNavMesh } from "../navMesh/GenerateNavMesh.js";
+import { Edge, generateNavMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { findPolygonCenter, findshortestPath } from "../navMesh/helpers.js";
+import { areEdgesEqual, findPolygonCenter } from "../navMesh/helpers.js";
+import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 
 @InputType()
 class NavigationInput {
@@ -19,6 +20,12 @@ class NavigationInput {
 class NavigationResult {
     @Field((type) => [LatLng]!)
     path: LatLng[]
+
+    @Field()
+    edges: string
+
+    @Field()
+    navMesh: string
 }
 
 @Resolver()
@@ -61,8 +68,13 @@ export class NavResolver {
                 },
             });
         }
-        const toLatLon = findPolygonCenter(toArea.shape as unknown as GeoJSON.Feature)
-        const fromLatLon = findPolygonCenter(fromArea.shape as unknown as GeoJSON.Feature)
+        const toShape = toArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
+        const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
+        const ignorableEdges = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Edge(latLng, arr[(i + 1) % arr.length]))
+        ignorableEdges.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Edge(latLng, arr[(i + 1) % arr.length])))
+        const toLatLon = findPolygonCenter(toShape)
+        const fromLatLon = findPolygonCenter(fromShape)
+
         if(!toLatLon || !fromLatLon) {
             throw new GraphQLError('Issue with starting or ending GPS locations', {
                 extensions: {
@@ -71,9 +83,17 @@ export class NavResolver {
             });
         }
         let [navMesh, edges] = generateNavMesh(toArea.floor);
-
+        const edgesWithoutIgnorable = edges.filter(edge => {
+            return ignorableEdges.findIndex((ignorableEdge) => {
+                return areEdgesEqual(ignorableEdge, edge)
+            }) === -1
+        })
+        // findShortestPath also adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
+        const shortestPath = findShortestPath(navMesh, edgesWithoutIgnorable, fromLatLon, toLatLon)
         return {
-            path: findshortestPath(navMesh, edges, fromLatLon, toLatLon),
+            path: shortestPath,
+            edges: JSON.stringify(edgesWithoutIgnorable),
+            navMesh: JSON.stringify(navMesh.flatMap((vertex) => vertex.edges.flatMap(((edge) => new Edge(vertex.point, edge.otherVertex.point)))))
         };
     }
 }

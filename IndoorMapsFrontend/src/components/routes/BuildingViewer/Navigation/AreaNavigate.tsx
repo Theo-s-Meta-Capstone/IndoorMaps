@@ -57,6 +57,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             lat
                             lon
                         }
+                        edges
+                        navMesh
                     }
                 }
             `,
@@ -80,7 +82,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     }
                     setAreaToAreaRouteInfo({
                         ...areaToAreaRouteInfo,
-                        path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon))
+                        path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
+                        edges: data.getNavBetweenAreas.edges,
+                        navMesh: data.getNavBetweenAreas.navMesh,
                     })
                 }
             });

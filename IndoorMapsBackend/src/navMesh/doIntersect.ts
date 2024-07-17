@@ -65,18 +65,32 @@ export function doIntersect(p1: LatLng, q1: LatLng, edge: Edge): boolean {
     return false; // Doesn't fall in any of the above cases
 }
 
+
+
+
+// Here is a less rigourous implementation of the doInterset function
+
+// from https://stackoverflow.com/a/6865851
+function isOnLine(x: number, y: number, endx: number, endy: number, px: number, py: number) {
+    var f = function(somex: number) { return (endy - y) / (endx - x) * (somex - x) + y; };
+    return Math.abs(f(px) - py) < 1e-6 // tolerance, rounding errors
+        && px >= x && px <= endx;      // are they also on this segment?
+}
+
 // https://stackoverflow.com/a/24392281
 // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
-export function intersects(p1: LatLng, q1: LatLng, edge: Edge) {
+export function doIntersectDepracated(p1: LatLng, q1: LatLng, edge: Edge) {
     let a = p1.lat, b = p1.lon, c = q1.lat, d = q1.lon, p = edge.point1.lat, q = edge.point1.lon, r = edge.point2.lat, s = edge.point2.lon;
 
-    var det, gamma, lambda;
+    if(isOnLine(a,b,c,d,p,q) || isOnLine(a,b,c,d,r,s)) return true
+
+    let det, gamma, lambda;
     det = (c - a) * (s - q) - (r - p) * (d - b);
     if (det === 0) {
-      return false;
+        return false;
     } else {
-      lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-      gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+        lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+        gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
     }
-  };
+};
