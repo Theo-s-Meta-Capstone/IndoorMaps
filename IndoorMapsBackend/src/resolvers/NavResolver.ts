@@ -35,6 +35,9 @@ class NavigationResult {
 
     @Field(type => Boolean)
     neededToGenerateANavMesh: boolean
+
+    @Field(type => Float)
+    distance: number
 }
 
 @Resolver()
@@ -117,13 +120,14 @@ export class NavResolver {
             }) === -1
         })
         // findShortestPath also adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
-        const shortestPath = findShortestPath(navMesh, wallsWithoutIgnorable, fromLatLon, toLatLon)
+        const [shortestPath, distance] = findShortestPath(navMesh, wallsWithoutIgnorable, fromLatLon, toLatLon)
         return {
             path: shortestPath,
             walls: JSON.stringify(wallsWithoutIgnorable),
             // This converts an Edge (which is a navigatible connection) into a Wall becuase I had already written the wall dispalying code on the frontend and I wanted the edges to be in the same formate
             navMesh: JSON.stringify(navMesh.flatMap((vertex) => vertex.edges.flatMap(((edge) => new Wall(vertex.point, navMesh[edge.index].point))))),
-            neededToGenerateANavMesh
+            neededToGenerateANavMesh,
+            distance
         };
     }
 }

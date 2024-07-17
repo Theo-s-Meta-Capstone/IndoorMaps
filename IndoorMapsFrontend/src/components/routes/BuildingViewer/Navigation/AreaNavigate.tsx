@@ -11,6 +11,7 @@ import { useUserLocation } from "../../../../utils/hooks";
 
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
+const kmToFeet = 3280.84;
 
 type Props = {
     areaToAreaRouteInfo: AreaToAreaRouteInfo,
@@ -30,6 +31,7 @@ query AreaNavigateAllDataQuery($data: NavigationInput!) {
         walls
         navMesh
         neededToGenerateANavMesh
+        distance
     }
 }
 `
@@ -40,6 +42,7 @@ query AreaNavigateQuery($data: NavigationInput!) {
             lat
             lon
         }
+        distance
     }
 }
 `
@@ -143,12 +146,14 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             info: {
                                 requestTime: endTime - startTime,
                                 generateNewNavMesh: data.getNavBetweenAreas.neededToGenerateANavMesh
-                            }
+                            },
+                            distance: data.getNavBetweenAreas.distance
                         })
                     } else {
                         setAreaToAreaRouteInfo({
                             ...areaToAreaRouteInfo,
                             path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
+                            distance: data.getNavBetweenAreas.distance,
                         })
                     }
                 }
@@ -208,6 +213,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     setSelectedResponse={setTo}
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
+                {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance*kmToFeet)+" ft":null}
                 <div className="extraOptionsForNav">
                     <Switch
                         onChange={(e) => updateOptions(e, "showWalls")}

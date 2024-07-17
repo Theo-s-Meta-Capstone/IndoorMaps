@@ -1,13 +1,15 @@
 import { LatLng } from "../graphqlSchemaTypes/Building.js"
 import { Wall } from "./GenerateNavMesh.js";
 
-// based on https://en.wikipedia.org/wiki/Geographical_distance#Spherical_Earth_formulae
-// TODO: this is currently the sheralc earth formula, update to the FCC formula to take into account a better aproximation of earth's shape
+// based on FCC formula for short distances (<475 kilometres) https://en.wikipedia.org/wiki/Geographical_distance#FCC's_formula
 export const getDistanceBetweenGPSPoints = (p1: LatLng, p2: LatLng): number => {
     const deltaLat = p2.lat - p1.lat;
     const deltaLon = p2.lon - p1.lon;
     const avgLat = (p2.lat + p1.lat) / 2;
-    return Math.sqrt(Math.pow(deltaLat, 2) + Math.pow(Math.cos(avgLat) * (deltaLon), 2))
+    // K1 and K2 are derived from radii of curvature of Earth (https://en.wikipedia.org/wiki/Geographical_distance#FCC's_formula)
+    const K1 = 111.13209 - 0.56605 * Math.cos(2 * avgLat) + 0.00129 * Math.cos(4 * avgLat)
+    const K2 = 111.41513 * Math.cos(avgLat) - 0.09455 * Math.cos(3 * avgLat) + 0.00012 * Math.cos(5 * avgLat)
+    return Math.sqrt(Math.pow(K1*deltaLat, 2) + Math.pow(K2*deltaLon, 2))
 }
 
 export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined => {

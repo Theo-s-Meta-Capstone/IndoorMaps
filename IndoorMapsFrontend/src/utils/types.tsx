@@ -29,6 +29,7 @@ export type AreaToAreaRouteInfo = {
         requestTime: number,
         generateNewNavMesh: boolean,
     }
+    distance?: number
     options?: {
         [key: string]: boolean | undefined,
         showWalls?: boolean,

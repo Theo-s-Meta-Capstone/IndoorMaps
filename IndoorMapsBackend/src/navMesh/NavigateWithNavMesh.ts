@@ -3,7 +3,7 @@ import { Wall, NavMesh, NavMeshVertex, extendNavMesh } from "./GenerateNavMesh.j
 import { PriorityQueue } from "./PriorityQueue.js";
 
 // based on https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
-const dijkstra = (navMesh: NavMesh, start: number, end: number): NavMeshVertex[] => {
+const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[], number] => {
     const minQueue = new PriorityQueue<number>([start]);
     const distance: { [key: number]: number } = {};
     distance[start] = 0;
@@ -32,15 +32,15 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): NavMeshVertex[]
         res.push(navMesh[previousNearestVertex[cur]!]);
         cur = previousNearestVertex[cur]!;
     }
-    return res.reverse();
+    return [res.reverse(), distance[end]];
 }
 
-export const findShortestPath = (navMesh: NavMesh, walls: Wall[], start: LatLng, end: LatLng): LatLng[] => {
+export const findShortestPath = (navMesh: NavMesh, walls: Wall[], start: LatLng, end: LatLng): [LatLng[], number] => {
     extendNavMesh(navMesh, walls, [start, end]);
     let res: LatLng[] = [];
-    const path = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1).map((vertex) => vertex.point)
+    const [path, distance] = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1)
     if(path.length === 0) throw new Error ("No Path Found")
-    res.push(...path)
+    res.push(...path.map((vertex) => vertex.point))
     res.push(end)
-    return res;
+    return [res, distance];
 }

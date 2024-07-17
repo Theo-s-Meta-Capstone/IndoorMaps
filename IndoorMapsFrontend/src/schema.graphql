@@ -206,6 +206,7 @@ input NavigationInput {
 }
 
 type NavigationResult {
+  distance: Float!
   navMesh: String!
   neededToGenerateANavMesh: Boolean!
   path: [LatLng!]!
