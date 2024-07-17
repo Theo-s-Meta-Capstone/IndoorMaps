@@ -199,8 +199,10 @@ type MutationResult {
 }
 
 input NavigationInput {
-  areaFromId: Float!
-  areaToId: Float!
+  areaFromId: Int
+  areaToId: Int!
+  locationFromLat: Float
+  locationFromLon: Float
 }
 
 type NavigationResult {

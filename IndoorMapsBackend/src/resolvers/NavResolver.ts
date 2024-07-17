@@ -1,20 +1,25 @@
-import { Arg, Ctx, Field, InputType, ObjectType, Query, Resolver } from "type-graphql";
-
+import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { areWallsEqual, findPolygonCenter } from "../navMesh/helpers.js";
+import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
 
 @InputType()
 class NavigationInput {
-    @Field()
-    areaFromId: number
+    @Field(type => Int, { nullable: true })
+    areaFromId?: number
 
-    @Field()
+    @Field(type => Int)
     areaToId: number
+
+    @Field(type => Float, { nullable: true })
+    locationFromLat?: number
+
+    @Field(type => Float, { nullable: true })
+    locationFromLon?: number
 }
 
 @ObjectType()
@@ -52,30 +57,41 @@ export class NavResolver {
             }
         })
 
-        const fromArea = await ctx.prisma.area.findUnique({
-            where: {
-                id: data.areaFromId,
-            }
-        })
-
         if (!toArea || !toArea.shape) throw throwGraphQLBadInput('To Area not found')
-        if (!fromArea || !fromArea.shape) throw throwGraphQLBadInput('From Area not found')
-        if (fromArea.floorId !== toArea.floorId) throw throwGraphQLBadInput("Navigation between floors is not currently supported")
-
         const toShape = toArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-        const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
         const ignorableWalls = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
-        ignorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
-        const toLatLon = findPolygonCenter(toShape)
-        const fromLatLon = findPolygonCenter(fromShape)
+        let fromLatLon: LatLng | undefined;
+        if (data.areaFromId === undefined) {
+            if(!data.locationFromLat || !data.locationFromLon) throw throwGraphQLBadInput('From location not found')
+            fromLatLon = new LatLng(data.locationFromLat, data.locationFromLon)
+            // remove the walls from the area that the user is in
+            const insideArea = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
+            if(insideArea) {
+                ignorableWalls.push(...insideArea.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+            }
+        }
+        else {
+            const fromArea = await ctx.prisma.area.findUnique({
+                where: {
+                    id: data.areaFromId,
+                }
+            })
+            if (!fromArea || !fromArea.shape) throw throwGraphQLBadInput('From Area not found')
+            if (fromArea.floorId !== toArea.floorId) throw throwGraphQLBadInput("Navigation between floors is not currently supported")
+            const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
+            ignorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+            fromLatLon = findPolygonCenter(fromShape)
+        }
 
-        if(!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
+        const toLatLon = findPolygonCenter(toShape)
+
+        if (!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
 
         let navMesh: NavMesh;
         let walls: Wall[] = [];
         let neededToGenerateANavMesh = false
 
-        if(toArea.floor.navMesh === null) {
+        if (toArea.floor.navMesh === null) {
             neededToGenerateANavMesh = true;
             let [genNavMesh, genWalls] = generateNavMesh(toArea.floor);
             await prisma.floor.update({

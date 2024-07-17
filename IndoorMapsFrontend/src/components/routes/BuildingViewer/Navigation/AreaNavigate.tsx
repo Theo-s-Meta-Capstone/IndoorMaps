@@ -5,8 +5,8 @@ import AreaSearchBox from "./AreaSearchBox";
 import { AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";
 import { useEffect, useState } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
-import { AreaNavigateQuery } from "./__generated__/AreaNavigateQuery.graphql";
 import { LatLng } from "leaflet";
+import { AreaNavigateAllDataQuery } from "./__generated__/AreaNavigateAllDataQuery.graphql";
 
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
@@ -18,6 +18,30 @@ type Props = {
     buildingId: number,
     setFormError: (newError: string) => void,
 }
+
+const getNavWithAllData = graphql`
+query AreaNavigateAllDataQuery($data: NavigationInput!) {
+    getNavBetweenAreas(data: $data) {
+        path {
+            lat
+            lon
+        }
+        walls
+        navMesh
+        neededToGenerateANavMesh
+    }
+}
+`
+const getNavWithoutData = graphql`
+query AreaNavigateQuery($data: NavigationInput!) {
+    getNavBetweenAreas(data: $data) {
+        path {
+            lat
+            lon
+        }
+    }
+}
+`
 
 const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo, setIsNavigating, setFormError }: Props) => {
     const [fromSearchQuery, setFromSearchQuery] = useState<string>(areaToAreaRouteInfo.from instanceof Object ? areaToAreaRouteInfo.from.title : "")
@@ -46,42 +70,25 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         })
     }
 
-    const updateShowWallsOptions = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAreaToAreaRouteInfo({
+    const updateOptions = (event: React.ChangeEvent<HTMLInputElement>, optionToUpdate: string) => {
+        const newInfo = {
             ...areaToAreaRouteInfo,
-            options: {
-                ...areaToAreaRouteInfo.options,
-                showWalls: event.currentTarget.checked,
-            }
-        })
+        }
+        if (!newInfo.options) newInfo.options = {}
+        newInfo.options[optionToUpdate] = event.currentTarget.checked;
+        // TODO: remove options object if all false
+        setAreaToAreaRouteInfo(newInfo)
     }
 
-    const updateShowEdgesOptions = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAreaToAreaRouteInfo({
-            ...areaToAreaRouteInfo,
-            options: {
-                ...areaToAreaRouteInfo.options,
-                showEdges: event.currentTarget.checked,
-            }
-        })
-    }
 
     useEffect(() => {
         if (!(areaToAreaRouteInfo.to instanceof Object && areaToAreaRouteInfo.from instanceof Object)) return;
-        fetchQuery<AreaNavigateQuery>(
+        let query = getNavWithAllData;
+        if (!areaToAreaRouteInfo.options) query = getNavWithoutData
+        let startTime: number, endTime: number;
+        fetchQuery<AreaNavigateAllDataQuery>(
             environment,
-            graphql`
-                query AreaNavigateQuery($data: NavigationInput!) {
-                    getNavBetweenAreas(data: $data) {
-                        path {
-                            lat
-                            lon
-                        }
-                        walls
-                        navMesh
-                    }
-                }
-            `,
+            query,
             {
                 data: {
                     "areaFromId": areaToAreaRouteInfo.from.areaDatabaseId,
@@ -90,22 +97,34 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             },
         )
             .subscribe({
-                start: () => { },
+                start: () => { startTime = performance.now(); },
                 complete: () => { },
                 error: (error: Error) => {
                     setFormError(error.message);
                 },
                 next: (data) => {
+                    endTime = performance.now();
                     if (!data || !data.getNavBetweenAreas) {
                         setFormError("No response when loading lat/long for autocomplete result");
                         return;
                     }
-                    setAreaToAreaRouteInfo({
-                        ...areaToAreaRouteInfo,
-                        path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
-                        walls: data.getNavBetweenAreas.walls,
-                        navMesh: data.getNavBetweenAreas.navMesh,
-                    })
+                    if (areaToAreaRouteInfo.options) {
+                        setAreaToAreaRouteInfo({
+                            ...areaToAreaRouteInfo,
+                            path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
+                            walls: data.getNavBetweenAreas.walls,
+                            navMesh: data.getNavBetweenAreas.navMesh,
+                            info: {
+                                requestTime: endTime - startTime,
+                                generateNewNavMesh: data.getNavBetweenAreas.neededToGenerateANavMesh
+                            }
+                        })
+                    } else {
+                        setAreaToAreaRouteInfo({
+                            ...areaToAreaRouteInfo,
+                            path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
+                        })
+                    }
                 }
             });
     }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from])
@@ -128,7 +147,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     buildingId={buildingId}
                     setSelectedResponse={setFrom}
                     // show results if nothing is selected, or if the search query doesn't match the title
-                    showResults={areaToAreaRouteInfo.from !== "gpsLocation" && (!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery)}
+                    showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
                 >
                     <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
                         setFromSearchQuery("gpsLocation")
@@ -152,16 +171,25 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
                 <Switch
-                    onChange={updateShowWallsOptions}
-                    checked={areaToAreaRouteInfo.options?.showWalls??false}
+                    onChange={(e) => updateOptions(e, "showWalls")}
+                    checked={areaToAreaRouteInfo.options?.showWalls ?? false}
                     label="Show Walls"
                 />
                 <Switch
-                    onChange={updateShowEdgesOptions}
-                    checked={areaToAreaRouteInfo.options?.showEdges??false}
+                    onChange={(e) => updateOptions(e, "showEdges")}
+                    checked={areaToAreaRouteInfo.options?.showEdges ?? false}
                     label="Show Edges"
                 />
+                <Switch
+                    onChange={(e) => updateOptions(e, "showInfo")}
+                    checked={areaToAreaRouteInfo.options?.showInfo ?? false}
+                    label="Show Info"
+                />
                 <p>Changes to options will only apply on the next Path</p>
+                {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
+                (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br/>
+                    Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
+                 : null}
             </div>
         </Group>
     )
