@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as L from "leaflet";
 import { locationMarkerIcon } from "../../../utils/markerIcon";
 import { useUserLocation } from "../../../utils/hooks";
@@ -16,14 +16,14 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
     const [alreadyWatching, setAlreadyWatching] = useState(false)
     const [gpsMarker,] = useState(L.marker([0, 0], { icon: locationMarkerIcon }));
     const [accurecyMarker,] = useState(L.circle([0, 0], { radius: 0 }))
-    const [mapHasBeenDragged, setMapHasBeenDragged] = useState(false)
+    const mapHasBeenDragged = useRef(false)
 
     const updateUserLocation = (position: GeolocationPosition) => {
         setLocationLoading(false)
         gpsMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setLatLng([position.coords.latitude, position.coords.longitude])
         accurecyMarker.setRadius(position.coords.accuracy)
-        if (!mapHasBeenDragged) {
+        if (!mapHasBeenDragged.current) {
             map.panTo(new L.LatLng(position.coords.latitude, position.coords.longitude));
         }
     }
@@ -54,15 +54,15 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
         }
         setAlreadyWatching(true)
         // after clicking the location button location is updated where a gps watch event occurs
-        setMapHasBeenDragged(false);
+        mapHasBeenDragged.current = false;
         // if the user drags the map, the map no loger updates to the users new location
         map.on('dragstart', () => {
-            setMapHasBeenDragged(true);
+            mapHasBeenDragged.current = true;
         });
     }
 
     const resetMapToStartingLocation = () => {
-        setMapHasBeenDragged(true);
+        mapHasBeenDragged.current = true;
         map.panTo(buildingAnkerLatLon);
     }
     return (<>
