@@ -119,4 +119,8 @@
         /* I didn't use opacity because I wanted the text to remain solid */
         background-color: var(--overlay-1);
     }
+
+    .extraOptionsForNav {
+        display: none;
+    }
 }

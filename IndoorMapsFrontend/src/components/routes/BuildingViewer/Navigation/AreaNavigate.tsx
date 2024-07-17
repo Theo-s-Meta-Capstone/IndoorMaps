@@ -50,7 +50,6 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const environment = useRelayEnvironment();
     const isUsingCurrentLocationNav = useRef(false)
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
-        console.log(isUsingCurrentLocationNav.current)
         if (isUsingCurrentLocationNav.current) {
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
         }
@@ -100,8 +99,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         setAreaToAreaRouteInfo(newInfo)
     }
 
-
-    useEffect(() => {
+    const getNewPath = () => {
         if (!(areaToAreaRouteInfo.to instanceof Object && areaToAreaRouteInfo.from !== undefined)) return;
         let query = getNavWithAllData;
         if (!areaToAreaRouteInfo.options) query = getNavWithoutData
@@ -155,7 +153,17 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     }
                 }
             });
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.currentGPSCoords])
+    }
+
+    useEffect(() => {
+        getNewPath()
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from])
+
+    useEffect(() => {
+        if (isUsingCurrentLocationNav.current) {
+            getNewPath()
+        }
+    }, [areaToAreaRouteInfo.currentGPSCoords])
 
     return (
         <Group wrap="nowrap" align="top" style={{ height: "100%" }}>
@@ -200,26 +208,28 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     setSelectedResponse={setTo}
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
-                <Switch
-                    onChange={(e) => updateOptions(e, "showWalls")}
-                    checked={areaToAreaRouteInfo.options?.showWalls ?? false}
-                    label="Show Walls"
-                />
-                <Switch
-                    onChange={(e) => updateOptions(e, "showEdges")}
-                    checked={areaToAreaRouteInfo.options?.showEdges ?? false}
-                    label="Show Edges"
-                />
-                <Switch
-                    onChange={(e) => updateOptions(e, "showInfo")}
-                    checked={areaToAreaRouteInfo.options?.showInfo ?? false}
-                    label="Show Info"
-                />
-                <p>Changes to options will only apply on the next Path</p>
-                {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
-                    (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
-                        Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
-                    : null}
+                <div className="extraOptionsForNav">
+                    <Switch
+                        onChange={(e) => updateOptions(e, "showWalls")}
+                        checked={areaToAreaRouteInfo.options?.showWalls ?? false}
+                        label="Show Walls"
+                    />
+                    <Switch
+                        onChange={(e) => updateOptions(e, "showEdges")}
+                        checked={areaToAreaRouteInfo.options?.showEdges ?? false}
+                        label="Show Edges"
+                    />
+                    <Switch
+                        onChange={(e) => updateOptions(e, "showInfo")}
+                        checked={areaToAreaRouteInfo.options?.showInfo ?? false}
+                        label="Show Info"
+                    />
+                    <p>Changes to options will only apply on the next Path</p>
+                    {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
+                        (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
+                            Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
+                        : null}
+                </div>
             </div>
         </Group>
     )
