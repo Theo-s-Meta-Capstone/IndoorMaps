@@ -21,6 +21,7 @@ export type AreaToAreaRouteInfo = {
         title: string,
         description: string
     } | "gpsLocation",
+    currentGPSCoords?: LatLng,
     path?: LatLng[]
     walls?: string
     navMesh?: string

@@ -3,10 +3,11 @@ import { AreaToAreaRouteInfo } from "../../../../utils/types";
 import { IconArrowLeft, IconCurrentLocation, IconLocationShare } from "@tabler/icons-react";
 import AreaSearchBox from "./AreaSearchBox";
 import { AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { LatLng } from "leaflet";
 import { AreaNavigateAllDataQuery } from "./__generated__/AreaNavigateAllDataQuery.graphql";
+import { useUserLocation } from "../../../../utils/hooks";
 
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
@@ -47,9 +48,28 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const [fromSearchQuery, setFromSearchQuery] = useState<string>(areaToAreaRouteInfo.from instanceof Object ? areaToAreaRouteInfo.from.title : "")
     const [toSearchQuery, setToSearchQuery] = useState<string>(areaToAreaRouteInfo.to ? areaToAreaRouteInfo.to.title : "")
     const environment = useRelayEnvironment();
+    const isUsingCurrentLocationNav = useRef(false)
+    const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
+        console.log(isUsingCurrentLocationNav.current)
+        if (isUsingCurrentLocationNav.current) {
+            setFromWithGPS([position.coords.latitude, position.coords.longitude]);
+        }
+    }, (errorMessage: string) => {
+        setFormError(errorMessage);
+    });
+
+    const setFromWithGPS = (curPos: number[]) => {
+        setFromSearchQuery("gpsLocation " + curPos)
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            from: "gpsLocation",
+            currentGPSCoords: new LatLng(curPos[0], curPos[1])
+        })
+    }
 
     const setFrom = (area: AreaSearchBoxQuery$data["areaSearch"][number]) => {
         setFromSearchQuery(area.title);
+        isUsingCurrentLocationNav.current = false
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfo,
             from: {
@@ -82,18 +102,26 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
 
     useEffect(() => {
-        if (!(areaToAreaRouteInfo.to instanceof Object && areaToAreaRouteInfo.from instanceof Object)) return;
+        if (!(areaToAreaRouteInfo.to instanceof Object && areaToAreaRouteInfo.from !== undefined)) return;
         let query = getNavWithAllData;
         if (!areaToAreaRouteInfo.options) query = getNavWithoutData
         let startTime: number, endTime: number;
+        let data: { [key: string]: number, "areaToId": number } = {
+            "areaToId": areaToAreaRouteInfo.to.areaDatabaseId
+        }
+        if (areaToAreaRouteInfo.from instanceof Object) {
+            data["areaFromId"] = areaToAreaRouteInfo.from.areaDatabaseId
+        } else if (areaToAreaRouteInfo.currentGPSCoords) {
+            data["locationFromLat"] = areaToAreaRouteInfo.currentGPSCoords.lat
+            data["locationFromLon"] = areaToAreaRouteInfo.currentGPSCoords.lng
+        } else {
+            return;
+        }
         fetchQuery<AreaNavigateAllDataQuery>(
             environment,
             query,
             {
-                data: {
-                    "areaFromId": areaToAreaRouteInfo.from.areaDatabaseId,
-                    "areaToId": areaToAreaRouteInfo.to.areaDatabaseId
-                }
+                data
             },
         )
             .subscribe({
@@ -127,7 +155,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     }
                 }
             });
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from])
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.currentGPSCoords])
 
     return (
         <Group wrap="nowrap" align="top" style={{ height: "100%" }}>
@@ -150,7 +178,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
                 >
                     <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
-                        setFromSearchQuery("gpsLocation")
+                        setFromSearchQuery("gpsLocation Loading...")
+                        isUsingCurrentLocationNav.current = true
+                        getUserLocaiton();
                         setAreaToAreaRouteInfo({
                             ...areaToAreaRouteInfo,
                             from: "gpsLocation"
@@ -187,9 +217,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 />
                 <p>Changes to options will only apply on the next Path</p>
                 {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
-                (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br/>
-                    Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
-                 : null}
+                    (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
+                        Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
+                    : null}
             </div>
         </Group>
     )
