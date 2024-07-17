@@ -26,7 +26,6 @@ export class Wall {
 type Props = {
     map: L.Map;
     areaToAreaRouteInfo: AreaToAreaRouteInfo;
-
 }
 
 const pathLayerGroup = new L.LayerGroup();

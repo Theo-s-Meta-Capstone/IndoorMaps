@@ -25,11 +25,9 @@ export class Wall {
 }
 
 class EdgeWithWeight {
-    otherVertex: NavMeshVertex
     weight: number
     index: number
-    constructor(otherVertex: NavMeshVertex, weight: number, index: number) {
-        this.otherVertex = otherVertex;
+    constructor(index: number, weight: number) {
         this.weight = weight;
         this.index = index;
     }
@@ -125,7 +123,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas): [NavMesh, Wall[]] => 
         for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
             let doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
             if (doesNotCrossAnyWalls) {
-                navMesh[i].edges.push(new EdgeWithWeight(navMesh[otherVertexIndex], getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point), otherVertexIndex))
+                navMesh[i].edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point)))
             }
         }
     }
@@ -138,7 +136,7 @@ const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
     for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
         let doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(start, navMesh[otherVertexIndex].point, wall)) === -1;
         if (doesNotCrossAnyWalls) {
-            newEdges.push(new EdgeWithWeight(navMesh[otherVertexIndex], getDistanceBetweenGPSPoints(start, navMesh[otherVertexIndex].point), otherVertexIndex))
+            newEdges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(start, navMesh[otherVertexIndex].point)))
         }
     }
     navMesh.push({
@@ -148,7 +146,7 @@ const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
     })
     // add the new edges to their respective counter part (the graph is directional due to it's implementation, this makes sure that both directions exist)
     newEdges.forEach((edge) => {
-        edge.otherVertex.edges.push(new EdgeWithWeight(navMesh[navMesh.length - 1], getDistanceBetweenGPSPoints(start, edge.otherVertex.point), navMesh.length - 1))
+        navMesh[edge.index].edges.push(new EdgeWithWeight(navMesh.length - 1, getDistanceBetweenGPSPoints(start, navMesh[edge.index].point)))
     })
 }
 

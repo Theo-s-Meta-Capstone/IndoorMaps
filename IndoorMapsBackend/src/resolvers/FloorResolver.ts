@@ -1,12 +1,12 @@
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
-import { GraphQLError } from "graphql";
 
-import { Context } from "../utils/context.js";
+import { Context, prisma } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
 import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
+import { Prisma } from "@prisma/client";
 
 @InputType()
 class FloorCreateInput {
@@ -43,6 +43,18 @@ class FloorModifyInput extends FloorUniqueInput {
     // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
     @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape" })
     newShape?: NewShape
+}
+
+export const deleteNavMesh = async (floorDatabaseId: number) => {
+    await prisma.floor.update({
+        where: {
+            id: floorDatabaseId
+        },
+        data: {
+            navMesh: Prisma.DbNull,
+            walls: Prisma.DbNull,
+        }
+    })
 }
 
 @Resolver(of => Floor)
@@ -90,6 +102,7 @@ export class FloorResolver {
                 buildingId: true,
             }
         });
+        await deleteNavMesh(data.id);
         return {
             success: true,
             databaseId: updatedFloor.id,

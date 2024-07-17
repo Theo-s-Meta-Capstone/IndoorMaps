@@ -4,7 +4,7 @@ import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 import { convertToGraphQlArea } from "../utils/typeConversions.js"
 import { GraphQLError } from "graphql"
-import { NewShape } from "./FloorResolver.js"
+import { NewShape, deleteNavMesh } from "./FloorResolver.js"
 import { throwGraphQLBadInput } from "../utils/generic.js"
 
 @InputType()
@@ -86,6 +86,7 @@ export class AreaResolver {
                 }
             },
         });
+        await deleteNavMesh(newArea.floorId);
         return {
             success: true,
             databaseId: newArea.id,
@@ -117,6 +118,7 @@ export class AreaResolver {
                 floorId: true,
             }
         });
+        await deleteNavMesh(updatedArea.floorId);
         return {
             success: true,
             databaseId: updatedArea.id,
@@ -138,6 +140,7 @@ export class AreaResolver {
                 id: data.id
             },
         });
+        await deleteNavMesh(updatedArea.floorId);
         return {
             success: true,
             databaseId: updatedArea.id,

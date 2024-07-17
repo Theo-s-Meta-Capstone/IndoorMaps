@@ -1,11 +1,12 @@
-import { Arg, Ctx, Field, InputType, Int, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, InputType, ObjectType, Query, Resolver } from "type-graphql";
 
-import { Context } from "../utils/context.js";
-import { Wall, generateNavMesh } from "../navMesh/GenerateNavMesh.js";
+import { Context, prisma } from "../utils/context.js";
+import { Wall, generateNavMesh, NavMesh, NavMeshVertex } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areWallsEqual, findPolygonCenter } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
+import { Prisma } from "@prisma/client";
 
 @InputType()
 class NavigationInput {
@@ -26,6 +27,9 @@ class NavigationResult {
 
     @Field()
     navMesh: string
+
+    @Field(type => Boolean)
+    neededToGenerateANavMesh: boolean
 }
 
 @Resolver()
@@ -66,7 +70,31 @@ export class NavResolver {
         const fromLatLon = findPolygonCenter(fromShape)
 
         if(!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
-        let [navMesh, walls] = generateNavMesh(toArea.floor);
+
+        let navMesh: NavMesh;
+        let walls: Wall[] = [];
+        let neededToGenerateANavMesh = false
+
+        if(toArea.floor.navMesh === null) {
+            neededToGenerateANavMesh = true;
+            let [genNavMesh, genWalls] = generateNavMesh(toArea.floor);
+            await prisma.floor.update({
+                where: {
+                    id: toArea.floor.id
+                },
+                data: {
+                    navMesh: JSON.parse(JSON.stringify(genNavMesh)),
+                    walls: JSON.parse(JSON.stringify(genWalls))
+                }
+            })
+            navMesh = genNavMesh
+            walls = genWalls
+        }
+        else {
+            navMesh = (toArea.floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
+            walls = (toArea.floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
+        }
+
         const wallsWithoutIgnorable = walls.filter(wall => {
             return ignorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
@@ -78,7 +106,8 @@ export class NavResolver {
             path: shortestPath,
             walls: JSON.stringify(wallsWithoutIgnorable),
             // This converts an Edge (which is a navigatible connection) into a Wall becuase I had already written the wall dispalying code on the frontend and I wanted the edges to be in the same formate
-            navMesh: JSON.stringify(navMesh.flatMap((vertex) => vertex.edges.flatMap(((edge) => new Wall(vertex.point, edge.otherVertex.point)))))
+            navMesh: JSON.stringify(navMesh.flatMap((vertex) => vertex.edges.flatMap(((edge) => new Wall(vertex.point, navMesh[edge.index].point))))),
+            neededToGenerateANavMesh
         };
     }
 }
