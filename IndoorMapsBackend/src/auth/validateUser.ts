@@ -3,6 +3,7 @@ import { User } from "../graphqlSchemaTypes/User.js";
 import { Context } from "../utils/context.js";
 import { verifyAccessToken } from "./jwt.js";
 import { GraphQLError } from "graphql";
+import { throwGraphQLBadInput } from "../utils/generic.js";
 
 /**
  * Checks the data inside of a JWT sent from the user for whether it contains valid data and whether it is inside the user.tokens array
@@ -38,13 +39,7 @@ export const validateUser = async (cookies: Context["cookies"]): Promise<User | 
  */
 export const getUserOrThrowError = async (cookies: Context["cookies"]): Promise<User> => {
     const user = await validateUser(cookies);
-    if (!user) {
-        throw new GraphQLError('User not signed in', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
-    }
+    if (!user) throw throwGraphQLBadInput('User not signed in')
     return user;
 }
 
@@ -77,11 +72,7 @@ export const checkAuthrizedBuildingEditor = async (buildingDatabaseId: number, c
     const user = await getUserOrThrowError(ctx.cookies);
     let status = await getUsersBuildingEditorStatus(user, buildingDatabaseId, ctx);
     if (status === null || status === "viewer") {
-        return new GraphQLError('User is not authorized to edit this building', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
+        return throwGraphQLBadInput('User is not authorized to edit this building')
     }
     return null
 }
@@ -97,19 +88,11 @@ export const checkAuthrizedFloorEditor = async (floorDatabaseId: number, ctx: Co
         }
     })
     if(!building){
-        return new GraphQLError('Building Not found', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
+        return throwGraphQLBadInput('Building Not found')
     }
     let status = await getUsersBuildingEditorStatus(user, building.buildingId, ctx);
     if (status === null || status === "viewer") {
-        return new GraphQLError('User is not authorized to edit this building', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
+        return throwGraphQLBadInput('User is not authorized to edit this building')
     }
     return null
 }
@@ -129,19 +112,11 @@ export const checkAuthrizedAreaEditor = async (areaDatasId: number, ctx: Context
         }
     })
     if(!area){
-        return new GraphQLError('Area Not found', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
+        return throwGraphQLBadInput('Area Not found')
     }
     let status = await getUsersBuildingEditorStatus(user, area.floor.buildingId, ctx);
     if (status === null || status === "viewer") {
-        return new GraphQLError('User is not authorized to edit this building', {
-            extensions: {
-                code: 'BAD_USER_INPUT',
-            },
-        });
+        return throwGraphQLBadInput('User is not authorized to edit this building')
     }
     return null
 }

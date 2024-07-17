@@ -5,6 +5,7 @@ import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 import { convertToGraphQlArea } from "../utils/typeConversions.js"
 import { GraphQLError } from "graphql"
 import { NewShape } from "./FloorResolver.js"
+import { throwGraphQLBadInput } from "../utils/generic.js"
 
 @InputType()
 class AreaCreateInput {
@@ -154,13 +155,7 @@ export class AreaResolver {
                 id: data.id,
             }
         })
-        if (!dbArea) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        if (!dbArea) throw throwGraphQLBadInput('Floor not found')
         return convertToGraphQlArea(dbArea);
     }
 }

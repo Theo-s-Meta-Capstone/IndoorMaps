@@ -1,11 +1,11 @@
 import { Arg, Ctx, Field, InputType, Int, ObjectType, Query, Resolver } from "type-graphql";
-import { GraphQLError } from "graphql";
 
 import { Context } from "../utils/context.js";
 import { Edge, generateNavMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areEdgesEqual, findPolygonCenter } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
+import { throwGraphQLBadInput } from "../utils/generic.js";
 
 @InputType()
 class NavigationInput {
@@ -54,20 +54,10 @@ export class NavResolver {
             }
         })
 
-        if (!toArea || !toArea.shape) {
-            throw new GraphQLError('To Area not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
-        if (!fromArea || !fromArea.shape) {
-            throw new GraphQLError('From Area not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        if (!toArea || !toArea.shape) throw throwGraphQLBadInput('To Area not found')
+        if (!fromArea || !fromArea.shape) throw throwGraphQLBadInput('From Area not found')
+        if (fromArea.floorId !== toArea.floorId) throw throwGraphQLBadInput("Navigation between floors is not currently supported")
+
         const toShape = toArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
         const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
         const ignorableEdges = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Edge(latLng, arr[(i + 1) % arr.length]))
@@ -75,13 +65,7 @@ export class NavResolver {
         const toLatLon = findPolygonCenter(toShape)
         const fromLatLon = findPolygonCenter(fromShape)
 
-        if(!toLatLon || !fromLatLon) {
-            throw new GraphQLError('Issue with starting or ending GPS locations', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        if(!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
         let [navMesh, edges] = generateNavMesh(toArea.floor);
         const edgesWithoutIgnorable = edges.filter(edge => {
             return ignorableEdges.findIndex((ignorableEdge) => {

@@ -17,6 +17,7 @@ import { validateUser } from '../auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLUser } from '../utils/typeConversions.js'
 import { GraphQLError } from 'graphql'
 import { deleteAccessToken } from '../auth/jwt.js'
+import { throwGraphQLBadInput } from '../utils/generic.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -68,11 +69,7 @@ export class UserResolver {
             },
         });
         if (!userWithBuildings) {
-            throw new GraphQLError('User not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('User not found');
         }
         const buildingEditorJoinRows = userWithBuildings.buildings;
         return buildingEditorJoinRows.map((buildingEditorJoinRow) => {
@@ -108,11 +105,7 @@ export class UserResolver {
         @Ctx() ctx: Context,
     ): Promise<SignedOutSuccess> {
         if (!ctx.cookies || !ctx.cookies.jwt) {
-            throw new GraphQLError('No user signed in', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('No user signed in');
         }
         await deleteAccessToken(ctx.cookies.jwt);
         ctx.res.clearCookie("jwt")

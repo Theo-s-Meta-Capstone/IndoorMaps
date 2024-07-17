@@ -6,6 +6,7 @@ import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConver
 import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
+import { throwGraphQLBadInput } from "../utils/generic.js";
 
 @InputType()
 class FloorCreateInput {
@@ -61,11 +62,7 @@ export class FloorResolver {
             },
         });
         if (!dbAreas) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Floor not found')
         }
         return dbAreas.areas.map((value) => convertToGraphQlArea(value))
     }
@@ -139,11 +136,7 @@ export class FloorResolver {
             }
         })
         if (!dbFloor) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Floor not found');
         }
         return convertToGraphQLFloor(dbFloor);
     }

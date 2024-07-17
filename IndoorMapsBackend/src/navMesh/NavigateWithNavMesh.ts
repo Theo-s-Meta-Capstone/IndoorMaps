@@ -38,7 +38,9 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): NavMeshVertex[]
 export const findShortestPath = (navMesh: NavMesh, edges: Edge[], start: LatLng, end: LatLng): LatLng[] => {
     extendNavMesh(navMesh, edges, [start, end]);
     let res: LatLng[] = [];
-    res.push(...dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1).map((vertex) => vertex.point))
+    const path = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1).map((vertex) => vertex.point)
+    if(path.length === 0) throw new Error ("No Path Found")
+    res.push(...path)
     res.push(end)
     return res;
 }
