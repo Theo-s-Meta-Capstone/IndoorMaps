@@ -1,4 +1,4 @@
-import { Button, Group, rem } from "@mantine/core";
+import { Button, Group, Switch, rem } from "@mantine/core";
 import { AreaToAreaRouteInfo } from "../../../../utils/types";
 import { IconArrowLeft, IconCurrentLocation, IconLocationShare } from "@tabler/icons-react";
 import AreaSearchBox from "./AreaSearchBox";
@@ -42,6 +42,26 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             to: {
                 ...area,
                 areaDatabaseId: area.databaseId
+            }
+        })
+    }
+
+    const updateShowWallsOptions = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            options: {
+                ...areaToAreaRouteInfo.options,
+                showWalls: event.currentTarget.checked,
+            }
+        })
+    }
+
+    const updateShowEdgesOptions = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            options: {
+                ...areaToAreaRouteInfo.options,
+                showEdges: event.currentTarget.checked,
             }
         })
     }
@@ -131,6 +151,17 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     setSelectedResponse={setTo}
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
+                <Switch
+                    onChange={updateShowWallsOptions}
+                    checked={areaToAreaRouteInfo.options?.showWalls??false}
+                    label="Show Walls"
+                />
+                <Switch
+                    onChange={updateShowEdgesOptions}
+                    checked={areaToAreaRouteInfo.options?.showEdges??false}
+                    label="Show Edges"
+                />
+                <p>Changes to options will only apply on the next Path</p>
             </div>
         </Group>
     )

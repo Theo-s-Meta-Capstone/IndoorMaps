@@ -24,4 +24,8 @@ export type AreaToAreaRouteInfo = {
     path?: LatLng[]
     walls?: string
     navMesh?: string
+    options?: {
+        showWalls?: boolean,
+        showEdges?: boolean,
+    }
 }
