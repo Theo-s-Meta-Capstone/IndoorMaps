@@ -15,7 +15,7 @@ type FloorIncludeAreas = Prisma.FloorGetPayload<{
     }
 }>
 
-export class Edge {
+export class Wall {
     point1: LatLng
     point2: LatLng
     constructor(point1: LatLng, point2: LatLng) {
@@ -49,16 +49,16 @@ const grahamScan = (points: LatLng[]): LatLng[] => {
     return grahamScan.getHull().map((point: number[]) => new LatLng(point[0], point[1]));
 }
 
-export const generateNavMesh = (floor: FloorIncludeAreas): [NavMesh, Edge[]] => {
+export const generateNavMesh = (floor: FloorIncludeAreas): [NavMesh, Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
     const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon>;
-    let edges: Edge[] = [];
+    let walls: Wall[] = [];
     let vertices: LatLng[] = [];
     if (floorOutline) {
         const coords = floorOutline.geometry.coordinates[0]
-        edges = coords.flatMap((pos, i) => {
-            return new Edge(new LatLng(pos[1], pos[0]), new LatLng(coords[(i + 1) % coords.length][1], coords[(i + 1) % coords.length][0]))
+        walls = coords.flatMap((pos, i) => {
+            return new Wall(new LatLng(pos[1], pos[0]), new LatLng(coords[(i + 1) % coords.length][1], coords[(i + 1) % coords.length][0]))
         })
         vertices = coords.flatMap((pos, i) => {
             return new LatLng(pos[1], pos[0])
@@ -105,8 +105,8 @@ export const generateNavMesh = (floor: FloorIncludeAreas): [NavMesh, Edge[]] => 
                 return posArr.map((pos) => new LatLng(pos[1], pos[0]))
             })
 
-    edges.push(...realPolygons.flatMap((polygon) => {
-        return polygon.map((latLng, i) => new Edge(latLng, polygon[(i + 1) % polygon.length]))
+    walls.push(...realPolygons.flatMap((polygon) => {
+        return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
     }))
 
     vertices.push(...expandedPolygons.flatMap((polygon) => {
@@ -123,21 +123,21 @@ export const generateNavMesh = (floor: FloorIncludeAreas): [NavMesh, Edge[]] => 
 
     for (let i = 0; i < navMesh.length; i++) {
         for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-            let doesNotCrossAnyEdges = edges.findIndex((edge) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, edge)) === -1;
-            if (doesNotCrossAnyEdges) {
+            let doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
+            if (doesNotCrossAnyWalls) {
                 navMesh[i].edges.push(new EdgeWithWeight(navMesh[otherVertexIndex], getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point), otherVertexIndex))
             }
         }
     }
 
-    return [navMesh, edges] as const
+    return [navMesh, walls] as const
 }
 
-const addPointToNavMesh = (navMesh: NavMesh, edges: Edge[], start: LatLng) => {
+const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
     let newEdges: EdgeWithWeight[] = [];
     for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-        let doesNotCrossAnyEdges = edges.findIndex((edge) => doIntersect(start, navMesh[otherVertexIndex].point, edge)) === -1;
-        if (doesNotCrossAnyEdges) {
+        let doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(start, navMesh[otherVertexIndex].point, wall)) === -1;
+        if (doesNotCrossAnyWalls) {
             newEdges.push(new EdgeWithWeight(navMesh[otherVertexIndex], getDistanceBetweenGPSPoints(start, navMesh[otherVertexIndex].point), otherVertexIndex))
         }
     }
@@ -146,11 +146,12 @@ const addPointToNavMesh = (navMesh: NavMesh, edges: Edge[], start: LatLng) => {
         point: start,
         edges: newEdges,
     })
+    // add the new edges to their respective counter part (the graph is directional due to it's implementation, this makes sure that both directions exist)
     newEdges.forEach((edge) => {
         edge.otherVertex.edges.push(new EdgeWithWeight(navMesh[navMesh.length - 1], getDistanceBetweenGPSPoints(start, edge.otherVertex.point), navMesh.length - 1))
     })
 }
 
-export const extendNavMesh = (navMesh: NavMesh, edges: Edge[], newPoints: LatLng[]) => {
-    newPoints.forEach(newPoint => addPointToNavMesh(navMesh, edges, newPoint))
+export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng[]) => {
+    newPoints.forEach(newPoint => addPointToNavMesh(navMesh, walls, newPoint))
 }

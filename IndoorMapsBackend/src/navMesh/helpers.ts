@@ -1,5 +1,5 @@
 import { LatLng } from "../graphqlSchemaTypes/Building.js"
-import { Edge } from "./GenerateNavMesh.js";
+import { Wall } from "./GenerateNavMesh.js";
 
 // based on https://en.wikipedia.org/wiki/Geographical_distance#Spherical_Earth_formulae
 // TODO: this is currently the sheralc earth formula, update to the FCC formula to take into account a better aproximation of earth's shape
@@ -23,6 +23,6 @@ export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined 
     return res;
 }
 
-export const areEdgesEqual = (e1: Edge, e2: Edge) => {
+export const areWallsEqual = (e1: Wall, e2: Wall) => {
     return e1.point1.lat === e2.point1.lat && e1.point1.lon === e2.point1.lon && e1.point2.lat === e2.point2.lat && e1.point2.lon === e2.point2.lon
 }

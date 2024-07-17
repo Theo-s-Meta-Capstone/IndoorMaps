@@ -1,5 +1,5 @@
 import { LatLng } from "../graphqlSchemaTypes/Building";
-import { Edge, NavMesh, NavMeshVertex, extendNavMesh } from "./GenerateNavMesh.js";
+import { Wall, NavMesh, NavMeshVertex, extendNavMesh } from "./GenerateNavMesh.js";
 import { PriorityQueue } from "./PriorityQueue.js";
 
 // based on https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
@@ -35,8 +35,8 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): NavMeshVertex[]
     return res.reverse();
 }
 
-export const findShortestPath = (navMesh: NavMesh, edges: Edge[], start: LatLng, end: LatLng): LatLng[] => {
-    extendNavMesh(navMesh, edges, [start, end]);
+export const findShortestPath = (navMesh: NavMesh, walls: Wall[], start: LatLng, end: LatLng): LatLng[] => {
+    extendNavMesh(navMesh, walls, [start, end]);
     let res: LatLng[] = [];
     const path = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1).map((vertex) => vertex.point)
     if(path.length === 0) throw new Error ("No Path Found")

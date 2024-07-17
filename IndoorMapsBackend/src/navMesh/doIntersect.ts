@@ -2,7 +2,7 @@
 // I mostly only added typings
 
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { Edge } from "./GenerateNavMesh.js";
+import { Wall } from "./GenerateNavMesh.js";
 
 // Given three collinear LatLngs p, q, r, the function checks if
 // LatLng q lies on line segment 'pr'
@@ -33,10 +33,10 @@ function getOrderedTripletOrientation(p: LatLng, q: LatLng, r: LatLng) {
 
 // The main function that returns true if line segment 'p1q1'
 // and 'p2q2' intersect.
-export function doIntersect(p1: LatLng, q1: LatLng, edge: Edge): boolean {
+export function doIntersect(p1: LatLng, q1: LatLng, wall: Wall): boolean {
 
-    const p2 = edge.point1;
-    const q2 = edge.point2;
+    const p2 = wall.point1;
+    const q2 = wall.point2;
 
     // Find the four orientations needed for general and
     // special cases
@@ -79,8 +79,8 @@ function isOnLine(x: number, y: number, endx: number, endy: number, px: number, 
 
 // https://stackoverflow.com/a/24392281
 // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
-export function doIntersectDepracated(p1: LatLng, q1: LatLng, edge: Edge) {
-    let a = p1.lat, b = p1.lon, c = q1.lat, d = q1.lon, p = edge.point1.lat, q = edge.point1.lon, r = edge.point2.lat, s = edge.point2.lon;
+export function doIntersectDepracated(p1: LatLng, q1: LatLng, wall: Wall) {
+    let a = p1.lat, b = p1.lon, c = q1.lat, d = q1.lon, p = wall.point1.lat, q = wall.point1.lon, r = wall.point2.lat, s = wall.point2.lon;
 
     if(isOnLine(a,b,c,d,p,q) || isOnLine(a,b,c,d,r,s)) return true
 

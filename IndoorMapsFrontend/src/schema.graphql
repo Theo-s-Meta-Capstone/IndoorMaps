@@ -204,9 +204,9 @@ input NavigationInput {
 }
 
 type NavigationResult {
-  edges: String!
   navMesh: String!
   path: [LatLng!]!
+  walls: String!
 }
 
 type NewAreaResult {

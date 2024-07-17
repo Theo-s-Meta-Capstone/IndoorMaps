@@ -14,7 +14,7 @@ export class LatLng {
 
   lon: number
 }
-export class Edge {
+export class Wall {
     point1: LatLng
     point2: LatLng
     constructor(point1: LatLng, point2: LatLng) {
@@ -37,17 +37,18 @@ const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
         if (!areaToAreaRouteInfo.path) return;
         removeAllLayersFromLayerGroup(pathLayerGroup, map)
 
-        if (areaToAreaRouteInfo.edges) {
-            let edges = JSON.parse(areaToAreaRouteInfo.edges)
-            edges.forEach((edge: Edge) => {
-                let polyLine = new L.Polyline([[edge.point1.lat, edge.point1.lon], [edge.point2.lat, edge.point2.lon]], {color: "red"})
+        if (areaToAreaRouteInfo.walls) {
+            let walls = JSON.parse(areaToAreaRouteInfo.walls)
+            walls.forEach((wall: Wall) => {
+                let polyLine = new L.Polyline([[wall.point1.lat, wall.point1.lon], [wall.point2.lat, wall.point2.lon]], {color: "red"})
                 polyLine.addTo(pathLayerGroup);
             })
         }
 
+        // These are Edges, but I (@theohal) stored them as walls so that I could use the same code to display them
         if (areaToAreaRouteInfo.navMesh) {
             let edges = JSON.parse(areaToAreaRouteInfo.navMesh)
-            edges.forEach((edge: Edge) => {
+            edges.forEach((edge: Wall) => {
                 let polyLine = new L.Polyline([[edge.point1.lat, edge.point1.lon], [edge.point2.lat, edge.point2.lon]], {color: "green", weight: 1})
                 polyLine.addTo(pathLayerGroup);
             })
