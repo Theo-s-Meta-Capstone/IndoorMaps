@@ -64,3 +64,19 @@ export function doIntersect(p1: LatLng, q1: LatLng, edge: Edge): boolean {
 
     return false; // Doesn't fall in any of the above cases
 }
+
+// https://stackoverflow.com/a/24392281
+// returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+export function intersects(p1: LatLng, q1: LatLng, edge: Edge) {
+    let a = p1.lat, b = p1.lon, c = q1.lat, d = q1.lon, p = edge.point1.lat, q = edge.point1.lon, r = edge.point2.lat, s = edge.point2.lon;
+
+    var det, gamma, lambda;
+    det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) {
+      return false;
+    } else {
+      lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+      gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+      return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+    }
+  };

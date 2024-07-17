@@ -1,3 +1,5 @@
+import { LatLng } from "leaflet"
+
 export type LiveLocationMarker = {
     id: string,
     latitude: number,
@@ -19,4 +21,5 @@ export type AreaToAreaRouteInfo = {
         title: string,
         description: string
     } | "gpsLocation",
+    path?: LatLng[]
 }

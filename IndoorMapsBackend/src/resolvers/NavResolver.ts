@@ -43,7 +43,7 @@ export class NavResolver {
 
         const fromArea = await ctx.prisma.area.findUnique({
             where: {
-                id: data.areaToId,
+                id: data.areaFromId,
             }
         })
 
@@ -70,8 +70,10 @@ export class NavResolver {
                 },
             });
         }
+        let [navMesh, edges] = generateNavMesh(toArea.floor);
+
         return {
-            path: findshortestPath(generateNavMesh(toArea.floor), toLatLon, fromLatLon),
+            path: findshortestPath(navMesh, edges, fromLatLon, toLatLon),
         };
     }
 }

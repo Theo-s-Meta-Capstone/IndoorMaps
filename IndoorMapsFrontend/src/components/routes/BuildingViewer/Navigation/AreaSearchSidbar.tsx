@@ -54,7 +54,7 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
                     setFormError={handleSetError}
                     buildingId={buildingId}
                     searchQuery={searchQuery}
-                    setSearchQuery={(newQuery: string)=>setSearchQuery(newQuery)}
+                    setSearchQuery={(newQuery: string) => setSearchQuery(newQuery)}
                     setSelectedResponse={(selectedArea: AreaSearchBoxQuery$data["areaSearch"][number]) => goToArea(selectedArea)}
                 />}
         </aside>

@@ -17,6 +17,7 @@
     "@apollo/server": "^4.10.4",
     "@prisma/client": "^5.16.0",
     "@types/cors": "^2.8.17",
+    "@types/geojson": "^7946.0.14",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
