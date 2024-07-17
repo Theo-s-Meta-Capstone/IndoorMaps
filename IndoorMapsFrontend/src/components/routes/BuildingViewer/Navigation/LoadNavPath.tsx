@@ -38,23 +38,23 @@ const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
         removeAllLayersFromLayerGroup(pathLayerGroup, map)
 
         if (areaToAreaRouteInfo.walls) {
-            let walls = JSON.parse(areaToAreaRouteInfo.walls)
+            const walls = JSON.parse(areaToAreaRouteInfo.walls)
             walls.forEach((wall: Wall) => {
-                let polyLine = new L.Polyline([[wall.point1.lat, wall.point1.lon], [wall.point2.lat, wall.point2.lon]], {color: "red"})
+                const polyLine = new L.Polyline([[wall.point1.lat, wall.point1.lon], [wall.point2.lat, wall.point2.lon]], {color: "red"})
                 polyLine.addTo(pathLayerGroup);
             })
         }
 
         // These are Edges, but I (@theohal) stored them as walls so that I could use the same code to display them
         if (areaToAreaRouteInfo.navMesh) {
-            let edges = JSON.parse(areaToAreaRouteInfo.navMesh)
+            const edges = JSON.parse(areaToAreaRouteInfo.navMesh)
             edges.forEach((edge: Wall) => {
-                let polyLine = new L.Polyline([[edge.point1.lat, edge.point1.lon], [edge.point2.lat, edge.point2.lon]], {color: "green", weight: 1})
+                const polyLine = new L.Polyline([[edge.point1.lat, edge.point1.lon], [edge.point2.lat, edge.point2.lon]], {color: "green", weight: 1})
                 polyLine.addTo(pathLayerGroup);
             })
         }
 
-        let polyLine = new L.Polyline(areaToAreaRouteInfo.path)
+        const polyLine = new L.Polyline(areaToAreaRouteInfo.path)
         polyLine.addTo(pathLayerGroup);
 
     }, [areaToAreaRouteInfo.path])
