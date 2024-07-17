@@ -12,7 +12,7 @@
         "moduleResolution": "Node",
         "types": [
             "node",
-            "GeoJSON"
+            "geojson"
         ],
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
