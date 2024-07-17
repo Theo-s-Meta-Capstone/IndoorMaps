@@ -350,7 +350,8 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
                     "floorDatabseId": floorDatabaseId,
                     "title": "testArea",
                     "description": "testAreaDescription",
-                    "shape": JSON.stringify({ "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-77.7637, 39.78075], [-77.764304, 39.780311], [-77.763022, 39.780193], [-77.7637, 39.78075]]] }, "properties": {} }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-77.763435, 39.780393] }, "properties": {} }] })
+                    "shape": JSON.stringify({ "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-77.7637, 39.78075], [-77.764304, 39.780311], [-77.763022, 39.780193], [-77.7637, 39.78075]]] }, "properties": {} }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-77.763435, 39.780393] }, "properties": {} }] }),
+                    "buildingDatabaseId":parseInt(buildingId.substring("building".length))
                 }
             },
         };
