@@ -106,7 +106,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         let query = getNavWithAllData;
         if (!areaToAreaRouteInfo.options) query = getNavWithoutData
         let startTime: number, endTime: number;
-        let data: { [key: string]: number, "areaToId": number } = {
+        const data: { [key: string]: number, "areaToId": number } = {
             "areaToId": areaToAreaRouteInfo.to.areaDatabaseId
         }
         if (areaToAreaRouteInfo.from instanceof Object) {
