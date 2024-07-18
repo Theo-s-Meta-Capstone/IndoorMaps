@@ -150,6 +150,6 @@ const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
     })
 }
 
-export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng[]) => {
-    newPoints.forEach(newPoint => addPointToNavMesh(navMesh, walls, newPoint))
+export const extendNavMesh = (navMesh: NavMesh, walls: Wall[][], newPoints: LatLng[]) => {
+    newPoints.forEach((newPoint, i) => addPointToNavMesh(navMesh, walls[i], newPoint))
 }

@@ -35,7 +35,7 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
     return [res.reverse(), distance[end]];
 }
 
-export const findShortestPath = (navMesh: NavMesh, walls: Wall[], start: LatLng, end: LatLng): [LatLng[], number] => {
+export const findShortestPath = (navMesh: NavMesh, walls: Wall[][], start: LatLng, end: LatLng): [LatLng[], number] => {
     extendNavMesh(navMesh, walls, [start, end]);
     let res: LatLng[] = [];
     const [path, distance] = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1)
