@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
@@ -52,7 +52,7 @@ class NavigationResult {
     distance: number
 }
 
-@Resolver()
+@Resolver(of => NavigationResult)
 export class NavResolver {
     @Query((returns) => NavigationResult)
     async getNavBetweenAreas(
@@ -144,7 +144,8 @@ export class NavResolver {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
-        // This is only used in the visualization
+
+        // This is only used in the visualization, This and the extra strification requried for the extra fields take at lease 20 ms on my m1 mac
         const allWallsWithIgnorable = endWallsWithoutIgnorable.filter(wall => {
             return startIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)

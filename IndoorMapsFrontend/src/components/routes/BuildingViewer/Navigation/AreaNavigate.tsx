@@ -42,6 +42,7 @@ query AreaNavigateQuery($data: NavigationInput!) {
             lat
             lon
         }
+        neededToGenerateANavMesh
         distance
     }
 }
@@ -119,7 +120,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const getNewPath = () => {
         if (!(areaToAreaRouteInfo.to instanceof Object && areaToAreaRouteInfo.from !== undefined)) return;
         let query = getNavWithAllData;
-        if (!areaToAreaRouteInfo.options) query = getNavWithoutData
+        if (!areaToAreaRouteInfo.options?.showEdges && !areaToAreaRouteInfo.options?.showWalls) query = getNavWithoutData
         let startTime: number, endTime: number;
         const data: AreaNavigateAllDataQuery$variables["data"] = {
             "areaToId": areaToAreaRouteInfo.to.areaDatabaseId
@@ -152,7 +153,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                         setFormError("No response when loading lat/long for autocomplete result");
                         return;
                     }
-                    if (areaToAreaRouteInfo.options) {
+                    if (areaToAreaRouteInfo.options?.showEdges || areaToAreaRouteInfo.options?.showWalls) {
                         setAreaToAreaRouteInfo({
                             ...areaToAreaRouteInfo,
                             path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
@@ -169,9 +170,12 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             ...areaToAreaRouteInfo,
                             path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
                             distance: data.getNavBetweenAreas.distance,
+                            info: {
+                                requestTime: endTime - startTime,
+                                generateNewNavMesh: data.getNavBetweenAreas.neededToGenerateANavMesh
+                            },
                         }
                         newRouteInfo.navMesh = undefined;
-                        newRouteInfo.info = undefined;
                         newRouteInfo.walls = undefined;
                         setAreaToAreaRouteInfo(newRouteInfo)
                     }
@@ -181,7 +185,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     useEffect(() => {
         getNewPath()
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options, areaToAreaRouteInfo.options?.useVoronoi])
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options?.showEdges, areaToAreaRouteInfo.options?.showWalls, areaToAreaRouteInfo.options?.useVoronoi])
 
     useEffect(() => {
         if (isUsingCurrentLocationNav.current) {
@@ -197,7 +201,6 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     return (
         <div className="navigationInputs">
-
             <AreaSearchBox
                 textInputProps={{
                     autoFocus: true,
@@ -213,8 +216,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
                 leftOfInputElements={(
                     <Button className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
-                    <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
-                </Button>
+                        <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
+                    </Button>
                 )}
             >
                 <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
