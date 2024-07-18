@@ -8,6 +8,7 @@ import { PathfindingMethod } from "../resolvers/NavResolver.js";
 const feetPerLatitudeDegree = 364000;
 const oneFootInLatitude = 1 / feetPerLatitudeDegree;
 const offsetInDegrees = oneFootInLatitude
+const floorPlanOffsetWeight = 3;
 
 type FloorIncludeAreas = Prisma.FloorGetPayload<{
     include: {
@@ -61,21 +62,21 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             return new Wall(new LatLng(pos[1], pos[0]), new LatLng(coords[(i + 1) % coords.length][1], coords[(i + 1) % coords.length][0]))
         })
         walls.push(...floorWalls)
-        vertices = coords.flatMap((pos, i) => {
+        vertices = coords.flatMap((pos) => {
             return new LatLng(pos[1], pos[0])
         }).concat(
             // adds outside verticies to help with navigation from outside a building
             ...grahamScan(coords.flatMap((pos) => {
                 return [
                     new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0]),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetWithWeight),
-                    new LatLng(pos[1], pos[0] - offsetWithWeight),
+                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0] + offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0] - offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0] + offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0] - offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0]),
+                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0]),
+                    new LatLng(pos[1], pos[0] + offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1], pos[0] - offsetInDegrees*floorPlanOffsetWeight),
                 ]
             }))
         )
