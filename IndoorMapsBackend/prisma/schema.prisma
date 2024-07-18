@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: added leaflet specific data areas to store the actual position data
 model User {
   id              Int               @id @default(autoincrement())
   email           String            @unique

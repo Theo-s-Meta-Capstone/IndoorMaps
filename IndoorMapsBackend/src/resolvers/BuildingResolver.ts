@@ -291,8 +291,6 @@ export class BuildingResolver {
             return [];
         }
         const query = formatSearchQuery(data.query)
-        // TODO: Remove after running on all floors in prod
-        await connectAllAreasToBuilding(data.id, ctx)
         const building = await ctx.prisma.building.findUnique({
             where: {
                 id: data.id
