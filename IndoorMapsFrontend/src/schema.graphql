@@ -203,6 +203,7 @@ input NavigationInput {
   areaToId: Int!
   locationFromLat: Float
   locationFromLon: Float
+  pathfindingMethod: PathfindingMethod
 }
 
 type NavigationResult {
@@ -227,6 +228,11 @@ type NewFloorResult {
 
 input NewShape {
   shape: String
+}
+
+enum PathfindingMethod {
+  Standard
+  Voronoi
 }
 
 type Query {

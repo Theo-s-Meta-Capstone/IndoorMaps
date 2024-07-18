@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
@@ -6,6 +6,15 @@ import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/hel
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
+
+export enum PathfindingMethod {
+    Standard = "Standard",
+    Voronoi = "Voronoi"
+}
+
+registerEnumType(PathfindingMethod, {
+    name: "PathfindingMethod", // Mandatory
+});
 
 @InputType()
 class NavigationInput {
@@ -20,6 +29,9 @@ class NavigationInput {
 
     @Field(type => Float, { nullable: true })
     locationFromLon?: number
+
+    @Field(type => PathfindingMethod, { nullable: true })
+    pathfindingMethod?: PathfindingMethod
 }
 
 @ObjectType()
@@ -66,11 +78,11 @@ export class NavResolver {
         const startIgnorableWalls: Wall[] = [];
         let fromLatLon: LatLng | undefined;
         if (data.areaFromId === undefined) {
-            if(!data.locationFromLat || !data.locationFromLon) throw throwGraphQLBadInput('From location not found')
+            if (!data.locationFromLat || !data.locationFromLon) throw throwGraphQLBadInput('From location not found')
             fromLatLon = new LatLng(data.locationFromLat, data.locationFromLon)
             // remove the walls from the area that the user is in
             const insideArea = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
-            if(insideArea) {
+            if (insideArea) {
                 startIgnorableWalls.push(...insideArea.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
             }
         }
@@ -91,21 +103,25 @@ export class NavResolver {
 
         if (!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
 
+        const pathfindingMethod = data.pathfindingMethod??PathfindingMethod.Standard;
         let navMesh: NavMesh;
         let walls: Wall[] = [];
         let neededToGenerateANavMesh = false
 
-        if (toArea.floor.navMesh === null) {
+        if ((toArea.floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (toArea.floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
             neededToGenerateANavMesh = true;
-            let [genNavMesh, genWalls] = generateNavMesh(toArea.floor);
+            let [genNavMesh, genWalls] = generateNavMesh(toArea.floor, pathfindingMethod);
+            const data: {[key: string]: Object} = {
+                walls: JSON.parse(JSON.stringify(genWalls))
+            }
+            pathfindingMethod === PathfindingMethod.Standard ?
+                data.navMesh = JSON.parse(JSON.stringify(genNavMesh)) :
+                data.voronoiNavMesh = JSON.parse(JSON.stringify(genNavMesh))
             await prisma.floor.update({
                 where: {
                     id: toArea.floor.id
                 },
-                data: {
-                    navMesh: JSON.parse(JSON.stringify(genNavMesh)),
-                    walls: JSON.parse(JSON.stringify(genWalls))
-                }
+                data
             })
             navMesh = genNavMesh
             walls = genWalls

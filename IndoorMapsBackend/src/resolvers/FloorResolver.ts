@@ -53,6 +53,7 @@ export const deleteNavMesh = async (floorDatabaseId: number) => {
         data: {
             navMesh: Prisma.DbNull,
             walls: Prisma.DbNull,
+            voronoiNavMesh: Prisma.DbNull,
         }
     })
 }

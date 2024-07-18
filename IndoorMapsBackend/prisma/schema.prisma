@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -19,15 +19,16 @@ model User {
 }
 
 model Floor {
-  id          Int      @id @default(autoincrement())
-  areas       Area[]
-  title       String
-  description String
-  building    Building @relation(fields: [buildingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  buildingId  Int
-  shape       Json?
-  navMesh     Json?
-  walls       Json?
+  id             Int      @id @default(autoincrement())
+  areas          Area[]
+  title          String
+  description    String
+  building       Building @relation(fields: [buildingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  buildingId     Int
+  shape          Json?
+  navMesh        Json?
+  voronoiNavMesh Json?
+  walls          Json?
 }
 
 model Building {
