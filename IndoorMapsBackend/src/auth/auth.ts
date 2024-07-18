@@ -9,7 +9,7 @@ class AuthService {
     static async register(data: Prisma.UserCreateInput) {
         if (data.password == null) throw new Error('Password not valid')
         data.password = bcrypt.hashSync(data.password!, 8);
-        let userFromDB = await prisma.user.create({
+        const userFromDB = await prisma.user.create({
             data
         });
 

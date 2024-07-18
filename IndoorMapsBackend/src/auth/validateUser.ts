@@ -1,8 +1,7 @@
-import { $Enums, BuildingEditors } from "@prisma/client";
+import { $Enums } from "@prisma/client";
 import { User } from "../graphqlSchemaTypes/User.js";
 import { Context } from "../utils/context.js";
 import { verifyAccessToken } from "./jwt.js";
-import { GraphQLError } from "graphql";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 
 /**
@@ -16,7 +15,7 @@ export const validateUser = async (cookies: Context["cookies"]): Promise<User | 
         if (!cookies || !cookies.jwt) {
             return null;
         }
-        const [userData, token] = await verifyAccessToken(cookies.jwt);
+        const [userData,] = await verifyAccessToken(cookies.jwt);
         return userData
     }
     catch (e) {
@@ -70,7 +69,7 @@ export const getUsersBuildingEditorStatus = async (user: User, building: number,
 
 export const checkAuthrizedBuildingEditor = async (buildingDatabaseId: number, ctx: Context) => {
     const user = await getUserOrThrowError(ctx.cookies);
-    let status = await getUsersBuildingEditorStatus(user, buildingDatabaseId, ctx);
+    const status = await getUsersBuildingEditorStatus(user, buildingDatabaseId, ctx);
     if (status === null || status === "viewer") {
         return throwGraphQLBadInput('User is not authorized to edit this building')
     }
@@ -90,7 +89,7 @@ export const checkAuthrizedFloorEditor = async (floorDatabaseId: number, ctx: Co
     if(!building){
         return throwGraphQLBadInput('Building Not found')
     }
-    let status = await getUsersBuildingEditorStatus(user, building.buildingId, ctx);
+    const status = await getUsersBuildingEditorStatus(user, building.buildingId, ctx);
     if (status === null || status === "viewer") {
         return throwGraphQLBadInput('User is not authorized to edit this building')
     }
@@ -114,7 +113,7 @@ export const checkAuthrizedAreaEditor = async (areaDatasId: number, ctx: Context
     if(!area){
         return throwGraphQLBadInput('Area Not found')
     }
-    let status = await getUsersBuildingEditorStatus(user, area.floor.buildingId, ctx);
+    const status = await getUsersBuildingEditorStatus(user, area.floor.buildingId, ctx);
     if (status === null || status === "viewer") {
         return throwGraphQLBadInput('User is not authorized to edit this building')
     }

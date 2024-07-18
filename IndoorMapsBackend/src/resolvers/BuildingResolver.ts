@@ -1,7 +1,6 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int, Directive } from 'type-graphql'
-import { GraphQLError } from 'graphql'
-import { Floor as DbFloor, Building as DbBuilding } from '@prisma/client'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription } from 'type-graphql'
+import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building } from '../graphqlSchemaTypes/Building.js'
@@ -88,7 +87,7 @@ const connectAllAreasToBuilding = async (databaseId: number, ctx: Context) => {
         }
     })
     if (!data) return;
-    let areas: { id: number }[] = [];
+    const areas: { id: number }[] = [];
     data.floors.forEach((floor) => {
         floor.areas.forEach((area) => {
             areas.push({ id: area.id })

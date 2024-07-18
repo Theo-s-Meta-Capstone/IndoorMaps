@@ -1,5 +1,5 @@
 import { LatLng } from "../graphqlSchemaTypes/Building";
-import { Wall, NavMesh, NavMeshVertex, extendNavMesh } from "./GenerateNavMesh.js";
+import { NavMesh, NavMeshVertex } from "./GenerateNavMesh.js";
 import { PriorityQueue } from "./PriorityQueue.js";
 
 // based on https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
@@ -15,9 +15,9 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
         }
     })
     while (minQueue.size > 0) {
-        let nextClosest = minQueue.poll()!;
+        const nextClosest = minQueue.poll()!;
         navMesh[nextClosest].edges.forEach((vertex) => {
-            let alt = distance[nextClosest] + vertex.weight
+            const alt = distance[nextClosest] + vertex.weight
             if (alt < distance[vertex.index]) {
                 previousNearestVertex[vertex.index] = nextClosest
                 distance[vertex.index] = alt
@@ -25,7 +25,7 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
             }
         })
     }
-    let res: NavMeshVertex[] = [];
+    const res: NavMeshVertex[] = [];
     let cur = end;
     while(previousNearestVertex[cur] !== undefined) {
         // It's weired that TS makes me do ! here, it should know that it can't be undefined
@@ -36,7 +36,7 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
 }
 
 export const findShortestPath = (navMesh: NavMesh, startIndex: number, endIndex: number): [LatLng[], number] => {
-    let res: LatLng[] = [];
+    const res: LatLng[] = [];
     const [path, distance] = dijkstra(navMesh, startIndex, endIndex)
     if(path.length === 0) return [[], -1]
     res.push(...path.map((vertex) => vertex.point))

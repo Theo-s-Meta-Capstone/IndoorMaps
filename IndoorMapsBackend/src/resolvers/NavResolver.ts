@@ -2,7 +2,7 @@ import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, re
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { areWallsEqual, findPolygonCenter, getDistanceBetweenGPSPoints, pointInPolygon } from "../navMesh/helpers.js";
+import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
@@ -111,8 +111,8 @@ export class NavResolver {
 
         if ((toArea.floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (toArea.floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
             neededToGenerateANavMesh = true;
-            let [genNavMesh, genWalls] = generateNavMesh(toArea.floor, pathfindingMethod);
-            const data: { [key: string]: Object } = {
+            const [genNavMesh, genWalls] = generateNavMesh(toArea.floor, pathfindingMethod);
+            const data: { [key: string]: object } = {
                 walls: JSON.parse(JSON.stringify(genWalls))
             }
             pathfindingMethod === PathfindingMethod.Standard ?

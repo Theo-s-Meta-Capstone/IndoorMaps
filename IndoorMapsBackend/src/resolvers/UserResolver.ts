@@ -15,7 +15,6 @@ import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graph
 import auth from '../auth/auth.js'
 import { validateUser } from '../auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLUser } from '../utils/typeConversions.js'
-import { GraphQLError } from 'graphql'
 import { deleteAccessToken } from '../auth/jwt.js'
 import { throwGraphQLBadInput } from '../utils/generic.js'
 

@@ -156,7 +156,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         const response = await request(url).post('/').send(getAllBuildingQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.allBuildings).toBeInstanceOf(Array);
-        expect(response.body.data?.allBuildings.findIndex((value: any) => value.title == testBuildingName)).toBeGreaterThan(-1);
+        expect(response.body.data?.allBuildings.findIndex((value: {title: string}) => value.title == testBuildingName)).toBeGreaterThan(-1);
     });
 
     it('Get single building', async () => {

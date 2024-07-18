@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Area, Prisma } from "@prisma/client";
 import { doIntersect } from "./doIntersect.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areWallsEqual, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
@@ -14,8 +14,6 @@ type FloorIncludeAreas = Prisma.FloorGetPayload<{
         areas: true
     }
 }>
-
-type Area = Prisma.AreaGetPayload<{}>
 
 export class Wall {
     point1: LatLng
@@ -54,7 +52,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
     const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
     const offsetWithWeight = offsetInDegrees * (vertexMethod === "Standard" ? 3 : 1.5);
-    let walls: Wall[] = [];
+    const walls: Wall[] = [];
     let vertices: LatLng[] = [];
     let floorWalls: Wall[] = [];
     if (floorOutline) {
@@ -147,7 +145,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
     }))
 
-    let navMesh: NavMesh = vertices.map((vertex, i): NavMeshVertex => {
+    const navMesh: NavMesh = vertices.map((vertex, i): NavMeshVertex => {
         return {
             index: i,
             point: vertex,
@@ -157,7 +155,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
 
     for (let i = 0; i < navMesh.length; i++) {
         for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-            let doesNotCrossAnyWalls = wallsToUse.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
+            const doesNotCrossAnyWalls = wallsToUse.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
             if (doesNotCrossAnyWalls) {
                 navMesh[i].edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point)))
             }
@@ -170,7 +168,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
             const edges = [];
             for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-                let doesNotCrossAnyWalls = wallsExcludingFloorWalls.findIndex((wall) => doIntersect(point, navMesh[otherVertexIndex].point, wall)) === -1;
+                const doesNotCrossAnyWalls = wallsExcludingFloorWalls.findIndex((wall) => doIntersect(point, navMesh[otherVertexIndex].point, wall)) === -1;
                 if (doesNotCrossAnyWalls) {
                     edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(point, navMesh[otherVertexIndex].point)))
                 }
@@ -188,9 +186,9 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
 }
 
 const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
-    let newEdges: EdgeWithWeight[] = [];
+    const newEdges: EdgeWithWeight[] = [];
     for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-        let doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(start, navMesh[otherVertexIndex].point, wall)) === -1;
+        const doesNotCrossAnyWalls = walls.findIndex((wall) => doIntersect(start, navMesh[otherVertexIndex].point, wall)) === -1;
         if (doesNotCrossAnyWalls) {
             newEdges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(start, navMesh[otherVertexIndex].point)))
         }
@@ -216,7 +214,7 @@ export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExc
         const entrancesCollection = (area.entrances as unknown as GeoJSON.FeatureCollection).features.filter((entrance) => entrance.geometry.type === "Point") as GeoJSON.Feature<GeoJSON.Point>[];
         const beginningOfNewVerities = navMesh.length;
         extendNavMesh(navMesh, wallsExcludingIgnorable, entrancesCollection.map((entrance) => new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])));
-        let edges = [];
+        const edges = [];
         for(let i = beginningOfNewVerities; i < navMesh.length; i++) {
             edges.push(new EdgeWithWeight(i, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
             navMesh[i].edges.push(new EdgeWithWeight(navMesh.length, getDistanceBetweenGPSPoints(point, navMesh[i].point)))

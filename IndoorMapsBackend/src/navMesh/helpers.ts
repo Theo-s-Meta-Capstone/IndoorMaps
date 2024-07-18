@@ -15,7 +15,7 @@ export const getDistanceBetweenGPSPoints = (p1: LatLng, p2: LatLng): number => {
 
 export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined => {
     if (polygon.geometry.type != "Polygon") return;
-    let res = new LatLng(0, 0);
+    const res = new LatLng(0, 0);
     polygon.geometry.coordinates[0].forEach((position) => {
         res.lat += position[1];
         res.lon += position[0];
@@ -33,15 +33,15 @@ export const areWallsEqual = (e1: Wall, e2: Wall) => {
 
 // Modified from https://www.npmjs.com/package/point-in-polygon?activeTab=readme
 export const pointInPolygon = (point: LatLng, vs: number[][]) => {
-    var x = point.lat, y = point.lon;
-    var inside = false;
+    const x = point.lat, y = point.lon;
+    let inside = false;
     const start = 0;
     const end = vs.length;
-    var len = end - start;
-    for (var i = 0, j = len - 1; i < len; j = i++) {
-        var xi = vs[i + start][1], yi = vs[i + start][0];
-        var xj = vs[j + start][1], yj = vs[j + start][0];
-        var intersect = ((yi > y) !== (yj > y))
+    const len = end - start;
+    for (let i = 0, j = len - 1; i < len; j = i++) {
+        const xi = vs[i + start][1], yi = vs[i + start][0];
+        const xj = vs[j + start][1], yj = vs[j + start][0];
+        const intersect = ((yi > y) !== (yj > y))
             && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) inside = !inside;
     }
@@ -50,7 +50,7 @@ export const pointInPolygon = (point: LatLng, vs: number[][]) => {
 
 // Intentially does not return the first or last point on the line
 const getPointsAlongLine = (point1: LatLng, point2: LatLng, numberOfPoints: number): LatLng[] => {
-    let res: LatLng[] = []
+    const res: LatLng[] = []
     numberOfPoints++;
     for(let i = 1; i < numberOfPoints; i++){
         res.push(new LatLng(
