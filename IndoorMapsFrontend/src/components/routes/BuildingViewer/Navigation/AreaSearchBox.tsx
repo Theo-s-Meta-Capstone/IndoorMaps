@@ -1,4 +1,4 @@
-import { TextInput, TextInputProps } from "@mantine/core";
+import { Group, TextInput, TextInputProps } from "@mantine/core";
 import { useEffect, useState, useTransition } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { useDebounce } from "../../../../utils/hooks";
@@ -16,9 +16,10 @@ type Props = {
     setSearchQuery: (newVal: string) => void;
     children?: React.ReactNode;
     showResults?: boolean
+    leftOfInputElements?: React.ReactNode;
 }
 
-const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children, showResults = true }: Props) => {
+const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children, showResults = true, leftOfInputElements }: Props) => {
     const environment = useRelayEnvironment();
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
@@ -64,13 +65,16 @@ const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, build
     }, [debouncedSearchQuery])
     return (
         <>
-            <TextInput
-                {...textInputProps}
-                leftSectionPointerEvents="none"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-            />
-
+            <Group>
+                {leftOfInputElements}
+                <TextInput
+                    {...textInputProps}
+                    style={{ flexGrow: "2" }}
+                    leftSectionPointerEvents="none"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                />
+            </Group>
             <div className="searchResultsContainer">
                 {children}
 

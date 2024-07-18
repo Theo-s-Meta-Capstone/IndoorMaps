@@ -1,4 +1,4 @@
-import { Button, Group, Switch, rem } from "@mantine/core";
+import { Button, Switch, rem } from "@mantine/core";
 import { AreaToAreaRouteInfo } from "../../../../utils/types";
 import { IconArrowLeft, IconCurrentLocation, IconLocationShare } from "@tabler/icons-react";
 import AreaSearchBox from "./AreaSearchBox";
@@ -52,6 +52,12 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const [toSearchQuery, setToSearchQuery] = useState<string>(areaToAreaRouteInfo.to ? areaToAreaRouteInfo.to.title : "")
     const environment = useRelayEnvironment();
     const isUsingCurrentLocationNav = useRef(false)
+    const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+
+    useEffect(() => {
+        areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
+    }, [areaToAreaRouteInfo])
+
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         if (isUsingCurrentLocationNav.current) {
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
@@ -62,8 +68,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     const setFromWithGPS = (curPos: number[]) => {
         setFromSearchQuery("gpsLocation " + curPos)
+        // I think this sufferers from the same issue as clicking on an area in viewer map loader, which is why I'm using a Ref
         setAreaToAreaRouteInfo({
-            ...areaToAreaRouteInfo,
+            ...areaToAreaRouteInfoRef.current,
             from: "gpsLocation",
             currentGPSCoords: new LatLng(curPos[0], curPos[1])
         })
@@ -125,7 +132,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         } else {
             return;
         }
-        data["pathfindingMethod"] = areaToAreaRouteInfo.options?.useVoronoi??false ? "Voronoi" : "Standard" ;
+        data["pathfindingMethod"] = areaToAreaRouteInfo.options?.useVoronoi ?? false ? "Voronoi" : "Standard";
         fetchQuery<AreaNavigateAllDataQuery>(
             environment,
             query,
@@ -137,7 +144,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 start: () => { startTime = performance.now(); },
                 complete: () => { },
                 error: (error: Error) => {
-                    setFormError(error.message);
+                    setFormError(error.message.split("\n\n")[0]);
                 },
                 next: (data) => {
                     endTime = performance.now();
@@ -183,84 +190,85 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     }, [areaToAreaRouteInfo.currentGPSCoords])
 
     useEffect(() => {
-        if(areaToAreaRouteInfo.to) {
+        if (areaToAreaRouteInfo.to) {
             setToSearchQuery(areaToAreaRouteInfo.to.title)
         }
     }, [areaToAreaRouteInfo.to])
 
     return (
-        <Group wrap="nowrap" align="top" style={{ height: "100%" }}>
-            <Button className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
-                <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
-            </Button>
-            <div className="navigationInputs">
-                <AreaSearchBox
-                    textInputProps={{
-                        autoFocus: true,
-                        leftSection: iconCurrentLocation,
-                        label: "From:",
-                    }}
-                    searchQuery={fromSearchQuery}
-                    setSearchQuery={(newQuery: string) => setFromSearchQuery(newQuery)}
-                    setFormError={(newVal: string) => setFormError(newVal)}
-                    buildingId={buildingId}
-                    setSelectedResponse={setFrom}
-                    // show results if nothing is selected, or if the search query doesn't match the title
-                    showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
-                >
-                    <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
-                        setFromSearchQuery("gpsLocation Loading...")
-                        isUsingCurrentLocationNav.current = true
-                        getUserLocaiton();
-                        setAreaToAreaRouteInfo({
-                            ...areaToAreaRouteInfo,
-                            from: "gpsLocation"
-                        })
-                    }}>My GPS Location</Button>
-                </AreaSearchBox>
+        <div className="navigationInputs">
 
-                <AreaSearchBox
-                    textInputProps={{
-                        leftSection: iconLocationShare,
-                        label: "To:",
-                    }}
-                    searchQuery={toSearchQuery}
-                    setSearchQuery={(newQuery: string) => setToSearchQuery(newQuery)}
-                    setFormError={(newVal: string) => setFormError(newVal)}
-                    buildingId={buildingId}
-                    setSelectedResponse={setTo}
-                    showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
+            <AreaSearchBox
+                textInputProps={{
+                    autoFocus: true,
+                    leftSection: iconCurrentLocation,
+                    label: "From:",
+                }}
+                searchQuery={fromSearchQuery}
+                setSearchQuery={(newQuery: string) => setFromSearchQuery(newQuery)}
+                setFormError={(newVal: string) => setFormError(newVal)}
+                buildingId={buildingId}
+                setSelectedResponse={setFrom}
+                // show results if nothing is selected, or if the search query doesn't match the title
+                showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
+                leftOfInputElements={(
+                    <Button className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
+                    <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
+                </Button>
+                )}
+            >
+                <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
+                    setFromSearchQuery("gpsLocation Loading...")
+                    isUsingCurrentLocationNav.current = true
+                    getUserLocaiton();
+                    setAreaToAreaRouteInfo({
+                        ...areaToAreaRouteInfo,
+                        from: "gpsLocation"
+                    })
+                }}>My GPS Location</Button>
+            </AreaSearchBox>
+
+            <AreaSearchBox
+                textInputProps={{
+                    leftSection: iconLocationShare,
+                    label: "To:",
+                }}
+                searchQuery={toSearchQuery}
+                setSearchQuery={(newQuery: string) => setToSearchQuery(newQuery)}
+                setFormError={(newVal: string) => setFormError(newVal)}
+                buildingId={buildingId}
+                setSelectedResponse={setTo}
+                showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
+            />
+            {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
+            {areaToAreaRouteInfo.to?.description ? <p className="areaDescription">{areaToAreaRouteInfo.to.description}</p> : null}
+            <div className="extraOptionsForNav">
+                <Switch
+                    onChange={(e) => updateOptions(e, "showWalls")}
+                    checked={areaToAreaRouteInfo.options?.showWalls ?? false}
+                    label="Show Walls"
                 />
-                {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
-                <p>{areaToAreaRouteInfo.to?.description}</p>
-                <div className="extraOptionsForNav">
-                    <Switch
-                        onChange={(e) => updateOptions(e, "showWalls")}
-                        checked={areaToAreaRouteInfo.options?.showWalls ?? false}
-                        label="Show Walls"
-                    />
-                    <Switch
-                        onChange={(e) => updateOptions(e, "showEdges")}
-                        checked={areaToAreaRouteInfo.options?.showEdges ?? false}
-                        label="Show Edges"
-                    />
-                    <Switch
-                        onChange={(e) => updateOptions(e, "showInfo")}
-                        checked={areaToAreaRouteInfo.options?.showInfo ?? false}
-                        label="Show Info"
-                    />
-                    <Switch
-                        onChange={(e) => updateOptions(e, "useVoronoi")}
-                        checked={areaToAreaRouteInfo.options?.useVoronoi ?? false}
-                        label="use Voronoi based Nav Mesh"
-                    />
-                    {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
-                        (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
-                            Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
-                        : null}
-                </div>
+                <Switch
+                    onChange={(e) => updateOptions(e, "showEdges")}
+                    checked={areaToAreaRouteInfo.options?.showEdges ?? false}
+                    label="Show Edges"
+                />
+                <Switch
+                    onChange={(e) => updateOptions(e, "showInfo")}
+                    checked={areaToAreaRouteInfo.options?.showInfo ?? false}
+                    label="Show Info"
+                />
+                <Switch
+                    onChange={(e) => updateOptions(e, "useVoronoi")}
+                    checked={areaToAreaRouteInfo.options?.useVoronoi ?? false}
+                    label="use Voronoi based Nav Mesh"
+                />
+                {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
+                    (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
+                        Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)
+                    : null}
             </div>
-        </Group>
+        </div>
     )
 }
 
