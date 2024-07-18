@@ -69,14 +69,14 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             ...grahamScan(coords.flatMap((pos) => {
                 return [
                     new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0] + offsetInDegrees*floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0] - offsetInDegrees*floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0] + offsetInDegrees*floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0] - offsetInDegrees*floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees*floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1] - offsetInDegrees*floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetInDegrees*floorPlanOffsetWeight),
-                    new LatLng(pos[1], pos[0] - offsetInDegrees*floorPlanOffsetWeight),
+                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
+                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
+                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
+                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
+                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0]),
+                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0]),
+                    new LatLng(pos[1], pos[0] + offsetInDegrees * floorPlanOffsetWeight),
+                    new LatLng(pos[1], pos[0] - offsetInDegrees * floorPlanOffsetWeight),
                 ]
             }))
         )
@@ -209,14 +209,13 @@ export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng
     newPoints.forEach((newPoint) => addPointToNavMesh(navMesh, walls, newPoint))
 }
 
-
 export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExcludingIgnorable: Wall[], point: LatLng): number => {
     if (area && area.entrances !== null) {
         const entrancesCollection = (area.entrances as unknown as GeoJSON.FeatureCollection).features.filter((entrance) => entrance.geometry.type === "Point") as GeoJSON.Feature<GeoJSON.Point>[];
         const beginningOfNewVerities = navMesh.length;
         extendNavMesh(navMesh, wallsExcludingIgnorable, entrancesCollection.map((entrance) => new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])));
         const edges = [];
-        for(let i = beginningOfNewVerities; i < navMesh.length; i++) {
+        for (let i = beginningOfNewVerities; i < navMesh.length; i++) {
             edges.push(new EdgeWithWeight(i, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
             navMesh[i].edges.push(new EdgeWithWeight(navMesh.length, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
         }
@@ -226,8 +225,8 @@ export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExc
             edges,
         })
 
-        return navMesh.length-1;
+        return navMesh.length - 1;
     }
-    extendNavMesh(navMesh, wallsExcludingIgnorable , [point]);
-    return navMesh.length-1;
+    extendNavMesh(navMesh, wallsExcludingIgnorable, [point]);
+    return navMesh.length - 1;
 }

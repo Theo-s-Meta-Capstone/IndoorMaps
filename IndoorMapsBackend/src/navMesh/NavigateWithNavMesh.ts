@@ -3,13 +3,13 @@ import { NavMesh, NavMeshVertex } from "./GenerateNavMesh.js";
 import { PriorityQueue } from "./PriorityQueue.js";
 
 // based on https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
-const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[], number] => {
-    const minQueue = new PriorityQueue<number>([start]);
+const dijkstra = (navMesh: NavMesh, fromIndex: number, toIndex: number): [NavMeshVertex[], number] => {
+    const minQueue = new PriorityQueue<number>([fromIndex]);
     const distance: { [key: number]: number } = {};
-    distance[start] = 0;
+    distance[fromIndex] = 0;
     const previousNearestVertex: { [key: number]: number | undefined } = {};
     navMesh.forEach((vertex, i) => {
-        if (i !== start) {
+        if (i !== fromIndex) {
             distance[i] = Infinity;
             previousNearestVertex[i] = undefined;
         }
@@ -26,20 +26,20 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
         })
     }
     const res: NavMeshVertex[] = [];
-    let cur = end;
+    let cur = toIndex;
     while(previousNearestVertex[cur] !== undefined) {
         // It's weired that TS makes me do ! here, it should know that it can't be undefined
         res.push(navMesh[previousNearestVertex[cur]!]);
         cur = previousNearestVertex[cur]!;
     }
-    return [res.reverse(), distance[end]];
+    return [res.reverse(), distance[toIndex]];
 }
 
-export const findShortestPath = (navMesh: NavMesh, startIndex: number, endIndex: number): [LatLng[], number] => {
+export const findShortestPath = (navMesh: NavMesh, fromIndex: number, toIndex: number): [LatLng[], number] => {
     const res: LatLng[] = [];
-    const [path, distance] = dijkstra(navMesh, startIndex, endIndex)
+    const [path, distance] = dijkstra(navMesh, fromIndex, toIndex)
     if(path.length === 0) return [[], -1]
     res.push(...path.map((vertex) => vertex.point))
-    res.push(navMesh[endIndex].point)
+    res.push(navMesh[toIndex].point)
     return [res, distance];
 }

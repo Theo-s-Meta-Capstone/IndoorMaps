@@ -74,8 +74,8 @@ export class NavResolver {
 
         if (!toArea || !toArea.shape) throw throwGraphQLBadInput('To Area not found')
         const toShape = toArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-        const endIgnorableWalls = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
-        const startIgnorableWalls: Wall[] = [];
+        const toAreaIgnorableWalls = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
+        const fromAreaIgnorableWalls: Wall[] = [];
         let fromLatLon: LatLng | undefined;
         let fromArea;
         if (data.areaFromId === undefined) {
@@ -84,7 +84,7 @@ export class NavResolver {
             // remove the walls from the area that the user is in
             const fromShape = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
             if (fromShape) {
-                startIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+                fromAreaIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
             }
         }
         else {
@@ -96,7 +96,7 @@ export class NavResolver {
             if (!fromArea || !fromArea.shape) throw throwGraphQLBadInput('From Area not found')
             if (fromArea.floorId !== toArea.floorId) throw throwGraphQLBadInput("Navigation between floors is not currently supported")
             const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-            startIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+            fromAreaIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
             fromLatLon = findPolygonCenter(fromShape)
         }
 
@@ -134,29 +134,29 @@ export class NavResolver {
             walls = (toArea.floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
         }
 
-        const startWallsWithoutIgnorable = walls.filter(wall => {
-            return startIgnorableWalls.findIndex((ignorableWall) => {
+        const fromAreaWallsWithoutIgnorable = walls.filter(wall => {
+            return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
-        const endWallsWithoutIgnorable = walls.filter(wall => {
-            return endIgnorableWalls.findIndex((ignorableWall) => {
+        const toAreaWallsWithoutIgnorable = walls.filter(wall => {
+            return toAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
 
         // This is only used in the visualization, This and the extra strification requried for the extra fields take at lease 20 ms on my m1 mac
-        const allWallsWithIgnorable = endWallsWithoutIgnorable.filter(wall => {
-            return startIgnorableWalls.findIndex((ignorableWall) => {
+        const allWallsWithIgnorable = toAreaWallsWithoutIgnorable.filter(wall => {
+            return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
 
         //  adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
-        const startIndex = addAreaToMesh(navMesh, fromArea, startWallsWithoutIgnorable, fromLatLon);
-        const endIndex = addAreaToMesh(navMesh, toArea, endWallsWithoutIgnorable, toLatLon);
+        const fromIndex = addAreaToMesh(navMesh, fromArea, fromAreaWallsWithoutIgnorable, fromLatLon);
+        const toIndex = addAreaToMesh(navMesh, toArea, toAreaWallsWithoutIgnorable, toLatLon);
 
-        const [shortestPath, distance] = findShortestPath(navMesh, startIndex, endIndex)
+        const [shortestPath, distance] = findShortestPath(navMesh, fromIndex, toIndex)
         return {
             path: shortestPath,
             walls: JSON.stringify(allWallsWithIgnorable),
