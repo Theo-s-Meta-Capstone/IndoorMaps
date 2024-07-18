@@ -13,7 +13,6 @@ import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 import { DoorMarkerIcon } from "../../../utils/markerIcon";
 import { Button } from "@mantine/core";
 
-// TODO: convert into refetch able fragment to make it so that areas are only loaded when needed
 const AreaSidebarFragment = graphql`
   fragment AreaSidebarBodyFragment on Floor
   {
