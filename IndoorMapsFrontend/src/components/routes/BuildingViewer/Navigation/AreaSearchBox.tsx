@@ -65,7 +65,7 @@ const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, build
     }, [debouncedSearchQuery])
     return (
         <>
-            <Group>
+            <Group wrap="nowrap">
                 {leftOfInputElements}
                 <TextInput
                     {...textInputProps}

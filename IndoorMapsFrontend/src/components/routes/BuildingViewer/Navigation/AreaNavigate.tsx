@@ -105,15 +105,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             ...areaToAreaRouteInfo,
         }
         if (!newInfo.options) newInfo.options = {}
-        if (event.currentTarget.checked) {
-            newInfo.options[optionToUpdate] = event.currentTarget.checked;
-        }
-        else {
-            delete newInfo.options[optionToUpdate]
-        }
-        if (Object.keys(newInfo.options).length === 0) {
-            delete newInfo.options
-        }
+        newInfo.options[optionToUpdate] = event.currentTarget.checked;
         setAreaToAreaRouteInfo(newInfo)
     }
 

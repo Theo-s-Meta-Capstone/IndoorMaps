@@ -35,7 +35,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const buildingAnkerLatLon = new L.LatLng(building.startPos.lat, building.startPos.lon)
     const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
     const [pageError, setPageError] = useState<string | null>(null);
-    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({});
+    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({ options: { useVoronoi: true } });
     const [map, setMap] = useState<L.Map | null>(null);
 
     const handleUpdateAreaToAreaRouteInfo = (newRouteData: AreaToAreaRouteInfo) => {
