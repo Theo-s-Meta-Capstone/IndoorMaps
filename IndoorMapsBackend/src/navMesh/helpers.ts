@@ -51,6 +51,7 @@ export const pointInPolygon = (point: LatLng, vs: number[][]) => {
 // Intentially does not return the first or last point on the line
 const getPointsAlongLine = (point1: LatLng, point2: LatLng, numberOfPoints: number): LatLng[] => {
     let res: LatLng[] = []
+    numberOfPoints++;
     for(let i = 1; i < numberOfPoints; i++){
         res.push(new LatLng(
             point1.lat + (point2.lat - point1.lat) * i/numberOfPoints,
@@ -60,6 +61,11 @@ const getPointsAlongLine = (point1: LatLng, point2: LatLng, numberOfPoints: numb
     return res;
 }
 
+const isIn = (point: LatLng, bbox: { xl: number, xr: number, yt: number, yb: number }) => {
+    return point.lat >= bbox.xl && point.lat <= bbox.xr && point.lon >= bbox.yt && point.lon <= bbox.yb
+}
+
+const numberOfPointsToIncludeFromEachVoronoiEdge = 1;
 export const vorornoiDriver = (vertices: LatLng[]) => {
     // js constructor hack from https://stackoverflow.com/a/51622913
     const voronoi = new (Voronoi as any);
@@ -72,8 +78,8 @@ export const vorornoiDriver = (vertices: LatLng[]) => {
     const sites = vertices.map(vertex => { return { "x": vertex.lat, "y": vertex.lon } });
     const diagram = voronoi.compute(sites, bbox);
     return diagram.edges.flatMap((edge: { va: { "x": number, "y": number }, vb: { "x": number, "y": number } }) => {
-        return getPointsAlongLine(new LatLng(edge.va.x, edge.va.y), new LatLng(edge.vb.x, edge.vb.y), 2)
+        return getPointsAlongLine(new LatLng(edge.va.x, edge.va.y), new LatLng(edge.vb.x, edge.vb.y), numberOfPointsToIncludeFromEachVoronoiEdge)
     }).concat(diagram.vertices.map((vertex: { "x": number, "y": number }) => {
         return new LatLng(vertex.x, vertex.y)
-    }))
+    })).filter((vertex: LatLng) => isIn(vertex, bbox))
 }

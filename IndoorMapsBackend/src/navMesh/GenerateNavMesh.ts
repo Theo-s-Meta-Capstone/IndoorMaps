@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { doIntersect } from "./doIntersect.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
+import { areWallsEqual, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
 import GrahamScan from "@lucio/graham-scan"
 import { PathfindingMethod } from "../resolvers/NavResolver.js";
 
@@ -15,6 +15,8 @@ type FloorIncludeAreas = Prisma.FloorGetPayload<{
     }
 }>
 
+type Area = Prisma.AreaGetPayload<{}>
+
 export class Wall {
     point1: LatLng
     point2: LatLng
@@ -24,7 +26,7 @@ export class Wall {
     }
 }
 
-class EdgeWithWeight {
+export class EdgeWithWeight {
     weight: number
     index: number
     constructor(index: number, weight: number) {
@@ -50,19 +52,36 @@ const grahamScan = (points: LatLng[]): LatLng[] => {
 export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
-    const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon>;
+    const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
+    const offsetWithWeight = offsetInDegrees * (vertexMethod === "Standard" ? 3 : 1.5);
     let walls: Wall[] = [];
     let vertices: LatLng[] = [];
+    let floorWalls: Wall[] = [];
     if (floorOutline) {
         const coords = floorOutline.geometry.coordinates[0]
-        walls = coords.flatMap((pos, i) => {
+        floorWalls = coords.flatMap((pos, i) => {
             return new Wall(new LatLng(pos[1], pos[0]), new LatLng(coords[(i + 1) % coords.length][1], coords[(i + 1) % coords.length][0]))
         })
+        walls.push(...floorWalls)
         vertices = coords.flatMap((pos, i) => {
             return new LatLng(pos[1], pos[0])
-        })
+        }).concat(
+            // adds outside verticies to help with navigation from outside a building
+            ...grahamScan(coords.flatMap((pos) => {
+                return [
+                    new LatLng(pos[1], pos[0]),
+                    new LatLng(pos[1] + offsetWithWeight, pos[0] + offsetWithWeight),
+                    new LatLng(pos[1] + offsetWithWeight, pos[0] - offsetWithWeight),
+                    new LatLng(pos[1] - offsetWithWeight, pos[0] + offsetWithWeight),
+                    new LatLng(pos[1] - offsetWithWeight, pos[0] - offsetWithWeight),
+                    new LatLng(pos[1] + offsetWithWeight, pos[0]),
+                    new LatLng(pos[1] - offsetWithWeight, pos[0]),
+                    new LatLng(pos[1], pos[0] + offsetWithWeight),
+                    new LatLng(pos[1], pos[0] - offsetWithWeight),
+                ]
+            }))
+        )
     }
-    const offsetWithWeight = offsetInDegrees * (vertexMethod === "Standard" ? 3 : 1.5) ;
     // Using the Naïve algo (n^3) based on https://www.cs.kent.edu/~dragan/ST-Spring2016/visibility%20graphs.pdf
     // A better time complexity can be achived using the n^2*log(n) algo specified here: https://github.com/davetcoleman/visibility_graph/blob/master/Visibility_Graph_Algorithm.pdf
     // There is also a JS lib that implements the https://github.com/rowanwins/visibility-graph
@@ -145,6 +164,26 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         }
     }
 
+    const wallsExcludingFloorWalls = wallsToUse.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
+    floorGeoJSON.features.forEach((feature) => {
+        if (feature.geometry.type === "Point") {
+            const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+            const edges = [];
+            for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
+                let doesNotCrossAnyWalls = wallsExcludingFloorWalls.findIndex((wall) => doIntersect(point, navMesh[otherVertexIndex].point, wall)) === -1;
+                if (doesNotCrossAnyWalls) {
+                    edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(point, navMesh[otherVertexIndex].point)))
+                }
+            }
+            navMesh.push({
+                index: navMesh.length,
+                point,
+                edges,
+            })
+        }
+
+    })
+
     return [navMesh, walls] as const
 }
 
@@ -167,6 +206,29 @@ const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
     })
 }
 
-export const extendNavMesh = (navMesh: NavMesh, walls: Wall[][], newPoints: LatLng[]) => {
-    newPoints.forEach((newPoint, i) => addPointToNavMesh(navMesh, walls[i], newPoint))
+export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng[]) => {
+    newPoints.forEach((newPoint) => addPointToNavMesh(navMesh, walls, newPoint))
+}
+
+
+export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExcludingIgnorable: Wall[], point: LatLng): number => {
+    if (area && area.entrances !== null) {
+        const entrancesCollection = (area.entrances as unknown as GeoJSON.FeatureCollection).features.filter((entrance) => entrance.geometry.type === "Point") as GeoJSON.Feature<GeoJSON.Point>[];
+        const beginningOfNewVerities = navMesh.length;
+        extendNavMesh(navMesh, wallsExcludingIgnorable, entrancesCollection.map((entrance) => new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])));
+        let edges = [];
+        for(let i = beginningOfNewVerities; i < navMesh.length; i++) {
+            edges.push(new EdgeWithWeight(i, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
+            navMesh[i].edges.push(new EdgeWithWeight(navMesh.length, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
+        }
+        navMesh.push({
+            point,
+            index: navMesh.length,
+            edges,
+        })
+
+        return navMesh.length-1;
+    }
+    extendNavMesh(navMesh, wallsExcludingIgnorable , [point]);
+    return navMesh.length-1;
 }

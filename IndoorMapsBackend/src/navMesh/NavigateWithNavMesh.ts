@@ -35,12 +35,11 @@ const dijkstra = (navMesh: NavMesh, start: number, end: number): [NavMeshVertex[
     return [res.reverse(), distance[end]];
 }
 
-export const findShortestPath = (navMesh: NavMesh, walls: Wall[][], start: LatLng, end: LatLng): [LatLng[], number] => {
-    extendNavMesh(navMesh, walls, [start, end]);
+export const findShortestPath = (navMesh: NavMesh, startIndex: number, endIndex: number): [LatLng[], number] => {
     let res: LatLng[] = [];
-    const [path, distance] = dijkstra(navMesh, navMesh.length - 2, navMesh.length - 1)
-    if(path.length === 0) throw new Error ("No Path Found")
+    const [path, distance] = dijkstra(navMesh, startIndex, endIndex)
+    if(path.length === 0) return [[], -1]
     res.push(...path.map((vertex) => vertex.point))
-    res.push(end)
+    res.push(navMesh[endIndex].point)
     return [res, distance];
 }

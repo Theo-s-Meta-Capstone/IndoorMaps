@@ -1,8 +1,8 @@
 import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
-import { Wall, generateNavMesh, NavMesh, NavMeshVertex } from "../navMesh/GenerateNavMesh.js";
+import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/helpers.js";
+import { areWallsEqual, findPolygonCenter, getDistanceBetweenGPSPoints, pointInPolygon } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
@@ -77,17 +77,18 @@ export class NavResolver {
         const endIgnorableWalls = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
         const startIgnorableWalls: Wall[] = [];
         let fromLatLon: LatLng | undefined;
+        let fromArea;
         if (data.areaFromId === undefined) {
             if (!data.locationFromLat || !data.locationFromLon) throw throwGraphQLBadInput('From location not found')
             fromLatLon = new LatLng(data.locationFromLat, data.locationFromLon)
             // remove the walls from the area that the user is in
-            const insideArea = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
-            if (insideArea) {
-                startIgnorableWalls.push(...insideArea.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+            const fromShape = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
+            if (fromShape) {
+                startIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
             }
         }
         else {
-            const fromArea = await ctx.prisma.area.findUnique({
+            fromArea = await ctx.prisma.area.findUnique({
                 where: {
                     id: data.areaFromId,
                 }
@@ -103,7 +104,7 @@ export class NavResolver {
 
         if (!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
 
-        const pathfindingMethod = data.pathfindingMethod??PathfindingMethod.Standard;
+        const pathfindingMethod = data.pathfindingMethod ?? PathfindingMethod.Standard;
         let navMesh: NavMesh;
         let walls: Wall[] = [];
         let neededToGenerateANavMesh = false
@@ -111,7 +112,7 @@ export class NavResolver {
         if ((toArea.floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (toArea.floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
             neededToGenerateANavMesh = true;
             let [genNavMesh, genWalls] = generateNavMesh(toArea.floor, pathfindingMethod);
-            const data: {[key: string]: Object} = {
+            const data: { [key: string]: Object } = {
                 walls: JSON.parse(JSON.stringify(genWalls))
             }
             pathfindingMethod === PathfindingMethod.Standard ?
@@ -149,8 +150,12 @@ export class NavResolver {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
-        // findShortestPath also adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
-        const [shortestPath, distance] = findShortestPath(navMesh, [startWallsWithoutIgnorable, endWallsWithoutIgnorable], fromLatLon, toLatLon)
+
+        //  adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
+        const startIndex = addAreaToMesh(navMesh, fromArea, startWallsWithoutIgnorable, fromLatLon);
+        const endIndex = addAreaToMesh(navMesh, toArea, endWallsWithoutIgnorable, toLatLon);
+
+        const [shortestPath, distance] = findShortestPath(navMesh, startIndex, endIndex)
         return {
             path: shortestPath,
             walls: JSON.stringify(allWallsWithIgnorable),
