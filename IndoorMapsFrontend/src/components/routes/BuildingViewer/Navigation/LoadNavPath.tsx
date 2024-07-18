@@ -56,7 +56,7 @@ const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
         const polyLine = new L.Polyline(areaToAreaRouteInfo.path)
         polyLine.addTo(pathLayerGroup);
 
-    }, [areaToAreaRouteInfo.path])
+    }, [areaToAreaRouteInfo.path, areaToAreaRouteInfo.options?.showEdges, areaToAreaRouteInfo.options?.showWalls, areaToAreaRouteInfo.options?.showInfo])
 
     useEffect(() => {
         pathLayerGroup.addTo(map)

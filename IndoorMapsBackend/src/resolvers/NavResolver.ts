@@ -127,7 +127,9 @@ export class NavResolver {
             walls = genWalls
         }
         else {
-            navMesh = (toArea.floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
+            navMesh = pathfindingMethod === PathfindingMethod.Standard ?
+                (toArea.floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex) :
+                (toArea.floor.voronoiNavMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
             walls = (toArea.floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
         }
 

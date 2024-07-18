@@ -34,6 +34,7 @@ export type AreaToAreaRouteInfo = {
         [key: string]: boolean | undefined,
         showWalls?: boolean,
         showEdges?: boolean,
-        showInfo?: boolean
+        showInfo?: boolean,
+        useVoronoi?: boolean,
     }
 }

@@ -6,7 +6,7 @@ import { AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.grap
 import { useEffect, useRef, useState } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { LatLng } from "leaflet";
-import { AreaNavigateAllDataQuery } from "./__generated__/AreaNavigateAllDataQuery.graphql";
+import { AreaNavigateAllDataQuery, AreaNavigateAllDataQuery$variables } from "./__generated__/AreaNavigateAllDataQuery.graphql";
 import { useUserLocation } from "../../../../utils/hooks";
 
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
@@ -97,8 +97,15 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             ...areaToAreaRouteInfo,
         }
         if (!newInfo.options) newInfo.options = {}
-        newInfo.options[optionToUpdate] = event.currentTarget.checked;
-        // TODO: remove options object if all false
+        if (event.currentTarget.checked) {
+            newInfo.options[optionToUpdate] = event.currentTarget.checked;
+        }
+        else {
+            delete newInfo.options[optionToUpdate]
+        }
+        if (Object.keys(newInfo.options).length === 0) {
+            delete newInfo.options
+        }
         setAreaToAreaRouteInfo(newInfo)
     }
 
@@ -107,7 +114,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         let query = getNavWithAllData;
         if (!areaToAreaRouteInfo.options) query = getNavWithoutData
         let startTime: number, endTime: number;
-        const data: { [key: string]: number, "areaToId": number } = {
+        const data: AreaNavigateAllDataQuery$variables["data"] = {
             "areaToId": areaToAreaRouteInfo.to.areaDatabaseId
         }
         if (areaToAreaRouteInfo.from instanceof Object) {
@@ -118,6 +125,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         } else {
             return;
         }
+        data["pathfindingMethod"] = areaToAreaRouteInfo.options?.useVoronoi??false ? "Voronoi" : "Standard" ;
         fetchQuery<AreaNavigateAllDataQuery>(
             environment,
             query,
@@ -150,11 +158,15 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             distance: data.getNavBetweenAreas.distance
                         })
                     } else {
-                        setAreaToAreaRouteInfo({
+                        let newRouteInfo = {
                             ...areaToAreaRouteInfo,
                             path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
                             distance: data.getNavBetweenAreas.distance,
-                        })
+                        }
+                        newRouteInfo.navMesh = undefined;
+                        newRouteInfo.info = undefined;
+                        newRouteInfo.walls = undefined;
+                        setAreaToAreaRouteInfo(newRouteInfo)
                     }
                 }
             });
@@ -162,7 +174,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     useEffect(() => {
         getNewPath()
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from])
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options, areaToAreaRouteInfo.options?.useVoronoi])
 
     useEffect(() => {
         if (isUsingCurrentLocationNav.current) {
@@ -213,7 +225,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     setSelectedResponse={setTo}
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
-                {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance*kmToFeet)+" ft":null}
+                {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
                 <div className="extraOptionsForNav">
                     <Switch
                         onChange={(e) => updateOptions(e, "showWalls")}
@@ -229,6 +241,11 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                         onChange={(e) => updateOptions(e, "showInfo")}
                         checked={areaToAreaRouteInfo.options?.showInfo ?? false}
                         label="Show Info"
+                    />
+                    <Switch
+                        onChange={(e) => updateOptions(e, "useVoronoi")}
+                        checked={areaToAreaRouteInfo.options?.useVoronoi ?? false}
+                        label="use Voronoi based Nav Mesh"
                     />
                     <p>Changes to options will only apply on the next Path</p>
                     {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
