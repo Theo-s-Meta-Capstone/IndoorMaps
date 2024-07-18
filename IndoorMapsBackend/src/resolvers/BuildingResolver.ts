@@ -8,7 +8,7 @@ import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
-import { MutationResult } from '../utils/generic.js'
+import { MutationResult, throwGraphQLBadInput } from '../utils/generic.js'
 import { LiveLocation, pubSub } from './pubSub.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
 
@@ -136,11 +136,7 @@ export class BuildingResolver {
             },
         });
         if (!dbFloors) {
-            throw new GraphQLError('Building not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Building not found')
         }
         return dbFloors.floors.map((value: DbFloor) => convertToGraphQLFloor(value))
     }
@@ -189,11 +185,7 @@ export class BuildingResolver {
             },
         })
         if (userToInvite === null) {
-            throw new GraphQLError('User to invite is not signed up', {
-                extensions: {
-                    code: 'USER_TO_INVITE_NOT_FOUND',
-                },
-            });
+            throw throwGraphQLBadInput('User to invite is not signed up')
         }
 
         await ctx.prisma.buildingEditors.create({
@@ -227,11 +219,7 @@ export class BuildingResolver {
             },
         })
         if (!dbBuilding) {
-            throw new GraphQLError('Building not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Building not found')
         }
         return convertToGraphQLBuilding(dbBuilding);
     }

@@ -1,11 +1,12 @@
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
-import { GraphQLError } from "graphql";
 
-import { Context } from "../utils/context.js";
+import { Context, prisma } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
-import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js";
+import { checkAuthrizedBuildingEditor, checkAuthrizedFloorEditor } from "../auth/validateUser.js";
 import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
+import { throwGraphQLBadInput } from "../utils/generic.js";
+import { Prisma } from "@prisma/client";
 
 @InputType()
 class FloorCreateInput {
@@ -44,6 +45,18 @@ class FloorModifyInput extends FloorUniqueInput {
     newShape?: NewShape
 }
 
+export const deleteNavMesh = async (floorDatabaseId: number) => {
+    await prisma.floor.update({
+        where: {
+            id: floorDatabaseId
+        },
+        data: {
+            navMesh: Prisma.DbNull,
+            walls: Prisma.DbNull,
+        }
+    })
+}
+
 @Resolver(of => Floor)
 export class FloorResolver {
     @FieldResolver((type) => [Area]!)
@@ -61,11 +74,7 @@ export class FloorResolver {
             },
         });
         if (!dbAreas) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Floor not found')
         }
         return dbAreas.areas.map((value) => convertToGraphQlArea(value))
     }
@@ -93,6 +102,7 @@ export class FloorResolver {
                 buildingId: true,
             }
         });
+        await deleteNavMesh(data.id);
         return {
             success: true,
             databaseId: updatedFloor.id,
@@ -139,11 +149,7 @@ export class FloorResolver {
             }
         })
         if (!dbFloor) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Floor not found');
         }
         return convertToGraphQLFloor(dbFloor);
     }

@@ -4,7 +4,8 @@ import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 import { convertToGraphQlArea } from "../utils/typeConversions.js"
 import { GraphQLError } from "graphql"
-import { NewShape } from "./FloorResolver.js"
+import { NewShape, deleteNavMesh } from "./FloorResolver.js"
+import { throwGraphQLBadInput } from "../utils/generic.js"
 
 @InputType()
 class AreaCreateInput {
@@ -22,6 +23,9 @@ class AreaCreateInput {
 
     @Field({ nullable: true })
     category: string
+
+    @Field()
+    buildingDatabaseId: number
 }
 
 @InputType()
@@ -75,8 +79,14 @@ export class AreaResolver {
                         id: data.floorDatabseId,
                     },
                 },
+                building: {
+                    connect: {
+                        id: data.buildingDatabaseId
+                    }
+                }
             },
         });
+        await deleteNavMesh(newArea.floorId);
         return {
             success: true,
             databaseId: newArea.id,
@@ -108,6 +118,7 @@ export class AreaResolver {
                 floorId: true,
             }
         });
+        await deleteNavMesh(updatedArea.floorId);
         return {
             success: true,
             databaseId: updatedArea.id,
@@ -129,6 +140,7 @@ export class AreaResolver {
                 id: data.id
             },
         });
+        await deleteNavMesh(updatedArea.floorId);
         return {
             success: true,
             databaseId: updatedArea.id,
@@ -146,13 +158,7 @@ export class AreaResolver {
                 id: data.id,
             }
         })
-        if (!dbArea) {
-            throw new GraphQLError('Floor not found', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
-        }
+        if (!dbArea) throw throwGraphQLBadInput('Floor not found')
         return convertToGraphQlArea(dbArea);
     }
 }

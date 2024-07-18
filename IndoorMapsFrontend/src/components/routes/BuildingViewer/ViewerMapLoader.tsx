@@ -6,6 +6,7 @@ import { graphql, useFragment } from "react-relay";
 import { ViewerMapLoaderFragment$key } from "./__generated__/ViewerMapLoaderFragment.graphql";
 import { Button, Group } from "@mantine/core";
 import { AreaToAreaRouteInfo } from "../../../utils/types";
+import LoadNavPath from "./Navigation/LoadNavPath";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -235,6 +236,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
 
     return (
         <Group className="floorsContainer" >
+            <LoadNavPath areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} />
             {floorListElements}
             {children}
         </Group>

@@ -1,8 +1,9 @@
 import { Arg, Query, Field, Resolver, InputType } from "type-graphql";
 import { GraphQLError } from "graphql";
 
-import { Autocomplete, Geocoder } from "../graphqlSchemaTypes/Geocoding.js";
+import { Autocomplete } from "../graphqlSchemaTypes/Geocoding.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
+import { throwGraphQLBadInput } from "../utils/generic.js";
 
 @InputType()
 class AutocompleteInput {
@@ -37,11 +38,7 @@ export class GeododerResolver {
         }
         catch (error) {
             console.error(error)
-            throw new GraphQLError('Failed to get from HERE api', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Failed to get from HERE api')
         }
     }
 
@@ -61,11 +58,7 @@ export class GeododerResolver {
         }
         catch (error) {
             console.error(error)
-            throw new GraphQLError('Failed to get from HERE api', {
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                },
-            });
+            throw throwGraphQLBadInput('Failed to get from HERE api')
         }
     }
 }

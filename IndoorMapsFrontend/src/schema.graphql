@@ -16,6 +16,7 @@ type Area {
 }
 
 input AreaCreateInput {
+  buildingDatabaseId: Float!
   category: String
   description: String!
   floorDatabseId: Int!
@@ -197,6 +198,21 @@ type MutationResult {
   success: Boolean!
 }
 
+input NavigationInput {
+  areaFromId: Int
+  areaToId: Int!
+  locationFromLat: Float
+  locationFromLon: Float
+}
+
+type NavigationResult {
+  distance: Float!
+  navMesh: String!
+  neededToGenerateANavMesh: Boolean!
+  path: [LatLng!]!
+  walls: String!
+}
+
 type NewAreaResult {
   databaseId: Int!
   floorDatabaseId: Int!
@@ -222,6 +238,7 @@ type Query {
   getBuilding(data: BuildingUniqueInput!): Building!
   getFloor(data: FloorUniqueInput!): Floor!
   getLocationLookup(data: LocationLookupInput!): LatLng
+  getNavBetweenAreas(data: NavigationInput!): NavigationResult!
   getUserFromCookie: LogedInUser!
 }
 

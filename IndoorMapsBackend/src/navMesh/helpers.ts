@@ -1,0 +1,48 @@
+import { LatLng } from "../graphqlSchemaTypes/Building.js"
+import { Wall } from "./GenerateNavMesh.js";
+
+// based on FCC formula for short distances (<475 kilometres) https://en.wikipedia.org/wiki/Geographical_distance#FCC's_formula
+export const getDistanceBetweenGPSPoints = (p1: LatLng, p2: LatLng): number => {
+    const deltaLat = p2.lat - p1.lat;
+    const deltaLon = p2.lon - p1.lon;
+    const avgLat = (p2.lat + p1.lat) / 2;
+    // K1 and K2 are derived from radii of curvature of Earth (https://en.wikipedia.org/wiki/Geographical_distance#FCC's_formula)
+    const K1 = 111.13209 - 0.56605 * Math.cos(2 * avgLat) + 0.00129 * Math.cos(4 * avgLat)
+    const K2 = 111.41513 * Math.cos(avgLat) - 0.09455 * Math.cos(3 * avgLat) + 0.00012 * Math.cos(5 * avgLat)
+    return Math.sqrt(Math.pow(K1*deltaLat, 2) + Math.pow(K2*deltaLon, 2))
+}
+
+export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined => {
+    if (polygon.geometry.type != "Polygon") return;
+    let res = new LatLng(0, 0);
+    polygon.geometry.coordinates[0].forEach((position) => {
+        res.lat += position[1];
+        res.lon += position[0];
+    })
+
+    res.lat /= polygon.geometry.coordinates[0].length;
+    res.lon /= polygon.geometry.coordinates[0].length;
+    return res;
+}
+
+export const areWallsEqual = (e1: Wall, e2: Wall) => {
+    return e1.point1.lat === e2.point1.lat && e1.point1.lon === e2.point1.lon && e1.point2.lat === e2.point2.lat && e1.point2.lon === e2.point2.lon
+}
+
+
+// Modified from https://www.npmjs.com/package/point-in-polygon?activeTab=readme
+export const pointInPolygon = (point: LatLng, vs: number[][]) => {
+    var x = point.lat, y = point.lon;
+    var inside = false;
+    const start = 0;
+    const end = vs.length;
+    var len = end - start;
+    for (var i = 0, j = len - 1; i < len; j = i++) {
+        var xi = vs[i+start][1], yi = vs[i+start][0];
+        var xj = vs[j+start][1], yj = vs[j+start][0];
+        var intersect = ((yi > y) !== (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+};
