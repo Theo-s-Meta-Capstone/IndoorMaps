@@ -53,7 +53,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 ref={setMap}
             >
                 {map ?
-                    <ViewerMapLoader areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
+                    <ViewerMapLoader setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
                         <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
                         <DispalyLiveMarkers map={map} />
                     </ViewerMapLoader>

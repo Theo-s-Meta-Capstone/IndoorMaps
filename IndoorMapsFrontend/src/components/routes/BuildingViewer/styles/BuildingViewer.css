@@ -29,7 +29,8 @@
 }
 
 .area:hover {
-    fill: yellow
+    fill: yellow;
+    cursor: pointer;
 }
 
 .liveLocationMarker {

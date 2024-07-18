@@ -158,7 +158,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             distance: data.getNavBetweenAreas.distance
                         })
                     } else {
-                        let newRouteInfo = {
+                        const newRouteInfo = {
                             ...areaToAreaRouteInfo,
                             path: data.getNavBetweenAreas.path.map((point) => new LatLng(point.lat, point.lon)),
                             distance: data.getNavBetweenAreas.distance,
@@ -181,6 +181,12 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             getNewPath()
         }
     }, [areaToAreaRouteInfo.currentGPSCoords])
+
+    useEffect(() => {
+        if(areaToAreaRouteInfo.to) {
+            setToSearchQuery(areaToAreaRouteInfo.to.title)
+        }
+    }, [areaToAreaRouteInfo.to])
 
     return (
         <Group wrap="nowrap" align="top" style={{ height: "100%" }}>
@@ -226,6 +232,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
                 />
                 {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
+                <p>{areaToAreaRouteInfo.to?.description}</p>
                 <div className="extraOptionsForNav">
                     <Switch
                         onChange={(e) => updateOptions(e, "showWalls")}
@@ -247,7 +254,6 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                         checked={areaToAreaRouteInfo.options?.useVoronoi ?? false}
                         label="use Voronoi based Nav Mesh"
                     />
-                    <p>Changes to options will only apply on the next Path</p>
                     {areaToAreaRouteInfo.info && (areaToAreaRouteInfo.options?.showInfo ?? false) ?
                         (<p>Needed to Generate a new nav mesh: {areaToAreaRouteInfo.info.generateNewNavMesh.toString()}<br />
                             Time to complete request: {areaToAreaRouteInfo.info.requestTime}ms</p>)

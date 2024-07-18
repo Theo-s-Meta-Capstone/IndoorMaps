@@ -13,7 +13,7 @@ export type AreaToAreaRouteInfo = {
         areaDatabaseId: number,
         floorDatabaseId: number,
         title: string,
-        description: string
+        description?: string
     }
     from?: {
         areaDatabaseId: number,
