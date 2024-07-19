@@ -146,22 +146,8 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
     }))
 
-    const navMesh: NavMesh = vertices.map((vertex, i): NavMeshVertex => {
-        return {
-            index: i,
-            point: vertex,
-            edges: [],
-        }
-    })
-
-    for (let i = 0; i < navMesh.length; i++) {
-        for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-            const doesNotCrossAnyWalls = wallsToUse.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
-            if (doesNotCrossAnyWalls) {
-                navMesh[i].edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point)))
-            }
-        }
-    }
+    const navMesh: NavMesh = [];
+    extendNavMesh(navMesh, wallsToUse, vertices)
 
     const wallsExcludingFloorWalls = wallsToUse.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
     floorGeoJSON.features.forEach((feature) => {
@@ -169,7 +155,6 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
             addPointToNavMesh(navMesh, wallsExcludingFloorWalls, point)
         }
-
     })
 
     return [navMesh, walls] as const
