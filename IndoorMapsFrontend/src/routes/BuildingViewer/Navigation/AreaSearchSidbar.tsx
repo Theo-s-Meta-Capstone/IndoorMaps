@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IconSearch } from "@tabler/icons-react";
-import FormErrorNotification from "../../../forms/FormErrorNotification";
-import { AreaToAreaRouteInfo } from "../../../../utils/types";
+import FormErrorNotification from "../../../components/forms/FormErrorNotification";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 import AreaNavigate from "./AreaNavigate";
 import AreaSearchBox from "./AreaSearchBox";
 import { AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";

@@ -1,16 +1,16 @@
 import { useFragment, useMutation } from "react-relay";
 import { graphql } from "relay-runtime";
 import { AreaSidebarBodyFragment$key } from "./__generated__/AreaSidebarBodyFragment.graphql";
-import FormErrorNotification from "../../forms/FormErrorNotification";
+import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import { useEffect, useState } from "react";
 import { AreaSidebarCreateMutation } from "./__generated__/AreaSidebarCreateMutation.graphql";
 import { AreaSidebarDeleteAreaMutation, AreaSidebarDeleteAreaMutation$variables } from "./__generated__/AreaSidebarDeleteAreaMutation.graphql";
-import { useRefreshRelayCache } from "../../../utils/hooks";
+import { useRefreshRelayCache } from "../../utils/hooks";
 import { AreaSidebarUpdateAreaMutation, AreaSidebarUpdateAreaMutation$variables } from "./__generated__/AreaSidebarUpdateAreaMutation.graphql";
 import * as L from "leaflet";
-import EditAreaForm from "../../forms/EditAreaForm";
-import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
-import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import EditAreaForm from "../../components/forms/EditAreaForm";
+import { removeAllLayersFromLayerGroup } from "../../utils/utils";
+import { DoorMarkerIcon } from "../../utils/markerIcon";
 import { Button } from "@mantine/core";
 
 const AreaSidebarFragment = graphql`

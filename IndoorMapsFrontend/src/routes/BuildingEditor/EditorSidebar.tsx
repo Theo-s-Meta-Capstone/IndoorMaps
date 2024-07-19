@@ -3,11 +3,11 @@ import { EditorSidebarBodyFragment$key } from "./__generated__/EditorSidebarBody
 import { useEffect, useState } from "react";
 import * as L from "leaflet";
 import FloorSidebar from "./FloorSidebar";
-import { useBooleanState } from "../../../utils/hooks";
+import { useBooleanState } from "../../utils/hooks";
 import AreaSidebar from "./AreaSidebar";
 import { Group } from "@mantine/core";
-import { DoorMarkerIcon } from "../../../utils/markerIcon";
-import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
+import { DoorMarkerIcon } from "../../utils/markerIcon";
+import { removeAllLayersFromLayerGroup } from "../../utils/utils";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building

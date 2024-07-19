@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { graphql, useSubscription } from "react-relay";
 import { useParams } from "react-router-dom";
 import { DisplayLiveMarkersSubscription, DisplayLiveMarkersSubscription$data } from "./__generated__/DisplayLiveMarkersSubscription.graphql";
-import { LiveLocationMarker } from "../../../utils/types";
-import { locationMarkerIcon } from "../../../utils/markerIcon";
+import { LiveLocationMarker } from "../../utils/types";
+import { locationMarkerIcon } from "../../utils/markerIcon";
 
 const subscription = graphql`
   subscription DisplayLiveMarkersSubscription($data: BuildingUniqueInput!) {

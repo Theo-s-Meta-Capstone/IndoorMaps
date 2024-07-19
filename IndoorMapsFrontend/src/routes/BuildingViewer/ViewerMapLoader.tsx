@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../../utils/utils";
-import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../../utils/markerIcon";
+import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../utils/utils";
+import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../utils/markerIcon";
 import * as L from "leaflet";
 import { graphql, useFragment } from "react-relay";
 import { ViewerMapLoaderFragment$key } from "./__generated__/ViewerMapLoaderFragment.graphql";
 import { Button, Group } from "@mantine/core";
-import { AreaToAreaRouteInfo } from "../../../utils/types";
+import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
 
 const ViewerMapFragment = graphql`

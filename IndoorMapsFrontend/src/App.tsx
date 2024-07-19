@@ -1,11 +1,11 @@
 import './App.css'
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
-import Directory from './components/routes/Directory';
+import Directory from './routes/Directory';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Root from './components/routes/Root';
-import BuildingViewer from './components/routes/BuildingViewer';
-import BuildingEditor from './components/routes/BuildingEditor';
+import Root from './routes/Root';
+import BuildingViewer from './routes/BuildingViewer';
+import BuildingEditor from './routes/BuildingEditor';
 
 const router = createBrowserRouter([
   {

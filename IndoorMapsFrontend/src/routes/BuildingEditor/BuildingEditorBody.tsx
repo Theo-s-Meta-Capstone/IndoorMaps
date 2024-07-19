@@ -7,7 +7,7 @@ import { GeomanControl } from "./GeomanControl";
 import { graphql, useFragment } from "react-relay";
 import { BuildingEditorBodyFragment$key } from "./__generated__/BuildingEditorBodyFragment.graphql";
 import EditorSidebar from "./EditorSidebar";
-import { DoorMarkerIcon } from "../../../utils/markerIcon";
+import { DoorMarkerIcon } from "../../utils/markerIcon";
 
 const BuildingEditorFragment = graphql`
   fragment BuildingEditorBodyFragment on Building

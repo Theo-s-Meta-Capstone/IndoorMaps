@@ -1,10 +1,10 @@
 import { graphql, useFragment } from "react-relay";
 import ConnectedBuildingItem from "./ConnectedBuildingItem";
 import { ListOfConnectedBuildingsUserDataDisplayFragment$key } from "./__generated__/ListOfConnectedBuildingsUserDataDisplayFragment.graphql";
-import { useBooleanState } from "../../../utils/hooks";
+import { useBooleanState } from "../../utils/hooks";
 import { Button, Group } from "@mantine/core";
-import CreateBuildingModal from "../../forms/CreateBuildingModal";
-import { AutoCompleteResultsFragment$key } from "../../forms/__generated__/AutoCompleteResultsFragment.graphql";
+import CreateBuildingModal from "../../components/forms/CreateBuildingModal";
+import { AutoCompleteResultsFragment$key } from "../../components/forms/__generated__/AutoCompleteResultsFragment.graphql";
 
 const ListOfConnectedBuildingsUserDataFragment = graphql`
   fragment ListOfConnectedBuildingsUserDataDisplayFragment on LogedInUser{

@@ -2,9 +2,9 @@ import "../pageSections/style/FixedFooter.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
-import HeaderNav from "../pageSections/HeaderNav";
+import HeaderNav from "../components/pageSections/HeaderNav";
 import { Link } from "react-router-dom";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
 

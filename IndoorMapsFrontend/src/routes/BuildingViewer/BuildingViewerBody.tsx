@@ -4,12 +4,12 @@ import { MapContainer, TileLayer } from 'react-leaflet'
 import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
 import { useState } from "react";
-import FormErrorNotification from "../../forms/FormErrorNotification";
+import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
 import AreaSearch from "./Navigation/AreaSearchSidbar";
-import { AreaToAreaRouteInfo } from "../../../utils/types";
+import { AreaToAreaRouteInfo } from "../../utils/types";
 
 const BuildingViewerFragment = graphql`
   fragment BuildingViewerBodyFragment on Building

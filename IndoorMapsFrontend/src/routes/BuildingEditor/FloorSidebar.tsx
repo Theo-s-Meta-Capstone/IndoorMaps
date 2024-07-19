@@ -2,13 +2,13 @@ import { graphql, useFragment, useMutation } from "react-relay";
 import { FloorSidebarBodyFragment$key } from "./__generated__/FloorSidebarBodyFragment.graphql";
 import FloorListItem from "./FloorListItem";
 import { Button, ScrollArea, Tooltip } from "@mantine/core";
-import FormErrorNotification from "../../forms/FormErrorNotification";
-import CreateFloorModal from "../../forms/CreateFloorModal";
+import FormErrorNotification from "../../components/forms/FormErrorNotification";
+import CreateFloorModal from "../../components/forms/CreateFloorModal";
 import { useEffect, useMemo, useState } from "react";
-import { useBooleanState, useRefreshRelayCache } from "../../../utils/hooks";
+import { useBooleanState, useRefreshRelayCache } from "../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
-import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
+import { removeAllLayersFromLayerGroup } from "../../utils/utils";
 
 
 const FloorSidebarFragment = graphql`

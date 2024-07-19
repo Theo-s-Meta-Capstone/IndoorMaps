@@ -3,7 +3,7 @@ import { isEmail, useForm } from "@mantine/form";
 import { useState } from "react";
 import { graphql, useMutation } from "react-relay";
 import { InviteEditorsModalMutation } from "./__generated__/InviteEditorsModalMutation.graphql";
-import FormErrorNotification from "../../forms/FormErrorNotification";
+import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import { useParams } from "react-router-dom";
 
 type Props = {

@@ -1,7 +1,7 @@
 import * as L from "leaflet";
 import { useEffect } from "react"
-import { AreaToAreaRouteInfo } from "../../../../utils/types";
-import { removeAllLayersFromLayerGroup } from "../../../../utils/utils";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
+import { removeAllLayersFromLayerGroup } from "../../../utils/utils";
 
 
 // THIS IS REPEATED CODE, should find a way to import driectly from the backend (BEST solution is to add to the graphql shema)

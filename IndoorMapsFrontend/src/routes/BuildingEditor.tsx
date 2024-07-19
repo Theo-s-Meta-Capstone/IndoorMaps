@@ -3,12 +3,12 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import { useNavigate, useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
-import HeaderNav from "../pageSections/HeaderNav";
+import HeaderNav from "../components/pageSections/HeaderNav";
 import { Button, em } from "@mantine/core";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
-import { useBooleanState } from "../../utils/hooks";
+import { useBooleanState } from "../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!) {

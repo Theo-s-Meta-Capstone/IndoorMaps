@@ -5,10 +5,10 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import ListOfBuildings from "./Directory/ListOfBuildings";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
-import HeaderNav from "../pageSections/HeaderNav";
+import HeaderNav from "../components/pageSections/HeaderNav";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
 
 const DirectoryPageQuery = graphql`
     query DirectoryQuery($autocompleteInput: AutocompleteInput!, $buildingSearchInput: BuildingSearchInput!) {

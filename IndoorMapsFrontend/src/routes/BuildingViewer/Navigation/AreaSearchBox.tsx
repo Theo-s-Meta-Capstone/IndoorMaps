@@ -1,7 +1,7 @@
 import { Group, TextInput, TextInputProps } from "@mantine/core";
 import { useEffect, useState, useTransition } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
-import { useDebounce } from "../../../../utils/hooks";
+import { useDebounce } from "../../../utils/hooks";
 import { AreaSearchBoxQuery, AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";
 
 const debounceTime = 140;
