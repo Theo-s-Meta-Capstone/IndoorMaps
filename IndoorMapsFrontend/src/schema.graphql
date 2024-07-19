@@ -200,9 +200,12 @@ type MutationResult {
 
 input NavigationInput {
   areaFromId: Int
-  areaToId: Int!
+  areaToId: Int
+  floorDatabaseId: Int!
   locationFromLat: Float
   locationFromLon: Float
+  locationToLat: Float
+  locationToLon: Float
   pathfindingMethod: PathfindingMethod
 }
 

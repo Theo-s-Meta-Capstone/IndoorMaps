@@ -30,6 +30,7 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfo,
             to: {
+                isLatLon: false,
                 areaDatabaseId: area.databaseId,
                 floorDatabaseId: area.floorDatabaseId,
                 title: area.title,

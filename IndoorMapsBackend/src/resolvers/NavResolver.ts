@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
+import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
@@ -18,17 +18,26 @@ registerEnumType(PathfindingMethod, {
 
 @InputType()
 class NavigationInput {
+    @Field(type => Int)
+    floorDatabaseId?: number
+
     @Field(type => Int, { nullable: true })
     areaFromId?: number
 
-    @Field(type => Int)
-    areaToId: number
+    @Field(type => Int, { nullable: true })
+    areaToId?: number
 
     @Field(type => Float, { nullable: true })
     locationFromLat?: number
 
     @Field(type => Float, { nullable: true })
     locationFromLon?: number
+
+    @Field(type => Float, { nullable: true })
+    locationToLat?: number
+
+    @Field(type => Float, { nullable: true })
+    locationToLon?: number
 
     @Field(type => PathfindingMethod, { nullable: true })
     pathfindingMethod?: PathfindingMethod
