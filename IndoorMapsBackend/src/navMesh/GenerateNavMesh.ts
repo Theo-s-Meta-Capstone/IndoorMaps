@@ -10,7 +10,7 @@ const oneFootInLatitude = 1 / feetPerLatitudeDegree;
 const offsetInDegrees = oneFootInLatitude
 const floorPlanOffsetWeight = 3;
 
-type FloorIncludeAreas = Prisma.FloorGetPayload<{
+export type FloorIncludeAreas = Prisma.FloorGetPayload<{
     include: {
         areas: true
     }
