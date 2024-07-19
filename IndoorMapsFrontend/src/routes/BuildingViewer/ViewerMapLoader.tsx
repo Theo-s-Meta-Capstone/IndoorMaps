@@ -7,6 +7,7 @@ import { ViewerMapLoaderFragment$key } from "./__generated__/ViewerMapLoaderFrag
 import { Button, Group } from "@mantine/core";
 import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
+import DispalyLiveMarkers from "./DisplayLiveMarkers";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -265,6 +266,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         <Group className="floorsContainer" >
             <LoadNavPath areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} />
             {floorListElements}
+            <DispalyLiveMarkers setAreaToAreaRouteInfo={setAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} floorDatabaseId={currentFloor} />
             {children}
         </Group>
     )

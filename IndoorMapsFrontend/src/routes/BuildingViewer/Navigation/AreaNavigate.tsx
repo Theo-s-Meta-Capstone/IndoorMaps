@@ -195,13 +195,13 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         if (isUsingCurrentLocationNav.current) {
             getNewPath()
         }
-    }, [(areaToAreaRouteInfo.to?.isLatLon && areaToAreaRouteInfo.to.location), ])
+    }, [(areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location), ])
 
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
             setToSearchQuery(areaToAreaRouteInfo.to.title)
         }
-    }, [areaToAreaRouteInfo.to])
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon])
 
     return (
         <div className="navigationInputs">

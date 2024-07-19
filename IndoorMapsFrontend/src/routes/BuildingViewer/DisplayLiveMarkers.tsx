@@ -1,9 +1,9 @@
-import L from "leaflet";
-import { useMemo } from "react";
+import L, { LatLng } from "leaflet";
+import { useEffect, useMemo, useRef } from "react";
 import { graphql, useSubscription } from "react-relay";
 import { useParams } from "react-router-dom";
 import { DisplayLiveMarkersSubscription, DisplayLiveMarkersSubscription$data } from "./__generated__/DisplayLiveMarkersSubscription.graphql";
-import { LiveLocationMarker } from "../../utils/types";
+import { AreaToAreaRouteInfo, LiveLocationMarker } from "../../utils/types";
 import { locationMarkerIcon } from "../../utils/markerIcon";
 
 const subscription = graphql`
@@ -20,13 +20,21 @@ const subscription = graphql`
 
 type Props = {
     map: L.Map;
+    areaToAreaRouteInfo: AreaToAreaRouteInfo,
+    setAreaToAreaRouteInfo: (newdata: AreaToAreaRouteInfo) => void,
+    floorDatabaseId: number | null,
 }
 
 const locationLeafletMarkers: { [key: string]: L.Marker } = {};
 
-const DispalyLiveMarkers = ({ map }: Props) => {
+const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, floorDatabaseId }: Props) => {
     const { buildingId } = useParams();
     let locationMarkers: LiveLocationMarker[] = [];
+    const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+
+    useEffect(() => {
+        areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
+    }, [areaToAreaRouteInfo])
 
     const addLocationMarkerToMap = (locationMarker: LiveLocationMarker) => {
         if (!locationLeafletMarkers[locationMarker.id]) {
@@ -41,7 +49,36 @@ const DispalyLiveMarkers = ({ map }: Props) => {
             locationLeafletMarkers[locationMarker.id].getPopup()?.getElement()?.classList.add("liveLocationMarker");
         } else {
             locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
+            if(floorDatabaseId && areaToAreaRouteInfoRef.current.to?.isLatLon && areaToAreaRouteInfoRef.current.to.id === locationMarker.id) {
+                setAreaToAreaRouteInfo({
+                    ...areaToAreaRouteInfoRef.current,
+                    to: {
+                        isLatLon: true,
+                        location: new LatLng(locationMarker.latitude, locationMarker.longitude),
+                        floorDatabaseId,
+                        title: locationMarker.name,
+                        description: locationMarker.message,
+                        id: locationMarker.id,
+                    }
+                })
+            }
         }
+        locationLeafletMarkers[locationMarker.id].removeEventListener("click");
+        locationLeafletMarkers[locationMarker.id].addEventListener("click", () => {
+            if(!floorDatabaseId) return;
+            console.log(areaToAreaRouteInfoRef.current)
+            setAreaToAreaRouteInfo({
+                ...areaToAreaRouteInfoRef.current,
+                to: {
+                    isLatLon: true,
+                    location: new LatLng(locationMarker.latitude, locationMarker.longitude),
+                    floorDatabaseId,
+                    title: locationMarker.name,
+                    description: locationMarker.message,
+                    id: locationMarker.id,
+                }
+            })
+        });
     }
 
     // // If a item exists in locationMarkers with the same id, that item is replaced with the new item
@@ -59,7 +96,7 @@ const DispalyLiveMarkers = ({ map }: Props) => {
             newVal.push(newLocation);
         }
         locationMarkers = newVal;
-        locationMarkers.forEach((locationMarker) => {addLocationMarkerToMap(locationMarker)})
+        locationMarkers.forEach((locationMarker) => { addLocationMarkerToMap(locationMarker) })
     }
 
     const config = useMemo(() => ({
