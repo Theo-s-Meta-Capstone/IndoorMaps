@@ -6,7 +6,6 @@ import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBo
 import { useState } from "react";
 import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
-import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
 import AreaSearch from "./Navigation/AreaSearchSidbar";
 import { AreaToAreaRouteInfo } from "../../utils/types";

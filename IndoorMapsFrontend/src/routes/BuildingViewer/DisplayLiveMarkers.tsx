@@ -66,7 +66,6 @@ const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, 
         locationLeafletMarkers[locationMarker.id].removeEventListener("click");
         locationLeafletMarkers[locationMarker.id].addEventListener("click", () => {
             if(!floorDatabaseId) return;
-            console.log(areaToAreaRouteInfoRef.current)
             setAreaToAreaRouteInfo({
                 ...areaToAreaRouteInfoRef.current,
                 to: {

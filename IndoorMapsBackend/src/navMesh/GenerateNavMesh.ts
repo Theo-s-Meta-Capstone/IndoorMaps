@@ -167,18 +167,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     floorGeoJSON.features.forEach((feature) => {
         if (feature.geometry.type === "Point") {
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-            const edges = [];
-            for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-                const doesNotCrossAnyWalls = wallsExcludingFloorWalls.findIndex((wall) => doIntersect(point, navMesh[otherVertexIndex].point, wall)) === -1;
-                if (doesNotCrossAnyWalls) {
-                    edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(point, navMesh[otherVertexIndex].point)))
-                }
-            }
-            navMesh.push({
-                index: navMesh.length,
-                point,
-                edges,
-            })
+            addPointToNavMesh(navMesh, wallsExcludingFloorWalls, point)
         }
 
     })
