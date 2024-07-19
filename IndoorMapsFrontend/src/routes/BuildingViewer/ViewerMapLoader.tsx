@@ -83,12 +83,12 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const updateAreaColors = () => {
         areasMapLayer.getLayers().forEach((foundLayer) => {
             if (foundLayer instanceof L.Polygon && foundLayer.feature) {
-                if (areaToAreaRouteInfo.from instanceof Object && foundLayer.feature.properties.databaseId === areaToAreaRouteInfo.from.areaDatabaseId) {
+                if (areaToAreaRouteInfo.from && !areaToAreaRouteInfo.from.isLatLon && foundLayer.feature.properties.databaseId === areaToAreaRouteInfo.from.areaDatabaseId) {
                     foundLayer.setStyle({
                         fillColor: 'lightgreen',
                     });
                 }
-                else if (areaToAreaRouteInfo.to && foundLayer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                else if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon && foundLayer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
                     foundLayer.setStyle({
                         fillColor: 'lightblue',
                     });
@@ -139,6 +139,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfoRef.current,
             to: {
+                isLatLon: false,
                 areaDatabaseId,
                 floorDatabaseId: currentFloor,
                 title,
@@ -211,7 +212,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                 layer.getElement()?.classList.add("area")
                 if (layer.feature) {
                     const size = getAreaOfPolygon(layer);
-                    if (areaToAreaRouteInfo.to && layer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                    if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon && layer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
                         flyToArea(layer);
                     }
                     if (layer.feature.properties.title) {
@@ -239,7 +240,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     }, [areaToAreaRouteInfo.from])
 
     useEffect(() => {
-        if (areaToAreaRouteInfo.to) {
+        if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon) {
             if (areaToAreaRouteInfo.to.floorDatabaseId != currentFloor) {
                 setCurrentFloor(areaToAreaRouteInfo.to.floorDatabaseId)
             } else {
