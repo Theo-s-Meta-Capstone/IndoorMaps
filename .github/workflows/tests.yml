@@ -32,7 +32,7 @@ jobs:
     - name: Backend run
       run: |
           cd IndoorMapsBackend
-          npm ci
+          npm ci --force
           npx prisma migrate deploy
           npm run compile
           npm test

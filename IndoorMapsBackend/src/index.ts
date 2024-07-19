@@ -19,7 +19,7 @@ const options = {
 const port = process.env.PORT || 4000;
 
 // This code takes a request on the main port and decides if it should be proxied to the graphql server or to the websocket server.
-var proxyServer = http.createServer((req, res) => {
+const proxyServer = http.createServer((req, res) => {
     if(!req.url) return;
 
     const pathname = url.parse(req.url).pathname;

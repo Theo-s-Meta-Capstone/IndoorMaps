@@ -28,7 +28,7 @@ const getPayloadHeader = (data: Buffer): { MASKcode: number[], dataLength: numbe
     const MASK = (data.readUInt8(1) >>> 7);
     // converting from 8 bit number to 7 bit number by anding with 0111 1111 to get rid of the first bit
     let dataLength = data.readUInt8(1) & 127
-    let MASKcode = [0, 0, 0, 0];
+    const MASKcode = [0, 0, 0, 0];
 
     if (verbose) {
         console.log(dec2bin(data.readUInt32BE()).padStart(32, "0") + dec2bin(data.readUInt32BE(4)).padStart(32, "0") + " = raw binary data");
@@ -101,7 +101,7 @@ const openSockets: WebsocketUserTracker = {};
 
 // implementation based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
 export const server = net.createServer(sock => {
-    let client = sock.remoteAddress;
+    const client = sock.remoteAddress;
     if (verbose) console.log('serving stream to ' + client);
 
     sock.on('data', data => {
@@ -155,8 +155,8 @@ export const server = net.createServer(sock => {
     const estiblishWsConnection = (dataString: string) => {
         // Using Regex to find the needed Https headers, if the match returns null, then the ?? operator returns ["",""] and the [1] can return an empty string
         // This works because . doesn't match new line characters so the second group should only return the rest of the line
-        let userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/)??["",""])[1];
-        let cookiesHeader: string = (dataString.match(/cookie: (.*)/)??["",""])[1];
+        const userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/)??["",""])[1];
+        const cookiesHeader: string = (dataString.match(/cookie: (.*)/)??["",""])[1];
 
         if (verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
@@ -228,7 +228,7 @@ export const server = net.createServer(sock => {
         const messageLength = (message.length & 255);
         // 0x81 is 1000 0001 indicating that the message is final (1000) and the opcode is 0001
         const header = Buffer.from([0x81, messageLength])
-        var mergedArray = new Uint8Array(header.length + message.length);
+        const mergedArray = new Uint8Array(header.length + message.length);
         mergedArray.set(header);
         mergedArray.set(message, header.length);
         if (verbose) console.log("sending message length: " + message.length);
@@ -243,7 +243,7 @@ export const server = net.createServer(sock => {
         const messageLength = (message.length & 255);
         const header = Buffer.from([0x89, messageLength])
         const encodedData = Uint8Array.from(message);
-        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        const mergedArray = new Uint8Array(header.length + encodedData.length);
         mergedArray.set(header);
         mergedArray.set(encodedData, header.length);
         if (verbose) console.log("sending ping length: " + message.length);
@@ -258,7 +258,7 @@ export const server = net.createServer(sock => {
         const messageLength = (message.length & 255);
         const header = Buffer.from([0x8A, messageLength])
         const encodedData = Uint8Array.from(message);
-        var mergedArray = new Uint8Array(header.length + encodedData.length);
+        const mergedArray = new Uint8Array(header.length + encodedData.length);
         mergedArray.set(header);
         mergedArray.set(encodedData, header.length);
         if (verbose) console.log("sending pong length: " + message.length);

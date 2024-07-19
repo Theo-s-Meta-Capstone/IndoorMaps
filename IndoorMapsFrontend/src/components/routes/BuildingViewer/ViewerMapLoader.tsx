@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../../utils/utils";
 import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../../utils/markerIcon";
 import * as L from "leaflet";
@@ -36,6 +36,7 @@ type Props = {
     map: L.Map;
     buildingFromParent: ViewerMapLoaderFragment$key;
     areaToAreaRouteInfo: AreaToAreaRouteInfo;
+    setAreaToAreaRouteInfo: (newdata: AreaToAreaRouteInfo) => void,
     children: React.ReactNode;
 }
 
@@ -53,14 +54,20 @@ const areasMapLayer = L.geoJSON(null, {
 const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
     // note, an increase in size and/or textLenght causes the result to decrease
-    return Math.floor(-40 * size * textLength + 40) / 2
+    const x = size * (textLength / 2)
+    return Math.floor((16.1816 * x * x + -25.0545 * x + 21) * 2) / 2
 }
 
-const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, children }: Props) => {
+const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setAreaToAreaRouteInfo, children }: Props) => {
     const building = useFragment(ViewerMapFragment, buildingFromParent);
     // Used to ensure the map is only set up once
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
+    const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+
+    useEffect(() => {
+        areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
+    }, [areaToAreaRouteInfo])
 
     const getLayerFromRefOrId = (layer: L.Polygon | number): L.Polygon | undefined => {
         return layer instanceof L.Polygon ?
@@ -123,6 +130,21 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
         setMapIsSetUp(true)
         areasMapLayer.addTo(map)
         floorMapLayer.addTo(map)
+    }
+
+    const updateToArea = (newToData: { areaDatabaseId: number; currentFloor: number; title: string; description: string; }) => {
+        const { areaDatabaseId, currentFloor, title, description } = newToData;
+        // My theory is that the areaToAreaRouteInfo needs to be a Ref here becuase it is called inside of an event listener
+        // In AreaNavigate.tsx I don't need to use a ref to get the current values. TODO: investigate further
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfoRef.current,
+            to: {
+                areaDatabaseId,
+                floorDatabaseId: currentFloor,
+                title,
+                description,
+            }
+        })
     }
 
     useEffect(() => {
@@ -194,10 +216,14 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, childre
                     }
                     if (layer.feature.properties.title) {
                         layer.bindTooltip(layer.feature.properties.title, { offset: [0, 5], direction: "top", permanent: true, className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom" });
+                        const areaDatabaseId = layer.feature.properties.databaseId;
+                        const title = layer.feature.properties.title;
+                        const description = layer.feature.properties.description;
+                        layer.on("click", () => updateToArea({ areaDatabaseId, currentFloor, title, description }))
                     }
-                    if (layer.feature.properties.description) {
-                        layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
-                    }
+                    // if (layer.feature.properties.description) {
+                    //     layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
+                    // }
                 }
             }
             updateAreaColors();

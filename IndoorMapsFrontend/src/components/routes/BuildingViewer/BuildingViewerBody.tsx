@@ -35,7 +35,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const buildingAnkerLatLon = new L.LatLng(building.startPos.lat, building.startPos.lon)
     const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
     const [pageError, setPageError] = useState<string | null>(null);
-    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({});
+    const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({ options: { useVoronoi: true } });
     const [map, setMap] = useState<L.Map | null>(null);
 
     const handleUpdateAreaToAreaRouteInfo = (newRouteData: AreaToAreaRouteInfo) => {
@@ -53,7 +53,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 ref={setMap}
             >
                 {map ?
-                    <ViewerMapLoader areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
+                    <ViewerMapLoader setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
                         <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
                         <DispalyLiveMarkers map={map} />
                     </ViewerMapLoader>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconSearch } from "@tabler/icons-react";
 import FormErrorNotification from "../../../forms/FormErrorNotification";
 import { AreaToAreaRouteInfo } from "../../../../utils/types";
@@ -38,6 +38,12 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
         })
         setIsNavigating(true)
     }
+
+    useEffect(() => {
+        if(areaToAreaRouteInfo.to) {
+            setIsNavigating(true)
+        }
+    }, [areaToAreaRouteInfo.to])
 
     return (
         <aside className="AreaSearch">

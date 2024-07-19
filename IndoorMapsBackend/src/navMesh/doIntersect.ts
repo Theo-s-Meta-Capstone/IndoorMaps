@@ -23,7 +23,7 @@ function getOrderedTripletOrientation(p: LatLng, q: LatLng, r: LatLng) {
 
     // See https://www.geeksforgeeks.org/orientation-3-ordered-LatLngs/
     // for details of below formula.
-    let val = (q.lon - p.lon) * (r.lat - q.lat) -
+    const val = (q.lon - p.lon) * (r.lat - q.lat) -
         (q.lat - p.lat) * (r.lon - q.lon);
 
     if (val == 0) return 0; // collinear
@@ -40,10 +40,10 @@ export function doIntersect(p1: LatLng, q1: LatLng, wall: Wall): boolean {
 
     // Find the four orientations needed for general and
     // special cases
-    let o1 = getOrderedTripletOrientation(p1, q1, p2);
-    let o2 = getOrderedTripletOrientation(p1, q1, q2);
-    let o3 = getOrderedTripletOrientation(p2, q2, p1);
-    let o4 = getOrderedTripletOrientation(p2, q2, q1);
+    const o1 = getOrderedTripletOrientation(p1, q1, p2);
+    const o2 = getOrderedTripletOrientation(p1, q1, q2);
+    const o3 = getOrderedTripletOrientation(p2, q2, p1);
+    const o4 = getOrderedTripletOrientation(p2, q2, q1);
 
     // General case
     if (o1 != o2 && o3 != o4)
@@ -64,33 +64,3 @@ export function doIntersect(p1: LatLng, q1: LatLng, wall: Wall): boolean {
 
     return false; // Doesn't fall in any of the above cases
 }
-
-
-
-
-// Here is a less rigourous implementation of the doInterset function
-
-// from https://stackoverflow.com/a/6865851
-function isOnLine(x: number, y: number, endx: number, endy: number, px: number, py: number) {
-    var f = function(somex: number) { return (endy - y) / (endx - x) * (somex - x) + y; };
-    return Math.abs(f(px) - py) < 1e-6 // tolerance, rounding errors
-        && px >= x && px <= endx;      // are they also on this segment?
-}
-
-// https://stackoverflow.com/a/24392281
-// returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
-export function doIntersectDepracated(p1: LatLng, q1: LatLng, wall: Wall) {
-    let a = p1.lat, b = p1.lon, c = q1.lat, d = q1.lon, p = wall.point1.lat, q = wall.point1.lon, r = wall.point2.lat, s = wall.point2.lon;
-
-    if(isOnLine(a,b,c,d,p,q) || isOnLine(a,b,c,d,r,s)) return true
-
-    let det, gamma, lambda;
-    det = (c - a) * (s - q) - (r - p) * (d - b);
-    if (det === 0) {
-        return false;
-    } else {
-        lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
-        gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
-    }
-};
