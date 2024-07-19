@@ -1,5 +1,5 @@
 import "./Directory/styles/Directory.css"
-import "../pageSections/style/FixedFooter.css"
+import "../components/pageSections/style/FixedFooter.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";

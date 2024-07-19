@@ -1,4 +1,4 @@
-import "../pageSections/style/FixedFooter.css"
+import "../components/pageSections/style/FixedFooter.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
@@ -34,7 +34,7 @@ const Root = () => {
     return (
         <div>
             {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback="Loading GraphQL... This can take up to 2 minutes after a cold start">
+                <Suspense fallback="Loading GraphQL...">
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
