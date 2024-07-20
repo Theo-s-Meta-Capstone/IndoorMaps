@@ -107,6 +107,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 if (isRunningTimeout) {
                     clearInterval(isRunningTimeout)
                 }
+                sendCurrentPositionAlongInputedCords()
                 setIsRunningTimeout(setInterval(sendCurrentPositionAlongInputedCords, 1000))
             } else {
                 // starts running the funciton that was given as a param to useUserLocation

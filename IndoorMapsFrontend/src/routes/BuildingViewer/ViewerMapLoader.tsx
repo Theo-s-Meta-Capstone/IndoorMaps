@@ -108,7 +108,11 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         if (!layerToFlyTo) return;
         if (layerToFlyTo.feature) {
             const size = getAreaOfPolygon(layerToFlyTo);
-            map.flyTo(layerToFlyTo.getCenter(), Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()));
+            map.flyTo(
+                layerToFlyTo.getCenter(),
+                Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()),
+                {animate: true}
+            );
         }
     }
 
