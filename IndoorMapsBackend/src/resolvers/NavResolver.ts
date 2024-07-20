@@ -112,7 +112,7 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
     }
     else {
         navMesh = pathfindingMethod === PathfindingMethod.Standard ?
-            (floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex) :
+            (floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex):
             (floor.voronoiNavMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
         walls = (floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
     }
