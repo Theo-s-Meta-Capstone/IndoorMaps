@@ -44,7 +44,7 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
         if(areaToAreaRouteInfo.to) {
             setIsNavigating(true)
         }
-    }, [areaToAreaRouteInfo.to])
+    },  [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title])
 
     return (
         <aside className="AreaSearch">

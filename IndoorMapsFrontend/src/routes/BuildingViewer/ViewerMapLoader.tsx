@@ -223,9 +223,6 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                         const description = layer.feature.properties.description;
                         layer.on("click", () => updateToArea({ areaDatabaseId, currentFloor, title, description }))
                     }
-                    // if (layer.feature.properties.description) {
-                    //     layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
-                    // }
                 }
             }
             updateAreaColors();

@@ -31,31 +31,34 @@ const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, 
     const { buildingId } = useParams();
     let locationMarkers: LiveLocationMarker[] = [];
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+    const floorDatabaseIdRef = useRef(floorDatabaseId);
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
     }, [areaToAreaRouteInfo])
 
+    useEffect(() => {
+        floorDatabaseIdRef.current = floorDatabaseId;
+    }, [floorDatabaseId])
+
     const addLocationMarkerToMap = (locationMarker: LiveLocationMarker) => {
         if (!locationLeafletMarkers[locationMarker.id]) {
             locationLeafletMarkers[locationMarker.id] = L.marker([locationMarker.latitude, locationMarker.longitude], { icon: locationMarkerIcon });
-            locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "title", offset: [0, 0] })
+            locationLeafletMarkers[locationMarker.id].bindTooltip(locationMarker.name, { permanent: true, className: "liveLocationMarker title", offset: [0, 0] })
             if (locationMarker.message.length > 0) {
-                locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "description", offset: [0, 0] })
+                locationLeafletMarkers[locationMarker.id].bindPopup(locationMarker.message, { className: "liveLocationMarker description", offset: [0, 0] })
             }
             locationLeafletMarkers[locationMarker.id].addTo(map);
             locationLeafletMarkers[locationMarker.id].getElement()?.classList.add("liveLocationMarker");
-            locationLeafletMarkers[locationMarker.id].getTooltip()?.getElement()?.classList.add("liveLocationMarker");
-            locationLeafletMarkers[locationMarker.id].getPopup()?.getElement()?.classList.add("liveLocationMarker");
         } else {
             locationLeafletMarkers[locationMarker.id].setLatLng([locationMarker.latitude, locationMarker.longitude]);
-            if(floorDatabaseId && areaToAreaRouteInfoRef.current.to?.isLatLon && areaToAreaRouteInfoRef.current.to.id === locationMarker.id) {
+            if (floorDatabaseIdRef.current && areaToAreaRouteInfoRef.current.to?.isLatLon && areaToAreaRouteInfoRef.current.to.id === locationMarker.id) {
                 setAreaToAreaRouteInfo({
                     ...areaToAreaRouteInfoRef.current,
                     to: {
                         isLatLon: true,
                         location: new LatLng(locationMarker.latitude, locationMarker.longitude),
-                        floorDatabaseId,
+                        floorDatabaseId: floorDatabaseIdRef.current,
                         title: locationMarker.name,
                         description: locationMarker.message,
                         id: locationMarker.id,
@@ -63,21 +66,23 @@ const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, 
                 })
             }
         }
-        locationLeafletMarkers[locationMarker.id].removeEventListener("click");
-        locationLeafletMarkers[locationMarker.id].addEventListener("click", () => {
-            if(!floorDatabaseId) return;
-            setAreaToAreaRouteInfo({
-                ...areaToAreaRouteInfoRef.current,
-                to: {
-                    isLatLon: true,
-                    location: new LatLng(locationMarker.latitude, locationMarker.longitude),
-                    floorDatabaseId,
-                    title: locationMarker.name,
-                    description: locationMarker.message,
-                    id: locationMarker.id,
-                }
+        if (locationLeafletMarkers[locationMarker.id]) {
+            locationLeafletMarkers[locationMarker.id].removeEventListener("click");
+            locationLeafletMarkers[locationMarker.id].on("click", () => {
+                if (floorDatabaseIdRef.current === null) return;
+                setAreaToAreaRouteInfo({
+                    ...areaToAreaRouteInfoRef.current,
+                    to: {
+                        isLatLon: true,
+                        location: new LatLng(locationMarker.latitude, locationMarker.longitude),
+                        floorDatabaseId: floorDatabaseIdRef.current,
+                        title: locationMarker.name,
+                        description: locationMarker.message,
+                        id: locationMarker.id,
+                    }
+                })
             })
-        });
+        }
     }
 
     // // If a item exists in locationMarkers with the same id, that item is replaced with the new item
