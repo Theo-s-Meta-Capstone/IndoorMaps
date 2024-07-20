@@ -104,12 +104,16 @@
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Built With
-Backend
+
+#### Backend
+
 * [Prisma ORM](https://www.prisma.io/)
 * [Type GraphQL](https://typegraphql.com/)
 * [Apollo Server + Express](https://www.apollographql.com/docs/apollo-server/)
-Frontend
+#### Frontend
+
 * [Vite](https://vitejs.dev/)
 * [React + Typescript](https://react.dev/)
 * [React Relay (ts)](https://relay.dev/)
