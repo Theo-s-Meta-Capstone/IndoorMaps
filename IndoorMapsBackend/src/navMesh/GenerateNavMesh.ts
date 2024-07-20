@@ -4,6 +4,7 @@ import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areWallsEqual, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
 import GrahamScan from "@lucio/graham-scan"
 import { PathfindingMethod } from "../resolvers/NavResolver.js";
+import { Position } from "geojson";
 
 const feetPerLatitudeDegree = 364000;
 const oneFootInLatitude = 1 / feetPerLatitudeDegree;
@@ -48,6 +49,22 @@ const grahamScan = (points: LatLng[]): LatLng[] => {
     return grahamScan.getHull().map((point: number[]) => new LatLng(point[0], point[1]));
 }
 
+const expandPolygon = (polygon: Position[], offset: number) => {
+    return grahamScan(polygon.flatMap((pos) => {
+        return [
+            new LatLng(pos[1], pos[0]),
+            new LatLng(pos[1] + offset, pos[0] + offset),
+            new LatLng(pos[1] + offset, pos[0] - offset),
+            new LatLng(pos[1] - offset, pos[0] + offset),
+            new LatLng(pos[1] -offset, pos[0] - offset),
+            new LatLng(pos[1] + offset, pos[0]),
+            new LatLng(pos[1] - offset, pos[0]),
+            new LatLng(pos[1], pos[0] + offset),
+            new LatLng(pos[1], pos[0] - offset),
+        ]
+    }))
+}
+
 export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
@@ -66,19 +83,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             return new LatLng(pos[1], pos[0])
         }).concat(
             // adds outside verticies to help with navigation from outside a building
-            ...grahamScan(coords.flatMap((pos) => {
-                return [
-                    new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1], pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                ]
-            }))
+            ...expandPolygon(coords, offsetInDegrees * floorPlanOffsetWeight)
         )
     }
     // Using the Naïve algo (n^3) based on https://www.cs.kent.edu/~dragan/ST-Spring2016/visibility%20graphs.pdf
@@ -94,19 +99,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     })
         .filter((point) => point !== undefined) as GeoJSON.Position[][])
         .map((posArr) => {
-            return grahamScan(posArr.flatMap((pos) => {
-                return [
-                    new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0]),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetWithWeight),
-                    new LatLng(pos[1], pos[0] - offsetWithWeight),
-                ]
-            }))
+            return expandPolygon(posArr, offsetWithWeight)
         })
 
     const realPolygons: LatLng[][] = (floor.areas.map((area) => {
