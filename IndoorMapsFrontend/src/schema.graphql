@@ -96,6 +96,14 @@ input BuildingUniqueInput {
   id: Float!
 }
 
+input BuildingUpdateInput {
+  address: String!
+  buildingDatabseId: Int!
+  startLat: Float!
+  startLon: Float!
+  title: String!
+}
+
 type BuildingWithPerms {
   building: Building!
   editorLevel: EditorLevel!
@@ -192,6 +200,7 @@ type Mutation {
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+  updateBuilding(data: BuildingUpdateInput!): Building!
 }
 
 type MutationResult {
