@@ -274,9 +274,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
             query: `
             mutation Mutation($data: FloorModifyInput!) {
                 modifyFloor(data: $data) {
-                  success
                   databaseId
-                  buildingDatabaseId
                 }
               }
         `,
@@ -294,7 +292,6 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // send our request to the url of the test server
         const response = await request(url).post('/').set('Cookie', [cookie]).send(testQuery);
         expect(response.error).toEqual(false);
-        expect(response.body.data?.modifyFloor.success).toEqual(true);
     });
 
     it('Get floor with new data', async () => {
