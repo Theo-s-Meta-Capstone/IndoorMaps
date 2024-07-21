@@ -22,6 +22,7 @@ export type AreaToAreaRouteInfo = {
         description?: string
         location: LatLng,
         id?: string,
+        isUpdate: boolean,
     },
     from?: {
         isLatLon: false,

@@ -199,7 +199,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
-            setToSearchQuery(areaToAreaRouteInfo.to.title)
+            if(!areaToAreaRouteInfo.to.isLatLon || areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate){
+                setToSearchQuery(areaToAreaRouteInfo.to.title)
+            }
             getNewPath()
         }
     }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title, (areaToAreaRouteInfo.to?.isLatLon ? areaToAreaRouteInfo.to.location : undefined)])

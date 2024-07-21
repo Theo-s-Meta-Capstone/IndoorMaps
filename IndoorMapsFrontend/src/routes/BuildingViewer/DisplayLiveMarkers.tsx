@@ -62,6 +62,7 @@ const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, 
                         title: locationMarker.name,
                         description: locationMarker.message,
                         id: locationMarker.id,
+                        isUpdate: true,
                     }
                 })
             }
@@ -79,6 +80,7 @@ const DispalyLiveMarkers = ({ map, areaToAreaRouteInfo, setAreaToAreaRouteInfo, 
                         title: locationMarker.name,
                         description: locationMarker.message,
                         id: locationMarker.id,
+                        isUpdate: false,
                     }
                 })
             })
