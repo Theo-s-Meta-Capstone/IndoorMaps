@@ -41,7 +41,7 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
     }
 
     useEffect(() => {
-        if(areaToAreaRouteInfo.to) {
+        if(areaToAreaRouteInfo.to && (!areaToAreaRouteInfo.to.isLatLon || (areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate))) {
             setIsNavigating(true)
         }
     },  [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title])
