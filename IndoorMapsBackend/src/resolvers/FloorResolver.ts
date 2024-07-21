@@ -80,11 +80,11 @@ export class FloorResolver {
         return dbAreas.areas.map((value) => convertToGraphQlArea(value))
     }
 
-    @Mutation((returns) => NewFloorResult)
+    @Mutation((returns) => Floor)
     async modifyFloor(
         @Arg('data') data: FloorModifyInput,
         @Ctx() ctx: Context,
-    ): Promise<NewFloorResult> {
+    ): Promise<Floor> {
         const authError = await checkAuthrizedFloorEditor(data.id, ctx);
         if (authError) {
             throw authError;
@@ -98,17 +98,9 @@ export class FloorResolver {
                 title: data.title,
                 shape: data.newShape !== undefined ? JSON.parse(data.newShape.shape) : undefined
             },
-            select: {
-                id: true,
-                buildingId: true,
-            }
         });
         await deleteNavMesh(data.id);
-        return {
-            success: true,
-            databaseId: updatedFloor.id,
-            buildingDatabaseId: updatedFloor.buildingId
-        };
+        return convertToGraphQLFloor(updatedFloor);
     }
 
     @Mutation((returns) => NewFloorResult)

@@ -5,7 +5,7 @@ import { Button, ScrollArea, Tooltip } from "@mantine/core";
 import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import CreateFloorModal from "../../components/forms/CreateFloorModal";
 import { useEffect, useMemo, useState } from "react";
-import { useBooleanState, useRefreshRelayCache } from "../../utils/hooks";
+import { useBooleanState } from "../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
 import { removeAllLayersFromLayerGroup } from "../../utils/utils";
@@ -39,13 +39,12 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
-    const [refreshFloorData,] = useRefreshRelayCache();
     const currentFloorData = useMemo(() => building.floors.find((floor) => floor.databaseId === currentFloor), [currentFloor]);
 
     const [commit, isInFlight] = useMutation<FloorSidebarFloorMutation>(graphql`
     mutation FloorSidebarFloorMutation($data: FloorModifyInput!) {
         modifyFloor(data: $data) {
-            databaseId
+            ...FloorListItemFragment
         }
     }
     `);
@@ -57,9 +56,6 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         try {
             commit({
                 variables,
-                onCompleted() {
-                    refreshFloorData(currentFloor);
-                },
                 onError(error) {
                     setFormError(error.message);
                 }

@@ -195,7 +195,7 @@ type Mutation {
   deleteArea(data: AreaUniqueInput!): NewAreaResult!
   inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
-  modifyFloor(data: FloorModifyInput!): NewFloorResult!
+  modifyFloor(data: FloorModifyInput!): Floor!
   setLocation(data: LiveLocationInput!): MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!

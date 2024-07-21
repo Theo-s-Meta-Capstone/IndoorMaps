@@ -68,7 +68,7 @@ const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent
                         startLon: parseFloat(values.startingPosition.split(', ')[1]),
                     },
                 },
-                onCompleted(data) {
+                onCompleted() {
                     closeModal();
                 },
                 onError(error) {
