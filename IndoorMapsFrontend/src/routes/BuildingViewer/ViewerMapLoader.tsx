@@ -8,6 +8,7 @@ import { Button, Group } from "@mantine/core";
 import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
+import { usePrefersReducedMotion } from "../../utils/hooks";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -65,6 +66,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -111,7 +113,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
             map.flyTo(
                 layerToFlyTo.getCenter(),
                 Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()),
-                {animate: true}
+                {animate: !prefersReducedMotion}
             );
         }
     }
