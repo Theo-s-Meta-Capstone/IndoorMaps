@@ -1,6 +1,6 @@
-import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
+import { Arg, Ctx, Field, Float, InputType, Int, ObjectType, Query, Resolver, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
-import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh } from "../navMesh/GenerateNavMesh.js";
+import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh, FloorIncludeAreas } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/helpers.js";
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
@@ -18,17 +18,26 @@ registerEnumType(PathfindingMethod, {
 
 @InputType()
 class NavigationInput {
+    @Field(type => Int)
+    floorDatabaseId?: number
+
     @Field(type => Int, { nullable: true })
     areaFromId?: number
 
-    @Field(type => Int)
-    areaToId: number
+    @Field(type => Int, { nullable: true })
+    areaToId?: number
 
     @Field(type => Float, { nullable: true })
     locationFromLat?: number
 
     @Field(type => Float, { nullable: true })
     locationFromLon?: number
+
+    @Field(type => Float, { nullable: true })
+    locationToLat?: number
+
+    @Field(type => Float, { nullable: true })
+    locationToLon?: number
 
     @Field(type => PathfindingMethod, { nullable: true })
     pathfindingMethod?: PathfindingMethod
@@ -52,6 +61,64 @@ class NavigationResult {
     distance: number
 }
 
+const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locationLat?: number, locationLon?: number) => {
+    let resultLatLon;
+    const resultAreaIgnorableWalls: Wall[] = [];
+    let resultArea;
+    if (areaId === undefined) {
+        if (!locationLat || !locationLon) throw throwGraphQLBadInput('From location not found')
+        resultLatLon = new LatLng(locationLat, locationLon)
+        // remove the walls from the area that the user is in
+        const shape = floor.areas.find((area) => pointInPolygon(resultLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
+        if (shape) {
+            resultAreaIgnorableWalls.push(...shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+        }
+    }
+    else {
+        resultArea = await prisma.area.findUnique({
+            where: {
+                id: areaId,
+            }
+        })
+        if (!resultArea || !resultArea.shape) throw throwGraphQLBadInput('From Area not found')
+        const shape = resultArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
+        resultAreaIgnorableWalls.push(...shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+        resultLatLon = findPolygonCenter(shape)
+    }
+    return [resultLatLon, resultAreaIgnorableWalls, resultArea] as const
+}
+
+const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod: PathfindingMethod) => {
+    let navMesh: NavMesh;
+    let walls: Wall[];
+    let neededToGenerateANavMesh = false;
+    if ((floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
+        neededToGenerateANavMesh = true;
+        const [genNavMesh, genWalls] = generateNavMesh(floor, pathfindingMethod);
+        const data: { [key: string]: object } = {
+            walls: JSON.parse(JSON.stringify(genWalls))
+        }
+        pathfindingMethod === PathfindingMethod.Standard ?
+            data.navMesh = JSON.parse(JSON.stringify(genNavMesh)) :
+            data.voronoiNavMesh = JSON.parse(JSON.stringify(genNavMesh))
+        await prisma.floor.update({
+            where: {
+                id: floor.id
+            },
+            data
+        })
+        navMesh = genNavMesh
+        walls = genWalls
+    }
+    else {
+        navMesh = pathfindingMethod === PathfindingMethod.Standard ?
+            (floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex):
+            (floor.voronoiNavMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
+        walls = (floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
+    }
+    return {navMesh, walls, neededToGenerateANavMesh} as const;
+}
+
 @Resolver(of => NavigationResult)
 export class NavResolver {
     @Query((returns) => NavigationResult)
@@ -59,80 +126,24 @@ export class NavResolver {
         @Arg('data') data: NavigationInput,
         @Ctx() ctx: Context,
     ): Promise<NavigationResult> {
-        const toArea = await ctx.prisma.area.findUnique({
+        const floor = await ctx.prisma.floor.findUnique({
             where: {
-                id: data.areaToId,
+                id: data.floorDatabaseId,
             },
             include: {
-                floor: {
-                    include: {
-                        areas: true
-                    }
-                }
+                areas: true
             }
         })
+        if (!floor ) throw throwGraphQLBadInput('Floor not found')
 
-        if (!toArea || !toArea.shape) throw throwGraphQLBadInput('To Area not found')
-        const toShape = toArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-        const toAreaIgnorableWalls = toShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
-        const fromAreaIgnorableWalls: Wall[] = [];
-        let fromLatLon: LatLng | undefined;
-        let fromArea;
-        if (data.areaFromId === undefined) {
-            if (!data.locationFromLat || !data.locationFromLon) throw throwGraphQLBadInput('From location not found')
-            fromLatLon = new LatLng(data.locationFromLat, data.locationFromLon)
-            // remove the walls from the area that the user is in
-            const fromShape = toArea.floor.areas.find((area) => pointInPolygon(fromLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
-            if (fromShape) {
-                fromAreaIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
-            }
-        }
-        else {
-            fromArea = await ctx.prisma.area.findUnique({
-                where: {
-                    id: data.areaFromId,
-                }
-            })
-            if (!fromArea || !fromArea.shape) throw throwGraphQLBadInput('From Area not found')
-            if (fromArea.floorId !== toArea.floorId) throw throwGraphQLBadInput("Navigation between floors is not currently supported")
-            const fromShape = fromArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-            fromAreaIgnorableWalls.push(...fromShape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
-            fromLatLon = findPolygonCenter(fromShape)
-        }
-
-        const toLatLon = findPolygonCenter(toShape)
+        const [fromLatLon, fromAreaIgnorableWalls, fromArea] = await getAreaDetails(floor, data.areaFromId, data.locationFromLat, data.locationFromLon);
+        const [toLatLon, toAreaIgnorableWalls, toArea] = await getAreaDetails(floor, data.areaToId, data.locationToLat, data.locationToLon);
 
         if (!toLatLon || !fromLatLon) throw throwGraphQLBadInput('Issue with starting or ending GPS locations')
+        if (fromArea && fromArea.floorId !== data.floorDatabaseId) throw throwGraphQLBadInput("Navigation between floors is not supported")
 
         const pathfindingMethod = data.pathfindingMethod ?? PathfindingMethod.Standard;
-        let navMesh: NavMesh;
-        let walls: Wall[] = [];
-        let neededToGenerateANavMesh = false
-
-        if ((toArea.floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (toArea.floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
-            neededToGenerateANavMesh = true;
-            const [genNavMesh, genWalls] = generateNavMesh(toArea.floor, pathfindingMethod);
-            const data: { [key: string]: object } = {
-                walls: JSON.parse(JSON.stringify(genWalls))
-            }
-            pathfindingMethod === PathfindingMethod.Standard ?
-                data.navMesh = JSON.parse(JSON.stringify(genNavMesh)) :
-                data.voronoiNavMesh = JSON.parse(JSON.stringify(genNavMesh))
-            await prisma.floor.update({
-                where: {
-                    id: toArea.floor.id
-                },
-                data
-            })
-            navMesh = genNavMesh
-            walls = genWalls
-        }
-        else {
-            navMesh = pathfindingMethod === PathfindingMethod.Standard ?
-                (toArea.floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex) :
-                (toArea.floor.voronoiNavMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
-            walls = (toArea.floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
-        }
+        const {navMesh, walls, neededToGenerateANavMesh} = await loadOrGenerateNavMesh(floor, pathfindingMethod);
 
         const fromAreaWallsWithoutIgnorable = walls.filter(wall => {
             return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
@@ -145,7 +156,7 @@ export class NavResolver {
             }) === -1
         })
 
-        // This is only used in the visualization, This and the extra strification requried for the extra fields take at lease 20 ms on my m1 mac
+        // This is only used in the visualization, This and the extra strification requried for the extra fields takes at least 20 ms on my m1 mac
         const allWallsWithIgnorable = toAreaWallsWithoutIgnorable.filter(wall => {
             return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)

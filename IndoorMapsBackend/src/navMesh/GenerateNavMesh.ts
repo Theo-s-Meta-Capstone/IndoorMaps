@@ -4,13 +4,14 @@ import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { areWallsEqual, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
 import GrahamScan from "@lucio/graham-scan"
 import { PathfindingMethod } from "../resolvers/NavResolver.js";
+import { Position } from "geojson";
 
 const feetPerLatitudeDegree = 364000;
 const oneFootInLatitude = 1 / feetPerLatitudeDegree;
 const offsetInDegrees = oneFootInLatitude
 const floorPlanOffsetWeight = 3;
 
-type FloorIncludeAreas = Prisma.FloorGetPayload<{
+export type FloorIncludeAreas = Prisma.FloorGetPayload<{
     include: {
         areas: true
     }
@@ -48,6 +49,22 @@ const grahamScan = (points: LatLng[]): LatLng[] => {
     return grahamScan.getHull().map((point: number[]) => new LatLng(point[0], point[1]));
 }
 
+const expandPolygon = (polygon: Position[], offset: number) => {
+    return grahamScan(polygon.flatMap((pos) => {
+        return [
+            new LatLng(pos[1], pos[0]),
+            new LatLng(pos[1] + offset, pos[0] + offset),
+            new LatLng(pos[1] + offset, pos[0] - offset),
+            new LatLng(pos[1] - offset, pos[0] + offset),
+            new LatLng(pos[1] -offset, pos[0] - offset),
+            new LatLng(pos[1] + offset, pos[0]),
+            new LatLng(pos[1] - offset, pos[0]),
+            new LatLng(pos[1], pos[0] + offset),
+            new LatLng(pos[1], pos[0] - offset),
+        ]
+    }))
+}
+
 export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
@@ -66,19 +83,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             return new LatLng(pos[1], pos[0])
         }).concat(
             // adds outside verticies to help with navigation from outside a building
-            ...grahamScan(coords.flatMap((pos) => {
-                return [
-                    new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1] + offsetInDegrees * floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1] - offsetInDegrees * floorPlanOffsetWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetInDegrees * floorPlanOffsetWeight),
-                    new LatLng(pos[1], pos[0] - offsetInDegrees * floorPlanOffsetWeight),
-                ]
-            }))
+            ...expandPolygon(coords, offsetInDegrees * floorPlanOffsetWeight)
         )
     }
     // Using the Naïve algo (n^3) based on https://www.cs.kent.edu/~dragan/ST-Spring2016/visibility%20graphs.pdf
@@ -94,19 +99,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     })
         .filter((point) => point !== undefined) as GeoJSON.Position[][])
         .map((posArr) => {
-            return grahamScan(posArr.flatMap((pos) => {
-                return [
-                    new LatLng(pos[1], pos[0]),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] + offsetWithWeight),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0] - offsetWithWeight),
-                    new LatLng(pos[1] + offsetWithWeight, pos[0]),
-                    new LatLng(pos[1] - offsetWithWeight, pos[0]),
-                    new LatLng(pos[1], pos[0] + offsetWithWeight),
-                    new LatLng(pos[1], pos[0] - offsetWithWeight),
-                ]
-            }))
+            return expandPolygon(posArr, offsetWithWeight)
         })
 
     const realPolygons: LatLng[][] = (floor.areas.map((area) => {
@@ -146,41 +139,15 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
     }))
 
-    const navMesh: NavMesh = vertices.map((vertex, i): NavMeshVertex => {
-        return {
-            index: i,
-            point: vertex,
-            edges: [],
-        }
-    })
-
-    for (let i = 0; i < navMesh.length; i++) {
-        for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-            const doesNotCrossAnyWalls = wallsToUse.findIndex((wall) => doIntersect(navMesh[i].point, navMesh[otherVertexIndex].point, wall)) === -1;
-            if (doesNotCrossAnyWalls) {
-                navMesh[i].edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(navMesh[i].point, navMesh[otherVertexIndex].point)))
-            }
-        }
-    }
+    const navMesh: NavMesh = [];
+    extendNavMesh(navMesh, wallsToUse, vertices)
 
     const wallsExcludingFloorWalls = wallsToUse.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
     floorGeoJSON.features.forEach((feature) => {
         if (feature.geometry.type === "Point") {
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-            const edges = [];
-            for (let otherVertexIndex = 0; otherVertexIndex < navMesh.length; otherVertexIndex++) {
-                const doesNotCrossAnyWalls = wallsExcludingFloorWalls.findIndex((wall) => doIntersect(point, navMesh[otherVertexIndex].point, wall)) === -1;
-                if (doesNotCrossAnyWalls) {
-                    edges.push(new EdgeWithWeight(otherVertexIndex, getDistanceBetweenGPSPoints(point, navMesh[otherVertexIndex].point)))
-                }
-            }
-            navMesh.push({
-                index: navMesh.length,
-                point,
-                edges,
-            })
+            addPointToNavMesh(navMesh, wallsExcludingFloorWalls, point)
         }
-
     })
 
     return [navMesh, walls] as const

@@ -3,22 +3,25 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import { useNavigate, useParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
-import HeaderNav from "../pageSections/HeaderNav";
+import HeaderNav from "../components/pageSections/HeaderNav";
 import { Button, em } from "@mantine/core";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
-import { useBooleanState } from "../../utils/hooks";
+import { useBooleanState } from "../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
+import EditBuildingModal from "../components/forms/EditBuildingModal";
 
 const BuildingEditorPageQuery = graphql`
-    query BuildingEditorQuery($data: BuildingUniqueInput!) {
+    query BuildingEditorQuery($data: BuildingUniqueInput!, $autocompleteInput: AutocompleteInput!, ) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
     }
     getBuilding(data: $data) {
         title
         ...BuildingEditorBodyFragment
+        ...EditBuildingModalGetDataFragment
     }
+    ...AutoCompleteResultsFragment
 }`
 
 const BuildingEditor = () => {
@@ -37,7 +40,10 @@ const BuildingEditor = () => {
             return;
         }
         loadQuery({
-            "data": {
+            autocompleteInput: {
+                p: null,
+            },
+            data: {
                 id: parseInt(buildingId)
             }
         });
@@ -60,7 +66,9 @@ type BuildingEditorBodyContainerProps = {
 
 function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
     const [isInviteEditorOpen, handleCloseInviteEditor, handleOpenInviteEditor] = useBooleanState(false);
-    const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const [isEditBuildingDetailsOpen, handleCloseEditBuildingDetails, handleOpenEditBuildingDetails] = useBooleanState(false);
+    const data = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
+    const { getUserFromCookie, getBuilding } = data;
     const clipboard = useClipboard();
     const { buildingId } = useParams();
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
@@ -79,6 +87,10 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
                     Invite Editors
                 </Button>
                 <InviteEditorsModal isOpen={isInviteEditorOpen} closeModal={handleCloseInviteEditor} />
+                <Button onClick={handleOpenEditBuildingDetails}>
+                    Edit Building Details
+                </Button>
+                <EditBuildingModal isOpen={isEditBuildingDetailsOpen} closeModal={handleCloseEditBuildingDetails} getGeocoder={data} buildingFromParent={getBuilding} />
             </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
             <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>

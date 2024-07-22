@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../../utils/utils";
-import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../../utils/markerIcon";
+import { getAreaOfPolygon, removeAllLayersFromLayerGroup } from "../../utils/utils";
+import { DoorMarkerIcon, IndoorDoorMarkerIcon } from "../../utils/markerIcon";
 import * as L from "leaflet";
 import { graphql, useFragment } from "react-relay";
 import { ViewerMapLoaderFragment$key } from "./__generated__/ViewerMapLoaderFragment.graphql";
 import { Button, Group } from "@mantine/core";
-import { AreaToAreaRouteInfo } from "../../../utils/types";
+import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
+import DispalyLiveMarkers from "./DisplayLiveMarkers";
+import { usePrefersReducedMotion } from "../../utils/hooks";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -64,6 +66,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const [mapIsSetUp, setMapIsSetUp] = useState(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -83,12 +86,12 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const updateAreaColors = () => {
         areasMapLayer.getLayers().forEach((foundLayer) => {
             if (foundLayer instanceof L.Polygon && foundLayer.feature) {
-                if (areaToAreaRouteInfo.from instanceof Object && foundLayer.feature.properties.databaseId === areaToAreaRouteInfo.from.areaDatabaseId) {
+                if (areaToAreaRouteInfo.from && !areaToAreaRouteInfo.from.isLatLon && foundLayer.feature.properties.databaseId === areaToAreaRouteInfo.from.areaDatabaseId) {
                     foundLayer.setStyle({
                         fillColor: 'lightgreen',
                     });
                 }
-                else if (areaToAreaRouteInfo.to && foundLayer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                else if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon && foundLayer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
                     foundLayer.setStyle({
                         fillColor: 'lightblue',
                     });
@@ -107,7 +110,11 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         if (!layerToFlyTo) return;
         if (layerToFlyTo.feature) {
             const size = getAreaOfPolygon(layerToFlyTo);
-            map.flyTo(layerToFlyTo.getCenter(), Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()));
+            map.flyTo(
+                layerToFlyTo.getCenter(),
+                Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()),
+                {animate: !prefersReducedMotion}
+            );
         }
     }
 
@@ -139,6 +146,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfoRef.current,
             to: {
+                isLatLon: false,
                 areaDatabaseId,
                 floorDatabaseId: currentFloor,
                 title,
@@ -211,7 +219,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                 layer.getElement()?.classList.add("area")
                 if (layer.feature) {
                     const size = getAreaOfPolygon(layer);
-                    if (areaToAreaRouteInfo.to && layer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
+                    if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon && layer.feature.properties.databaseId == areaToAreaRouteInfo.to.areaDatabaseId) {
                         flyToArea(layer);
                     }
                     if (layer.feature.properties.title) {
@@ -221,9 +229,6 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                         const description = layer.feature.properties.description;
                         layer.on("click", () => updateToArea({ areaDatabaseId, currentFloor, title, description }))
                     }
-                    // if (layer.feature.properties.description) {
-                    //     layer.bindPopup(layer.feature.properties.title + ": " + layer.feature.properties.description, { className: "description", offset: [0, 0] });
-                    // }
                 }
             }
             updateAreaColors();
@@ -239,7 +244,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     }, [areaToAreaRouteInfo.from])
 
     useEffect(() => {
-        if (areaToAreaRouteInfo.to) {
+        if (areaToAreaRouteInfo.to && !areaToAreaRouteInfo.to.isLatLon) {
             if (areaToAreaRouteInfo.to.floorDatabaseId != currentFloor) {
                 setCurrentFloor(areaToAreaRouteInfo.to.floorDatabaseId)
             } else {
@@ -264,6 +269,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         <Group className="floorsContainer" >
             <LoadNavPath areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} />
             {floorListElements}
+            <DispalyLiveMarkers setAreaToAreaRouteInfo={setAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} floorDatabaseId={currentFloor} />
             {children}
         </Group>
     )

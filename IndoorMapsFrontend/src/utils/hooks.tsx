@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { graphql, loadQuery, useRelayEnvironment } from "react-relay";
+import { fetchQuery, graphql, loadQuery, useRelayEnvironment } from "react-relay";
+import { AutoCompleteResultsFragment$data } from "../components/forms/__generated__/AutoCompleteResultsFragment.graphql";
+import { hooksLatlngLookupQuery } from "./__generated__/hooksLatlngLookupQuery.graphql";
 
 /**
  * A wrapper for useState<boolean>, commonly used to show modals and to removed the need for close modal handlers
@@ -105,16 +107,16 @@ export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500)
 // Based on expample on https://www.w3schools.com/html/html5_geolocation.asp
 // enableHighAcuracy and fallback based on https://stackoverflow.com/questions/9053262/geolocation-html5-enablehighaccuracy-true-false-or-best-option
 // I decided to not return a state that changes based on the position/error and instead have the consumers of this hook
-    // write functions (the params) that are called when the position is updated or when an error occurs. This is because
-    // anything to do with the map, espeically things that happen a lot (like the position marker updating) shouldn't cause React to even consider re-render
-    // The leaflet map response far better to updates that come from tridtional JS as aposed to React so using states just results in more re-renders and a worse expreience.
+// write functions (the params) that are called when the position is updated or when an error occurs. This is because
+// anything to do with the map, espeically things that happen a lot (like the position marker updating) shouldn't cause React to even consider re-render
+// The leaflet map response far better to updates that come from tridtional JS as aposed to React so using states just results in more re-renders and a worse expreience.
 export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void, setUserLocationError: (errorMessage: string) => void) => {
     let alreadyWatching = false;
     const getLocation = () => {
         if (alreadyWatching) return;
         if (navigator.geolocation) {
             alreadyWatching = true;
-            navigator.geolocation.watchPosition(onUserLocationWatch, errorCallback_highAccuracy, {maximumAge:600000, timeout:5000, enableHighAccuracy: true});
+            navigator.geolocation.watchPosition(onUserLocationWatch, errorCallback_highAccuracy, { maximumAge: 600000, timeout: 5000, enableHighAccuracy: true });
         } else {
             setUserLocationError("Geolocation is not supported by this browser.");
         }
@@ -132,7 +134,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
                 navigator.geolocation.watchPosition(
                     onUserLocationWatch,
                     errorCallback_lowAccuracy,
-                    {maximumAge:600000, timeout:10000, enableHighAccuracy: false});
+                    { maximumAge: 600000, timeout: 10000, enableHighAccuracy: false });
                 break;
             default:
                 setUserLocationError("An unknown error occurred.")
@@ -159,4 +161,61 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
         }
     }
     return getLocation;
+}
+
+// Based on https://www.joshwcomeau.com/snippets/react-hooks/use-prefers-reduced-motion/
+// Not SSR safe, if the project updates to use SSR, this will need to be updated
+const QUERY = '(prefers-reduced-motion: no-preference)';
+const getInitialState = () => !window.matchMedia(QUERY).matches;
+export const usePrefersReducedMotion = () => {
+    const [prefersReducedMotion, setPrefersReducedMotion] = useState(getInitialState);
+    useEffect(() => {
+        const mediaQueryList = window.matchMedia(QUERY);
+        const listener = (event: MediaQueryListEvent) => {
+            setPrefersReducedMotion(!event.matches);
+        };
+        mediaQueryList.addEventListener('change', listener);
+        return () => {
+            mediaQueryList.removeEventListener('change', listener);
+        };
+    }, []);
+    return prefersReducedMotion;
+}
+
+export const useChooseAutocompleteResult = (setAddressValue: (newAddressValue: string) => void, setStartingPositionValue: (newLatLonString: string) => void, setFormError: (errorMessage: string) => void) => {
+    const environment = useRelayEnvironment();
+    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
+        setAddressValue(item.title);
+        fetchQuery<hooksLatlngLookupQuery>(
+            environment,
+            graphql`
+            query hooksLatlngLookupQuery($lookupInput: LocationLookupInput!) {
+                getLocationLookup(data: $lookupInput) {
+                    lat
+                    lon
+                }
+            }
+            `,
+            {
+                lookupInput: {
+                    "id": item.id
+                }
+            },
+        )
+            .subscribe({
+                start: () => { },
+                complete: () => { },
+                error: (error: Error) => {
+                    setFormError(error.message);
+                },
+                next: (data) => {
+                    if (!data || !data.getLocationLookup) {
+                        setFormError("No response when loading lat/long for autocomplete result");
+                        return;
+                    }
+                    setStartingPositionValue(`${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
+                }
+            });
+    }
+    return handleChooseAutocompleteResult;
 }

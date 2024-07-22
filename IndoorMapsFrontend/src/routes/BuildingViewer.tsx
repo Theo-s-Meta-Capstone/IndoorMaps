@@ -4,11 +4,11 @@ import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "reac
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
-import HeaderNav from "../pageSections/HeaderNav";
-import { useBooleanState } from "../../utils/hooks";
+import HeaderNav from "../components/pageSections/HeaderNav";
+import { useBooleanState } from "../utils/hooks";
 import { Button, em } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
 
 const BuildingViewerPageQuery = graphql`

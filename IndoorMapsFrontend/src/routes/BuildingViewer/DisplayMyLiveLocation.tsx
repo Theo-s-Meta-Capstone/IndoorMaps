@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import * as L from "leaflet";
-import { locationMarkerIcon } from "../../../utils/markerIcon";
-import { useUserLocation } from "../../../utils/hooks";
+import { locationMarkerIcon } from "../../utils/markerIcon";
+import { useUserLocation } from "../../utils/hooks";
 import { Button } from "@mantine/core";
 
 

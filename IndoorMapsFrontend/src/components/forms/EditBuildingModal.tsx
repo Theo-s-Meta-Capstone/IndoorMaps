@@ -1,44 +1,61 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { graphql, useMutation } from "react-relay";
-import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
-import { useNavigate } from "react-router-dom";
+import { graphql, useFragment, useMutation } from "react-relay";
 import FormErrorNotification from "./FormErrorNotification";
 import AutoCompleteResults from "./AutoCompleteResults";
 import { AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { EditBuildingModalGetDataFragment$key } from "./__generated__/EditBuildingModalGetDataFragment.graphql";
+import { EditBuildingModalMutation } from "./__generated__/EditBuildingModalMutation.graphql";
 import { useChooseAutocompleteResult } from "../../utils/hooks";
+
+const EditBuildingGetDataFragment = graphql`
+  fragment EditBuildingModalGetDataFragment on Building
+  {
+    id
+    databaseId
+    title
+    startPos {
+      lat
+      lon
+    }
+    address
+  }
+`;
 
 type Props = {
     isOpen: boolean,
     closeModal: () => void,
     getGeocoder: AutoCompleteResultsFragment$key,
+    buildingFromParent: EditBuildingModalGetDataFragment$key
 }
 
-const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
+const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent }: Props) => {
+    const buildingData = useFragment(EditBuildingGetDataFragment, buildingFromParent);
     const [formError, setFormError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
     const form = useForm({
         mode: 'controlled',
-        initialValues: { buildingName: '', address: '', startingPosition: '' },
+        initialValues: { buildingName: buildingData.title, address: buildingData.address, startingPosition: buildingData.startPos.lat + ", " + buildingData.startPos.lon },
         validate: {
             buildingName: hasLength({ min: 4 }, 'Building name must be at least 4 characters long'),
             address: isNotEmpty('Please enter an address'),
             startingPosition: isNotEmpty('Please enter a starting position'),
         },
     });
-
     const handleChooseAutocompleteResult = useChooseAutocompleteResult(
         (newStartingPositionValue: string) => form.setFieldValue('address', newStartingPositionValue),
         (newAddressValue: string) => form.setFieldValue('startingPosition', newAddressValue),
         (errorMessage: string) => setFormError(errorMessage),
     )
 
-    const [commit, isInFlight] = useMutation<CreateBuildingModalMutation>(graphql`
-        mutation CreateBuildingModalMutation($input: BuildingCreateInput!) {
-            createBuilding(data: $input) {
+    const [commit, isInFlight] = useMutation<EditBuildingModalMutation>(graphql`
+        mutation EditBuildingModalMutation($input: BuildingUpdateInput!) {
+            updateBuilding(data: $input) {
+                id
                 databaseId
+                ...BuildingEditorBodyFragment
+                ...EditBuildingModalGetDataFragment
             }
         }
     `);
@@ -48,14 +65,15 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
             commit({
                 variables: {
                     input: {
+                        buildingDatabseId: buildingData.databaseId,
                         title: values.buildingName,
                         address: values.address,
                         startLat: parseFloat(values.startingPosition.split(', ')[0]),
                         startLon: parseFloat(values.startingPosition.split(', ')[1]),
                     },
                 },
-                onCompleted(data) {
-                    navigate(`/building/${data.createBuilding.databaseId}/editor`);
+                onCompleted() {
+                    closeModal();
                 },
                 onError(error) {
                     setFormError(error.message);
@@ -71,7 +89,7 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
         <Modal
             opened={isOpen}
             onClose={() => closeModal()}
-            title={"Create a New Building Map"}
+            title={`Edit ${buildingData.title} details`}
             overlayProps={{
                 backgroundOpacity: 0.55,
                 blur: 3,
@@ -79,7 +97,7 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-                <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
+                <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name (Changing the name will break all links to the building)" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
                 <Suspense fallback={<div>Loading...</div>}>
                     <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />
@@ -93,4 +111,4 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
     )
 }
 
-export default CreateBuildingModal;
+export default EditBuildingModal;

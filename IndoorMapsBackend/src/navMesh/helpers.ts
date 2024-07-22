@@ -13,6 +13,7 @@ export const getDistanceBetweenGPSPoints = (p1: LatLng, p2: LatLng): number => {
     return Math.sqrt(Math.pow(K1 * deltaLat, 2) + Math.pow(K2 * deltaLon, 2))
 }
 
+//TOTO: fix to make work with irregular shapes
 export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined => {
     if (polygon.geometry.type != "Polygon") return;
     const res = new LatLng(0, 0);
@@ -26,13 +27,19 @@ export const findPolygonCenter = (polygon: GeoJSON.Feature): LatLng | undefined 
     return res;
 }
 
+// Compares two walls deeply by value
 export const areWallsEqual = (e1: Wall, e2: Wall) => {
     return e1.point1.lat === e2.point1.lat && e1.point1.lon === e2.point1.lon && e1.point2.lat === e2.point2.lat && e1.point2.lon === e2.point2.lon
 }
 
-
 // Modified from https://www.npmjs.com/package/point-in-polygon?activeTab=readme
-export const pointInPolygon = (point: LatLng, vs: number[][]) => {
+/**
+ * detrimines whether a point is inside a polygon, used to find the room that needs to have it's walls not considered when adding an arbitray point (usually based on gps) to the nav mesh
+ * @param point the point to check
+ * @param vs the array of points that make up the polygon
+ * @returns true if the point is inside the polygon, false otherwise
+ */
+export const pointInPolygon = (point: LatLng, vs: number[][]): boolean => {
     const x = point.lat, y = point.lon;
     let inside = false;
     const start = 0;
@@ -61,12 +68,23 @@ const getPointsAlongLine = (point1: LatLng, point2: LatLng, numberOfPoints: numb
     return res;
 }
 
-const isIn = (point: LatLng, bbox: { xl: number, xr: number, yt: number, yb: number }) => {
+/**
+ *
+ * @param point the point to check
+ * @param bbox the bounding box of the rectange to check
+ * @returns true if the point is inside the bounding box, false otherwise
+ */
+const isIn = (point: LatLng, bbox: { xl: number, xr: number, yt: number, yb: number }): boolean => {
     return point.lat >= bbox.xl && point.lat <= bbox.xr && point.lon >= bbox.yt && point.lon <= bbox.yb
 }
 
 const numberOfPointsToIncludeFromEachVoronoiEdge = 1;
-export const vorornoiDriver = (vertices: LatLng[]) => {
+/**
+ * Takes a set of vertices and returns voronoi points to build a nav mesh with
+ * @param vertices the vertices of the existing polygons to find the voronoi points
+ * @returns the voronoi points, to be used to create the nav mesh
+ */
+export const vorornoiDriver = (vertices: LatLng[]): LatLng[] => {
     // js constructor hack from https://stackoverflow.com/a/51622913
     const voronoi = new (Voronoi as any);
     const bbox = {

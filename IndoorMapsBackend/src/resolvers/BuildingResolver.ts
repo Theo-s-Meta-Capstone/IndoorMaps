@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription } from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
 import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
@@ -23,6 +23,24 @@ class BuildingUniqueInput {
 
 @InputType()
 class BuildingCreateInput {
+    @Field()
+    title: string
+
+    @Field()
+    address: string
+
+    @Field(type => Float)
+    startLat: number
+
+    @Field(type => Float)
+    startLon: number
+}
+
+@InputType()
+class BuildingUpdateInput {
+    @Field(type => Int)
+    buildingDatabseId: number
+
     @Field()
     title: string
 
@@ -166,6 +184,29 @@ export class BuildingResolver {
             }
         });
         return convertToGraphQLBuilding(newBuilding);
+    }
+
+    @Mutation((returns) => Building)
+    async updateBuilding(
+        @Arg('data') data: BuildingUpdateInput,
+        @Ctx() ctx: Context,
+    ): Promise<Building> {
+        const authError = await checkAuthrizedBuildingEditor(data.buildingDatabseId, ctx);
+        if (authError) {
+            throw authError;
+        }
+        const editedBuilding = await ctx.prisma.building.update({
+            where: {
+                id: data.buildingDatabseId
+            },
+            data: {
+                title: data.title,
+                address: data.address,
+                startLat: data.startLat,
+                startLon: data.startLon,
+            }
+        });
+        return convertToGraphQLBuilding(editedBuilding);
     }
 
     @Mutation((returns) => MutationResult)

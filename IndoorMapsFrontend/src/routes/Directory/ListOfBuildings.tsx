@@ -4,7 +4,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { graphql, useRefetchableFragment } from "react-relay";
 import { ListOfBuildingsFragment$key } from "./__generated__/ListOfBuildingsFragment.graphql";
 import { useEffect, useState, useTransition } from "react";
-import { useDebounce } from "../../../utils/hooks";
+import { useDebounce } from "../../utils/hooks";
 
 const debounceTime = 200;
 

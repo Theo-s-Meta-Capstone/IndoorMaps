@@ -96,6 +96,14 @@ input BuildingUniqueInput {
   id: Float!
 }
 
+input BuildingUpdateInput {
+  address: String!
+  buildingDatabseId: Int!
+  startLat: Float!
+  startLon: Float!
+  title: String!
+}
+
 type BuildingWithPerms {
   building: Building!
   editorLevel: EditorLevel!
@@ -187,11 +195,12 @@ type Mutation {
   deleteArea(data: AreaUniqueInput!): NewAreaResult!
   inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
-  modifyFloor(data: FloorModifyInput!): NewFloorResult!
+  modifyFloor(data: FloorModifyInput!): Floor!
   setLocation(data: LiveLocationInput!): MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
+  updateBuilding(data: BuildingUpdateInput!): Building!
 }
 
 type MutationResult {
@@ -200,9 +209,12 @@ type MutationResult {
 
 input NavigationInput {
   areaFromId: Int
-  areaToId: Int!
+  areaToId: Int
+  floorDatabaseId: Int!
   locationFromLat: Float
   locationFromLon: Float
+  locationToLat: Float
+  locationToLon: Float
   pathfindingMethod: PathfindingMethod
 }
 

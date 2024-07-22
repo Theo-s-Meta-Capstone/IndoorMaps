@@ -1,14 +1,14 @@
 import "./Directory/styles/Directory.css"
-import "../pageSections/style/FixedFooter.css"
+import "../components/pageSections/style/FixedFooter.css"
 import { Suspense, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";
 import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
-import HeaderNav from "../pageSections/HeaderNav";
+import HeaderNav from "../components/pageSections/HeaderNav";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
-import Footer from "../pageSections/Footer";
+import Footer from "../components/pageSections/Footer";
 
 const DirectoryPageQuery = graphql`
     query DirectoryQuery($autocompleteInput: AutocompleteInput!, $buildingSearchInput: BuildingSearchInput!) {

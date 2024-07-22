@@ -2,9 +2,9 @@ import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import FormErrorNotification from "../../forms/FormErrorNotification";
-import { getPointBetweentwoPoints } from "../../../utils/utils";
-import { useUserLocation } from "../../../utils/hooks";
+import FormErrorNotification from "../../components/forms/FormErrorNotification";
+import { getPointBetweentwoPoints } from "../../utils/utils";
+import { useUserLocation } from "../../utils/hooks";
 import Cookies from 'js-cookie'
 
 const WS_ENDPOINT = import.meta.env.VITE_BACKEND_WEBSOCKET_URL;
@@ -107,6 +107,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 if (isRunningTimeout) {
                     clearInterval(isRunningTimeout)
                 }
+                sendCurrentPositionAlongInputedCords()
                 setIsRunningTimeout(setInterval(sendCurrentPositionAlongInputedCords, 1000))
             } else {
                 // starts running the funciton that was given as a param to useUserLocation

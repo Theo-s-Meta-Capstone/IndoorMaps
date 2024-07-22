@@ -10,18 +10,32 @@ export type LiveLocationMarker = {
 
 export type AreaToAreaRouteInfo = {
     to?: {
-        areaDatabaseId: number,
+        isLatLon: false,
         floorDatabaseId: number,
         title: string,
         description?: string
-    }
-    from?: {
         areaDatabaseId: number,
+    } | {
+        isLatLon: true,
         floorDatabaseId: number,
         title: string,
-        description: string
-    } | "gpsLocation",
-    currentGPSCoords?: LatLng,
+        description?: string
+        location: LatLng,
+        id?: string,
+        isUpdate: boolean,
+    },
+    from?: {
+        isLatLon: false,
+        floorDatabaseId: number,
+        title: string,
+        description?: string
+        areaDatabaseId?: number,
+    } | {
+        isLatLon: true,
+        title: string,
+        description?: string
+        location: LatLng,
+    },
     path?: LatLng[]
     walls?: string
     navMesh?: string

@@ -6,7 +6,8 @@
     "compile": "tsc",
     "start": "npm run compile && node ./dist/index.js",
     "dev": "nodemon node --loader ts-node/esm src/index.ts",
-    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --coverage"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --coverage",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",

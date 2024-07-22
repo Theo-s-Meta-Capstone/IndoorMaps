@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IconSearch } from "@tabler/icons-react";
-import FormErrorNotification from "../../../forms/FormErrorNotification";
-import { AreaToAreaRouteInfo } from "../../../../utils/types";
+import FormErrorNotification from "../../../components/forms/FormErrorNotification";
+import { AreaToAreaRouteInfo } from "../../../utils/types";
 import AreaNavigate from "./AreaNavigate";
 import AreaSearchBox from "./AreaSearchBox";
 import { AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";
@@ -30,6 +30,7 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfo,
             to: {
+                isLatLon: false,
                 areaDatabaseId: area.databaseId,
                 floorDatabaseId: area.floorDatabaseId,
                 title: area.title,
@@ -40,10 +41,10 @@ const AreaSearch = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo }:
     }
 
     useEffect(() => {
-        if(areaToAreaRouteInfo.to) {
+        if(areaToAreaRouteInfo.to && (!areaToAreaRouteInfo.to.isLatLon || (areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate))) {
             setIsNavigating(true)
         }
-    }, [areaToAreaRouteInfo.to])
+    },  [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title])
 
     return (
         <aside className="AreaSearch">
