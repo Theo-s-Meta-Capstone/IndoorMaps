@@ -47,3 +47,8 @@
 .noAreaSelectedText {
     vertical-align: middle;
 }
+
+
+.rotationControler {
+    pointer-events: none;
+}

@@ -9,6 +9,7 @@ import { useBooleanState } from "../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
 import { removeAllLayersFromLayerGroup } from "../../utils/utils";
+import GuideImage from "./GuideImage";
 
 
 const FloorSidebarFragment = graphql`
@@ -89,7 +90,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (!map) return;
         floorMapLayer.removeLayer(event.layer);
         handleFloorShapeUpdate()
-        if(event.layer instanceof L.Polygon){
+        if (event.layer instanceof L.Polygon) {
             setWhetherBuildingOrEntrenceMapping(false);
         }
     }
@@ -153,13 +154,14 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Editor Sidebar {currentFloorData ?
                 <Button onClick={openAreaSidebar}>Edit {currentFloorData.title} Areas</Button>
-            : null}</h2>
+                : null}</h2>
             <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
                 <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
             </Tooltip>
             <ScrollArea h={250}>
                 {floorListElements}
             </ScrollArea>
+            <GuideImage map={map} floorMapLayer={floorMapLayer} setFormError={(e: string) => setFormError(e)} />
             <CreateFloorModal isOpen={isCreateFloorModalOpen} closeModal={handleCloseCreateFloorModal} />
             <div>{isInFlight ? "saving ..." : "all saved"}</div>
         </>

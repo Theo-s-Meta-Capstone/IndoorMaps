@@ -1,3 +1,4 @@
+import * as L from "leaflet";
 /**
  * Removes all layers from a layer group and removes them from the map
  * @param layerGroup the layer group to remove all layers from
@@ -38,4 +39,36 @@ export const getAreaOfPolygon = (polygon: L.Polygon): number => {
         sum += (points[i].lng + points[(i + 1)%points.length].lng) * (points[i].lat - points[(i + 1)%points.length].lat)
     }
     return Math.abs(sum / 2)*1000000
+}
+
+//TOTO: fix to make work with irregular shapes
+export const findRectCenter = (rect: L.LatLng[]): L.LatLng  => {
+    const res = new L.LatLng(0, 0);
+    rect.forEach((position) => {
+        res.lat += position.lat;
+        res.lng += position.lng;
+    })
+
+    res.lat /= rect.length;
+    res.lng /= rect.length;
+    return res;
+}
+
+// modified from https://stackoverflow.com/a/13208761
+function rotate_point(point: L.LatLng, origin: L.LatLng, angle: number): L.LatLng {
+    angle = angle * Math.PI / 180.0;
+    console.log(angle);
+    return new L.LatLng(
+        Math.cos(angle) * (point.lat-origin.lat) - Math.sin(angle) * (point.lng-origin.lng) + origin.lat,
+        Math.sin(angle) * (point.lat-origin.lat) + Math.cos(angle) * (point.lng-origin.lng) + origin.lng
+    );
+}
+
+export function rotateRect(rect: L.LatLng[], angle: number): L.LatLng[] {
+    const rotatedPoints = [];
+    for (let i = 0; i < rect.length; i++) {
+        rotatedPoints.push(rotate_point(rect[i], findRectCenter(rect), angle));
+    }
+    console.log(rotatedPoints);
+    return rotatedPoints;
 }
