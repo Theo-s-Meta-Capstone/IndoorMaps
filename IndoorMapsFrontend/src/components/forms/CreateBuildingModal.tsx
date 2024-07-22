@@ -1,7 +1,7 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { graphql, useMutation, useRelayEnvironment } from "react-relay";
+import { graphql, useMutation } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
 import FormErrorNotification from "./FormErrorNotification";
@@ -16,7 +16,6 @@ type Props = {
 }
 
 const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
-    const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
     const navigate = useNavigate();
 
