@@ -11,7 +11,6 @@ import * as L from "leaflet";
 import { removeAllLayersFromLayerGroup } from "../../utils/utils";
 import GuideImage from "./GuideImage";
 
-
 const FloorSidebarFragment = graphql`
   fragment FloorSidebarBodyFragment on Building
   {

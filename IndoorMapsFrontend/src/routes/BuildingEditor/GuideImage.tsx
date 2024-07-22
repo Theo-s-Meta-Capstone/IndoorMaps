@@ -2,15 +2,12 @@ import { TextInput } from "@mantine/core"
 import { useEffect, useRef, useState } from "react";
 import * as L from "leaflet";
 import { useDebounce } from "../../utils/hooks";
-import { removeAllLayersFromLayerGroup } from "../../utils/utils";
 
 type Props = {
     map: L.Map;
     floorMapLayer: L.GeoJSON;
     setFormError: (error: string) => void;
 }
-
-const imageGuideOverlay = L.geoJSON();
 
 const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -31,8 +28,8 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
         if (hasAlreadyAddedImageRef.current) return;
         hasAlreadyAddedImageRef.current = true;
         const coords = latLngBounds;
-        imageGuideOverlay.addTo(floorMapLayer)
-        const guideBoundingRect = L.rectangle(coords).addTo(imageGuideOverlay); // the Leaflet constructor always creates a non-rotated rectangle
+        // imageGuideOverlay.addTo(floorMapLayer)
+        const guideBoundingRect = L.rectangle(coords).addTo(floorMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
         guideBoundingRect.setStyle({ fillColor: 'url(#guideBackgroundImage)', fillOpacity: .5, fillRule: "evenodd" })
         guideBoundingRect.pm.disableRotate()
         guideBoundingRect.pm.setOptions({
@@ -56,7 +53,7 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
                 `);
         }
 
-        const guideRotationHandle = L.rectangle(coords).addTo(imageGuideOverlay); // the Leaflet constructor always creates a non-rotated rectangle
+        const guideRotationHandle = L.rectangle(coords).addTo(floorMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
         guideRotationHandle.pm.setOptions({
             allowEditing: false,
             allowRemoval: false,
@@ -119,7 +116,12 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
         img.addEventListener("error", () => {
             setFormError("failed to load guide image");
             hasAlreadyAddedImageRef.current = false;
-            removeAllLayersFromLayerGroup(imageGuideOverlay, map);
+            for(const layer of floorMapLayer.getLayers()){
+                if(layer instanceof L.Rectangle){
+                    map.removeLayer(layer);
+                    floorMapLayer.removeLayer(layer);
+                }
+            }
         })
     }
 
