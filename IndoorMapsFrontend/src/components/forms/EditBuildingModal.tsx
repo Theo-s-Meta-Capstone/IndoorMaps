@@ -1,13 +1,13 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { fetchQuery, graphql, useFragment, useMutation, useRelayEnvironment } from "react-relay";
+import { graphql, useFragment, useMutation } from "react-relay";
 import FormErrorNotification from "./FormErrorNotification";
 import AutoCompleteResults from "./AutoCompleteResults";
-import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
 import { EditBuildingModalGetDataFragment$key } from "./__generated__/EditBuildingModalGetDataFragment.graphql";
 import { EditBuildingModalMutation } from "./__generated__/EditBuildingModalMutation.graphql";
-import { EditBuildingModalLatlngLookupQuery } from "./__generated__/EditBuildingModalLatlngLookupQuery.graphql";
+import { useChooseAutocompleteResult } from "../../utils/hooks";
 
 const EditBuildingGetDataFragment = graphql`
   fragment EditBuildingModalGetDataFragment on Building
@@ -32,7 +32,6 @@ type Props = {
 
 const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent }: Props) => {
     const buildingData = useFragment(EditBuildingGetDataFragment, buildingFromParent);
-    const environment = useRelayEnvironment();
     const [formError, setFormError] = useState<string | null>(null);
 
     const form = useForm({
@@ -44,6 +43,11 @@ const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent
             startingPosition: isNotEmpty('Please enter a starting position'),
         },
     });
+    const handleChooseAutocompleteResult = useChooseAutocompleteResult(
+        (newStartingPositionValue: string) => form.setFieldValue('address', newStartingPositionValue),
+        (newAddressValue: string) => form.setFieldValue('startingPosition', newAddressValue),
+        (errorMessage: string) => setFormError(errorMessage),
+    )
 
     const [commit, isInFlight] = useMutation<EditBuildingModalMutation>(graphql`
         mutation EditBuildingModalMutation($input: BuildingUpdateInput!) {
@@ -80,40 +84,6 @@ const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent
             setFormError(errorMessage);
         }
     };
-
-    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
-        form.setFieldValue('address', item.title);
-        fetchQuery<EditBuildingModalLatlngLookupQuery>(
-            environment,
-            graphql`
-            query EditBuildingModalLatlngLookupQuery($lookupInput: LocationLookupInput!) {
-                getLocationLookup(data: $lookupInput) {
-                    lat
-                    lon
-                }
-            }
-            `,
-            {
-                lookupInput: {
-                    "id": item.id
-                }
-            },
-        )
-            .subscribe({
-                start: () => { },
-                complete: () => { },
-                error: (error: Error) => {
-                    setFormError(error.message);
-                },
-                next: (data) => {
-                    if (!data || !data.getLocationLookup) {
-                        setFormError("No response when loading lat/long for autocomplete result");
-                        return;
-                    }
-                    form.setFieldValue('startingPosition', `${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
-                }
-            });
-    }
 
     return (
         <Modal

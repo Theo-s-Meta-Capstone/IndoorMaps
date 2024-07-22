@@ -1,13 +1,13 @@
 import { Button, Modal, TextInput, Group } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
-import { fetchQuery, graphql, useMutation, useRelayEnvironment } from "react-relay";
+import { graphql, useMutation, useRelayEnvironment } from "react-relay";
 import { CreateBuildingModalMutation } from "./__generated__/CreateBuildingModalMutation.graphql";
 import { useNavigate } from "react-router-dom";
 import FormErrorNotification from "./FormErrorNotification";
 import AutoCompleteResults from "./AutoCompleteResults";
-import { AutoCompleteResultsFragment$data, AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
-import { CreateBuildingModalLatlngLookupQuery } from "./__generated__/CreateBuildingModalLatlngLookupQuery.graphql";
+import { AutoCompleteResultsFragment$key } from "./__generated__/AutoCompleteResultsFragment.graphql";
+import { useChooseAutocompleteResult } from "../../utils/hooks";
 
 type Props = {
     isOpen: boolean,
@@ -29,6 +29,12 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
             startingPosition: isNotEmpty('Please enter a starting position'),
         },
     });
+
+    const handleChooseAutocompleteResult = useChooseAutocompleteResult(
+        (newStartingPositionValue: string) => form.setFieldValue('address', newStartingPositionValue),
+        (newAddressValue: string) => form.setFieldValue('startingPosition', newAddressValue),
+        (errorMessage: string) => setFormError(errorMessage),
+    )
 
     const [commit, isInFlight] = useMutation<CreateBuildingModalMutation>(graphql`
         mutation CreateBuildingModalMutation($input: BuildingCreateInput!) {
@@ -61,40 +67,6 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
             setFormError(errorMessage);
         }
     };
-
-    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
-        form.setFieldValue('address', item.title);
-        fetchQuery<CreateBuildingModalLatlngLookupQuery>(
-            environment,
-            graphql`
-            query CreateBuildingModalLatlngLookupQuery($lookupInput: LocationLookupInput!) {
-                getLocationLookup(data: $lookupInput) {
-                    lat
-                    lon
-                }
-            }
-            `,
-            {
-                lookupInput: {
-                    "id": item.id
-                }
-            },
-        )
-            .subscribe({
-                start: () => { },
-                complete: () => { },
-                error: (error: Error) => {
-                    setFormError(error.message);
-                },
-                next: (data) => {
-                    if (!data || !data.getLocationLookup) {
-                        setFormError("No response when loading lat/long for autocomplete result");
-                        return;
-                    }
-                    form.setFieldValue('startingPosition', `${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
-                }
-            });
-    }
 
     return (
         <Modal

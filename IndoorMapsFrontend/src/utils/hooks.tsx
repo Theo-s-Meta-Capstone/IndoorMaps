@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { graphql, loadQuery, useRelayEnvironment } from "react-relay";
+import { fetchQuery, graphql, loadQuery, useRelayEnvironment } from "react-relay";
+import { AutoCompleteResultsFragment$data } from "../components/forms/__generated__/AutoCompleteResultsFragment.graphql";
+import { hooksLatlngLookupQuery } from "./__generated__/hooksLatlngLookupQuery.graphql";
 
 /**
  * A wrapper for useState<boolean>, commonly used to show modals and to removed the need for close modal handlers
@@ -178,4 +180,42 @@ export const usePrefersReducedMotion = () => {
         };
     }, []);
     return prefersReducedMotion;
+}
+
+export const useChooseAutocompleteResult = (setAddressValue: (newAddressValue: string) => void, setStartingPositionValue: (newLatLonString: string) => void, setFormError: (errorMessage: string) => void) => {
+    const environment = useRelayEnvironment();
+    const handleChooseAutocompleteResult = (item: AutoCompleteResultsFragment$data["getAutocomplete"]["items"][number]) => {
+        setAddressValue(item.title);
+        fetchQuery<hooksLatlngLookupQuery>(
+            environment,
+            graphql`
+            query hooksLatlngLookupQuery($lookupInput: LocationLookupInput!) {
+                getLocationLookup(data: $lookupInput) {
+                    lat
+                    lon
+                }
+            }
+            `,
+            {
+                lookupInput: {
+                    "id": item.id
+                }
+            },
+        )
+            .subscribe({
+                start: () => { },
+                complete: () => { },
+                error: (error: Error) => {
+                    setFormError(error.message);
+                },
+                next: (data) => {
+                    if (!data || !data.getLocationLookup) {
+                        setFormError("No response when loading lat/long for autocomplete result");
+                        return;
+                    }
+                    setStartingPositionValue(`${data.getLocationLookup.lat}, ${data.getLocationLookup.lon}`);
+                }
+            });
+    }
+    return handleChooseAutocompleteResult;
 }
