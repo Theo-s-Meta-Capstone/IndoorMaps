@@ -65,6 +65,7 @@ export const useRefreshRelayCache = () => {
                 id
                 floors {
                     ...FloorListItemFragment
+                    ...AreaSidebarBodyFragment
                 }
             }
         }
