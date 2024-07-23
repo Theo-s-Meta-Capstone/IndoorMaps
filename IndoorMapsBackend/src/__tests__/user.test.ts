@@ -4,7 +4,7 @@ import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
 
-const port = 4500;
+const port = 4502;
 
 const date = new Date();
 const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
