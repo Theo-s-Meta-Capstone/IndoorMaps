@@ -240,7 +240,6 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
     }
 
     useEffect(() => {
-        console.log("refetching")
         if (floorData === null || floorData === undefined) {
             return;
         }
