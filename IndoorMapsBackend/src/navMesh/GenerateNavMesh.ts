@@ -69,7 +69,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
     const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
-    const offsetWithWeight = offsetInDegrees * (vertexMethod === "Standard" ? 3 : 1.5);
+    const offsetWithWeight = offsetInDegrees * (vertexMethod === "Standard" ? 3 : .8);
     const walls: Wall[] = [];
     let vertices: LatLng[] = [];
     let floorWalls: Wall[] = [];
