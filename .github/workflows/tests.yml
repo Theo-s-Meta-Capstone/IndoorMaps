@@ -31,15 +31,15 @@ jobs:
     # Installs npm packages, builds the node project, runs the jest tests
     - name: Backend run
       run: |
+          curl -s https://api.github.com/repos/Qovery/replibyte/releases/latest | \
+              jq -r '.assets[].browser_download_url' | \
+              grep -i 'linux-musl.tar.gz$' | wget -qi - && \
+              tar zxf *.tar.gz
+              chmod +x replibyte
+          mv replibyte /usr/local/bin/
           cd IndoorMapsBackend
           npm ci --force
           npx prisma migrate deploy
-          curl -s https://api.github.com/repos/Qovery/replibyte/releases/latest | \
-          jq -r '.assets[].browser_download_url' | \
-          grep -i 'linux-musl.tar.gz$' | wget -qi - && \
-          tar zxf *.tar.gz
-          chmod +x replibyte
-          mv replibyte /usr/local/bin/
           replibyte -c conf.yaml dump restore remote -v latest
           npm run compile
           npm test
