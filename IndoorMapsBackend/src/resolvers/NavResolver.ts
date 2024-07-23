@@ -95,7 +95,7 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
     if ((floor.navMesh === null && pathfindingMethod === PathfindingMethod.Standard) || (floor.voronoiNavMesh === null && pathfindingMethod === PathfindingMethod.Voronoi)) {
         neededToGenerateANavMesh = true;
         const [genNavMesh, genWalls] = generateNavMesh(floor, pathfindingMethod);
-        const data: { [key: string]: object } = {
+        const data: Prisma.FloorUpdateInput = {
             walls: JSON.parse(JSON.stringify(genWalls))
         }
         pathfindingMethod === PathfindingMethod.Standard ?
@@ -112,8 +112,8 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
     }
     else {
         navMesh = pathfindingMethod === PathfindingMethod.Standard ?
-            (floor.navMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex):
-            (floor.voronoiNavMesh as Prisma.JsonArray).map((navMeshVertex) => navMeshVertex as unknown as NavMeshVertex);
+            (floor.navMesh as Prisma.JsonArray) as unknown as NavMeshVertex[] :
+            (floor.voronoiNavMesh as Prisma.JsonArray) as unknown as NavMeshVertex[]
         walls = (floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
     }
     return {navMesh, walls, neededToGenerateANavMesh} as const;
