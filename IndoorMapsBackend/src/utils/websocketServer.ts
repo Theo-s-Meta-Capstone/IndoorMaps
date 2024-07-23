@@ -108,7 +108,7 @@ export const server = net.createServer(sock => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
         if (dataLines[0] == "GET /ws HTTP/1.1") {
-            estiblishWsConnection(dataString);
+            establishWsConnection(dataString);
             return;
         }
         if (dataLines[0].split(" ")[1] == "/") {
@@ -152,7 +152,7 @@ export const server = net.createServer(sock => {
 
     });
 
-    const estiblishWsConnection = (dataString: string) => {
+    const establishWsConnection = (dataString: string) => {
         // Using Regex to find the needed Https headers, if the match returns null, then the ?? operator returns ["",""] and the [1] can return an empty string
         // This works because . doesn't match new line characters so the second group should only return the rest of the line
         const userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/i)??["",""])[1];
