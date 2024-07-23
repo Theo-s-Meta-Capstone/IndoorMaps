@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, Mutation, Query, Resolver, Root } from "type-graphql";
 
 import { Context, prisma } from "../utils/context.js";
 import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js";
@@ -43,6 +43,15 @@ class FloorModifyInput extends FloorUniqueInput {
     // because a shape can be null, I added 2 layers of nullable. The first layer specifies whether the shape should be updated and the seccond specified the new shape value (which is possibly null)
     @Field(type => NewShape, { nullable: true, description: "If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape" })
     newShape?: NewShape
+
+    @Field({ nullable: true })
+    guideImage?: string
+
+    @Field(type => NewShape, { nullable: true })
+    newGuideImageShape?: NewShape
+
+    @Field(type => Float, { nullable: true })
+    guideImageRotation?: number
 }
 
 export const deleteNavMesh = async (floorDatabaseId: number) => {
@@ -96,7 +105,10 @@ export class FloorResolver {
             data: {
                 description: data.description,
                 title: data.title,
-                shape: data.newShape !== undefined ? JSON.parse(data.newShape.shape) : undefined
+                shape: data.newShape !== undefined ? JSON.parse(data.newShape.shape) : undefined,
+                guideImage: data.guideImage,
+                guideImageShape: data.newGuideImageShape !== undefined ? JSON.parse(data.newGuideImageShape.shape) : undefined,
+                guideImageRotation: data.guideImageRotation,
             },
         });
         await deleteNavMesh(data.id);

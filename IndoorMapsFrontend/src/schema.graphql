@@ -120,6 +120,9 @@ type Floor {
   areas: [Area!]!
   databaseId: Int!
   description: String!
+  guideImage: String
+  guideImageRotation: Float
+  guideImageShape: String
   id: ID!
   shape: String
   title: String!
@@ -133,7 +136,10 @@ input FloorCreateInput {
 
 input FloorModifyInput {
   description: String
+  guideImage: String
+  guideImageRotation: Float
   id: Int!
+  newGuideImageShape: NewShape
 
   """
   If New Shape is null there is no update, otherwise shape is updated to the shape inside of NewShape

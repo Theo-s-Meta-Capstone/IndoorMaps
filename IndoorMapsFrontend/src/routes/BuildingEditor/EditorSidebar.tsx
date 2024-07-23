@@ -40,6 +40,7 @@ const floorMapLayer = L.geoJSON(null, {
     return L.marker(latlng, {icon: DoorMarkerIcon});
   }
 });
+const imageOverlayMapLayer = L.geoJSON();
 const areasMapLayer = L.geoJSON();
 const areaEntranceMapLayer = L.geoJSON();
 
@@ -117,6 +118,12 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     })
     map.pm.disableDraw();
     map.pm.disableGlobalRotateMode();
+
+    imageOverlayMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.ImageOverlay || layer instanceof L.Rectangle) {
+        layer.setStyle({ stroke: false, fill: false });
+      }
+    })
     openAreaSidebar();
   }
 
@@ -132,7 +139,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       {isAreaSidebarOpen ?
         <AreaSidebar buildingId={building.databaseId} closeSidebar={handleCloseAreaSidebar} floorFromParent={building.floors.find((floor) => floor.databaseId == currentFloor)} map={map} areasMapLayer={areasMapLayer} areaEntranceMapLayer={areaEntranceMapLayer} />
         :
-        <FloorSidebar openAreaSidebar={handleOpenAreaSidebar} setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
+        <FloorSidebar imageOverlayMapLayer={imageOverlayMapLayer} openAreaSidebar={handleOpenAreaSidebar} setCurrentFloor={handleFloorChange} floorMapLayer={floorMapLayer} currentFloor={currentFloor} buildingFromParent={building} map={map} />
       }
     </aside>
   )

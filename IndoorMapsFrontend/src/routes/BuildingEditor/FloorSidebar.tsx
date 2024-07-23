@@ -9,19 +9,24 @@ import { useBooleanState } from "../../utils/hooks";
 import { FloorSidebarFloorMutation, FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
 import * as L from "leaflet";
 import { removeAllLayersFromLayerGroup } from "../../utils/utils";
-
+import GuideImage from "./GuideImage";
 
 const FloorSidebarFragment = graphql`
   fragment FloorSidebarBodyFragment on Building
   {
     id
     databaseId
+    startPos {
+      lat
+      lon
+    }
     floors {
       id
       databaseId
       title
       shape
       ...FloorListItemFragment
+      ...GuideImageFragment
     }
   }
 `;
@@ -33,9 +38,10 @@ type Props = {
     floorMapLayer: L.GeoJSON;
     setCurrentFloor: (floor: number) => void;
     openAreaSidebar: () => void;
+    imageOverlayMapLayer: L.GeoJSON;
 }
 
-const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
+const FloorSidebar = ({imageOverlayMapLayer, buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -45,6 +51,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
     mutation FloorSidebarFloorMutation($data: FloorModifyInput!) {
         modifyFloor(data: $data) {
             ...FloorListItemFragment
+            ...GuideImageFragment
         }
     }
     `);
@@ -89,7 +96,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
         if (!map) return;
         floorMapLayer.removeLayer(event.layer);
         handleFloorShapeUpdate()
-        if(event.layer instanceof L.Polygon){
+        if (event.layer instanceof L.Polygon) {
             setWhetherBuildingOrEntrenceMapping(false);
         }
     }
@@ -142,6 +149,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
                 layer.on('pm:edit', onShapeEdit)
                 layer.on('pm:remove', onShapeRemove)
             })
+            imageOverlayMapLayer.addTo(map)
         }
 
     }, [currentFloor])
@@ -153,13 +161,14 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Editor Sidebar {currentFloorData ?
                 <Button onClick={openAreaSidebar}>Edit {currentFloorData.title} Areas</Button>
-            : null}</h2>
+                : null}</h2>
             <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
                 <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
             </Tooltip>
             <ScrollArea h={250}>
                 {floorListElements}
             </ScrollArea>
+            {currentFloorData ? <GuideImage key={currentFloorData.id} startPos={building.startPos} imageOverlayMapLayer={imageOverlayMapLayer} modifyFloor={modifyFloor} currentFloorData={currentFloorData} map={map} setFormError={(e: string) => setFormError(e)} /> : null}
             <CreateFloorModal isOpen={isCreateFloorModalOpen} closeModal={handleCloseCreateFloorModal} />
             <div>{isInFlight ? "saving ..." : "all saved"}</div>
         </>
