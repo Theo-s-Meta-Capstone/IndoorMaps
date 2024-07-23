@@ -1,6 +1,7 @@
 import { LatLng } from "../graphqlSchemaTypes/Building";
 import { NavMesh, NavMeshVertex } from "./GenerateNavMesh.js";
 import { PriorityQueue } from "./PriorityQueue.js";
+import { getDistanceBetweenGPSPoints } from "./helpers.js";
 
 // based on https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
 /**
