@@ -86,7 +86,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             setRotation(e.angle)
         })
 
-        guideBoundingRect.on("pm:edit", (e: L.LeafletEvent) => {
+        guideBoundingRect.on("pm:edit", () => {
             imageOverlay.setBounds(guideBoundingRect.getBounds())
             modifyFloor({
                 data: {
@@ -149,6 +149,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
     }, [debouncedRotation])
 
     useEffect(() => {
+        addEditableImageToFloor();
         if (guideImageUrl === "" || !canvas.current) return;
         getRotatedImage(guideImageUrl)
         if (guideImageUrl === floorData.guideImage) return;
