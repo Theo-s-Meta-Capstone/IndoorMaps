@@ -57,7 +57,7 @@ const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
     // note, an increase in size and/or textLenght causes the result to decrease
     const x = size * (textLength / 2)
-    return Math.floor((16.1816 * x * x + -25.0545 * x + 21) * 2) / 2
+    return Math.floor((1 / (x + 0.179355) + 15) * 2) / 2
 }
 
 const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setAreaToAreaRouteInfo, children }: Props) => {
@@ -113,7 +113,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
             map.flyTo(
                 layerToFlyTo.getCenter(),
                 Math.max(getWhichZoomToShowToolTipAt(size, layerToFlyTo.feature.properties.title.length), map.getZoom()),
-                {animate: !prefersReducedMotion}
+                { animate: !prefersReducedMotion }
             );
         }
     }
