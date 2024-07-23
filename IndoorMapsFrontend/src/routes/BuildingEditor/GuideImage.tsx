@@ -34,13 +34,8 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
     const [rotation, setRotation] = useState<number>(floorData.guideImageRotation ?? 0);
     const debouncedRotation = useDebounce(rotation, rotation, 100)
     const hasAlreadyAddedImage = useRef<boolean>(false);
-    const rotationRef = useRef<number>(0);
     const [guideImageUrl, setGuideImageUrl] = useState<string>(floorData.guideImage ?? "");
     const imageOverlayRef = useRef<L.ImageOverlay>();
-
-    useEffect(() => {
-        rotationRef.current = debouncedRotation;
-    }, [debouncedRotation])
 
     const startingLatLngBounds = L.latLngBounds([startPos.lat, startPos.lon], [startPos.lat + .0005, startPos.lon + .0005]);
 
@@ -55,10 +50,14 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         let guideBoundingRect: L.Rectangle;
         if (floorData.guideImageShape) {
             const coords = (JSON.parse(floorData.guideImageShape) as GeoJSON.Feature<GeoJSON.Polygon>);
-            guideBoundingRect = L.rectangle(L.geoJSON(coords).getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+            const tempShape = L.geoJSON().addData(coords).getLayers()[0] as L.Polygon;
+            guideBoundingRect = L.rectangle(tempShape.getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+            guideBoundingRect.setLatLngs(tempShape.getLatLngs())
+            guideBoundingRect.pm.setInitAngle(rotation);
         } else {
             guideBoundingRect = L.rectangle(startingLatLngBounds).addTo(imageOverlayMapLayer);
         }
+        imageOverlayMapLayer.addTo(map)
 
         const imageOverlay = L.imageOverlay("", guideBoundingRect.getBounds(), {
             opacity: 0.7,
@@ -79,33 +78,21 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         guideBoundingRect.pm.setOptions({
             allowEditing: true,
             allowRemoval: false,
-            allowRotation: false,
+            allowRotation: true,
             draggable: true,
         })
 
-        const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds(), { className: "rotationControler" }).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
-
-        guideRotationHandle.pm.setOptions({
-            allowEditing: false,
-            allowRemoval: false,
-            allowRotation: true,
-            draggable: false,
-        })
-        guideRotationHandle.on("pm:rotate", (e) => {
+        guideBoundingRect.on("pm:rotate", (e) => {
             setRotation(e.angle)
         })
-        guideRotationHandle.setStyle({ fill: false, stroke: false })
 
         guideBoundingRect.on("pm:edit", (e: L.LeafletEvent) => {
             imageOverlay.setBounds(guideBoundingRect.getBounds())
-            guideRotationHandle.setBounds(guideBoundingRect.getBounds())
-            guideRotationHandle.pm.setInitAngle(0)
-            guideRotationHandle.pm.rotateLayerToAngle(rotationRef.current)
             modifyFloor({
                 data: {
                     id: floorData.databaseId,
                     newGuideImageShape: {
-                        shape: JSON.stringify(e.layer.toGeoJSON()),
+                        shape: JSON.stringify(guideBoundingRect.toGeoJSON()),
                     }
                 }
             })
