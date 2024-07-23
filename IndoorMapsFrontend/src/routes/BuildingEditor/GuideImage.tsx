@@ -42,7 +42,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         rotationRef.current = debouncedRotation;
     }, [debouncedRotation])
 
-    const startingLatLngBounds = L.latLngBounds([startPos.lat, startPos.lon], [startPos.lat+.0005, startPos.lon+.0005]);
+    const startingLatLngBounds = L.latLngBounds([startPos.lat, startPos.lon], [startPos.lat + .0005, startPos.lon + .0005]);
 
     const clearGuideLayer = () => {
         removeAllLayersFromLayerGroup(imageOverlayMapLayer, map)
@@ -53,10 +53,10 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         if (hasAlreadyAddedImage.current) return;
 
         let guideBoundingRect: L.Rectangle;
-        if(floorData.guideImageShape) {
+        if (floorData.guideImageShape) {
             const coords = (JSON.parse(floorData.guideImageShape) as GeoJSON.Feature<GeoJSON.Polygon>);
             guideBoundingRect = L.rectangle(L.geoJSON(coords).getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
-        }else{
+        } else {
             guideBoundingRect = L.rectangle(startingLatLngBounds).addTo(imageOverlayMapLayer);
         }
 
@@ -83,7 +83,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             draggable: true,
         })
 
-        const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+        const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds(), { className: "rotationControler" }).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
         guideRotationHandle.pm.setOptions({
             allowEditing: false,
             allowRemoval: false,
@@ -94,11 +94,6 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             setRotation(e.angle)
         })
         guideRotationHandle.setStyle({ fill: false, stroke: false })
-        const guideRotationHandleElement = guideRotationHandle.getElement()
-
-        if (guideRotationHandleElement) {
-            guideRotationHandleElement.classList.add("rotationControler")
-        }
 
         guideBoundingRect.on("pm:edit", (e: L.LeafletEvent) => {
             modifyFloor({
