@@ -54,6 +54,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const environment = useRelayEnvironment();
     const isUsingCurrentLocationNav = useRef(false)
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
+    const userGPSCoords = useRef<number[] | undefined>(undefined);
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -61,6 +62,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         if (isUsingCurrentLocationNav.current) {
+
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
         }
     }, (errorMessage: string) => {
@@ -68,14 +70,18 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     });
 
     const setFromWithGPS = (curPos: number[]) => {
-        setFromSearchQuery("gpsLocation " + curPos)
+        userGPSCoords.current = curPos;
+        // only updates the search query if setFromWithGPS isn't just updating the latlons
+        if (!areaToAreaRouteInfoRef.current.from || !areaToAreaRouteInfoRef.current.from.isLatLon) {
+            setFromSearchQuery("gpsLocation " + curPos)
+        }
         // I think this sufferers from the same issue as clicking on an area in viewer map loader, which is why I'm using a Ref
         setAreaToAreaRouteInfo({
             ...areaToAreaRouteInfoRef.current,
             from: {
                 isLatLon: true,
                 location: new LatLng(curPos[0], curPos[1]),
-                title: "Your Location"
+                title: "Your Location",
             },
         })
     }
@@ -115,7 +121,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     }
 
     const getNewPath = () => {
-        if(!areaToAreaRouteInfo.from || !areaToAreaRouteInfo.to) return;
+        if (!areaToAreaRouteInfo.from || !areaToAreaRouteInfo.to) return;
         let query = getNavWithAllData;
         if (!areaToAreaRouteInfo.options?.showEdges && !areaToAreaRouteInfo.options?.showWalls) query = getNavWithoutData
         let startTime: number, endTime: number;
@@ -130,10 +136,10 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             data["areaFromId"] = areaToAreaRouteInfo.from.areaDatabaseId
         }
 
-        if(areaToAreaRouteInfo.to.isLatLon) {
+        if (areaToAreaRouteInfo.to.isLatLon) {
             data["locationToLat"] = areaToAreaRouteInfo.to.location.lat
             data["locationToLon"] = areaToAreaRouteInfo.to.location.lng
-        }else {
+        } else {
             data["areaToId"] = areaToAreaRouteInfo.to.areaDatabaseId
         }
 
@@ -195,11 +201,11 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         if (isUsingCurrentLocationNav.current) {
             getNewPath()
         }
-    }, [(areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location), ])
+    }, [(areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location),])
 
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
-            if(!areaToAreaRouteInfo.to.isLatLon || areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate){
+            if (!areaToAreaRouteInfo.to.isLatLon || areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate) {
                 setToSearchQuery(areaToAreaRouteInfo.to.title)
             }
             getNewPath()
@@ -228,7 +234,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 )}
             >
                 <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
-                    setFromSearchQuery("gpsLocation Loading...")
+                    setFromSearchQuery(areaToAreaRouteInfo.from?.isLatLon ? "gpsLocation " + areaToAreaRouteInfo.from.location.lat + ", " + areaToAreaRouteInfo.from.location.lng : "gpsLocation Loading...")
+                    if (userGPSCoords.current) setFromWithGPS(userGPSCoords.current)
                     isUsingCurrentLocationNav.current = true
                     getUserLocaiton();
                 }}>My GPS Location</Button>

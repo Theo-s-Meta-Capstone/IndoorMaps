@@ -112,18 +112,18 @@ export const useDebounce = <T,>(value: T, startingValue: T, delay: number = 500)
 // anything to do with the map, espeically things that happen a lot (like the position marker updating) shouldn't cause React to even consider re-render
 // The leaflet map response far better to updates that come from tridtional JS as aposed to React so using states just results in more re-renders and a worse expreience.
 export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosition) => void, setUserLocationError: (errorMessage: string) => void) => {
-    let alreadyWatching = false;
+    let alreadyWatching = useRef<boolean>(false)
     const getLocation = () => {
-        if (alreadyWatching) return;
+        if (alreadyWatching.current) return;
         if (navigator.geolocation) {
-            alreadyWatching = true;
+            alreadyWatching.current = true;
             navigator.geolocation.watchPosition(onUserLocationWatch, errorCallback_highAccuracy, { maximumAge: 600000, timeout: 5000, enableHighAccuracy: true });
         } else {
             setUserLocationError("Geolocation is not supported by this browser.");
         }
     }
     function errorCallback_highAccuracy(error: GeolocationPositionError) {
-        alreadyWatching = false;
+        alreadyWatching.current = false;
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 setUserLocationError("User denied the request for Geolocation.")
@@ -144,7 +144,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
         }
     }
     function errorCallback_lowAccuracy(error: GeolocationPositionError) {
-        alreadyWatching = false;
+        alreadyWatching.current = false;
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 setUserLocationError("User denied the request for Geolocation.")
@@ -153,6 +153,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
                 setUserLocationError("Location information is unavailable.")
                 break;
             case error.TIMEOUT:
+                if(alreadyWatching.current) break;
                 setUserLocationError("The request to get user location timed out.")
                 break;
             default:
