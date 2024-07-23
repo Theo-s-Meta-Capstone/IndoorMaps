@@ -63,7 +63,7 @@ class NavigationResult {
 
 const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locationLat?: number, locationLon?: number) => {
     let resultLatLon;
-    const resultAreaIgnorableWalls: Wall[] = [];
+    let resultAreaIgnorableWalls: Wall[] = [];
     let resultArea;
     if (areaId === undefined) {
         if (!locationLat || !locationLon) throw throwGraphQLBadInput('From location not found')
@@ -71,7 +71,7 @@ const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locatio
         // remove the walls from the area that the user is in
         const shape = floor.areas.find((area) => pointInPolygon(resultLatLon!, (area.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>).geometry.coordinates[0]))?.shape as unknown | undefined as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
         if (shape) {
-            resultAreaIgnorableWalls.push(...shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+            resultAreaIgnorableWalls = shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
         }
     }
     else {
@@ -82,7 +82,7 @@ const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locatio
         })
         if (!resultArea || !resultArea.shape) throw throwGraphQLBadInput('From Area not found')
         const shape = resultArea.shape as unknown as GeoJSON.Feature<GeoJSON.Polygon>
-        resultAreaIgnorableWalls.push(...shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length])))
+        resultAreaIgnorableWalls = shape.geometry.coordinates[0].map(position => new LatLng(position[1], position[0])).map((latLng, i, arr) => new Wall(latLng, arr[(i + 1) % arr.length]))
         resultLatLon = findPolygonCenter(shape)
     }
     return [resultLatLon, resultAreaIgnorableWalls, resultArea] as const
