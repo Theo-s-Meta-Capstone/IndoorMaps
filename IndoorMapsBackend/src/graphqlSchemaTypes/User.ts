@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import { ObjectType, Field, ID, registerEnumType } from 'type-graphql'
 import { IsEmail } from 'class-validator'
-
 import { Building } from './Building.js';
 import { MutationResult } from '../utils/generic.js';
 

@@ -1,15 +1,5 @@
 import 'reflect-metadata'
-import {
-    Resolver,
-    Query,
-    Mutation,
-    Arg,
-    Ctx,
-    InputType,
-    Field,
-    FieldResolver,
-    Root,
-} from 'type-graphql'
+import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, } from 'type-graphql'
 import { Context } from '../utils/context.js'
 import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graphqlSchemaTypes/User.js'
 import auth from '../auth/auth.js'

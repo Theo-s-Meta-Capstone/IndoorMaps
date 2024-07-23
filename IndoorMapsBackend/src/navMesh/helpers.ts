@@ -69,7 +69,6 @@ const getPointsAlongLine = (point1: LatLng, point2: LatLng, numberOfPoints: numb
 }
 
 /**
- *
  * @param point the point to check
  * @param bbox the bounding box of the rectange to check
  * @returns true if the point is inside the bounding box, false otherwise
