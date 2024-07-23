@@ -1,6 +1,6 @@
 import { Field, Float, ObjectType } from "type-graphql"
-import { Wall, NavMesh } from "../navMesh/GenerateNavMesh"
-import { LatLng } from "./Building"
+import { Wall, NavMesh } from "../navMesh/GenerateNavMesh.js"
+import { LatLng } from "./Building.js"
 
 @ObjectType()
 export class NavigationResult {
