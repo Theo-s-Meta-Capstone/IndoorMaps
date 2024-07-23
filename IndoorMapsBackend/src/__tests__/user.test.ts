@@ -1,11 +1,8 @@
 import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
-
-// we'll use supertest to test our server
 import request from 'supertest';
 import { httpServer } from '../server';
 
-const port = 4500;
-
+const port = 4502;
 const date = new Date();
 const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
 const testUserName = "testUser" + testDate;

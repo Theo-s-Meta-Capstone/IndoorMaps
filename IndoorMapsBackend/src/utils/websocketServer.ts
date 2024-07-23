@@ -108,7 +108,7 @@ export const server = net.createServer(sock => {
         const dataString = data.toString();
         const dataLines = dataString.split("\r\n");
         if (dataLines[0] == "GET /ws HTTP/1.1") {
-            estiblishWsConnection(dataString);
+            establishWsConnection(dataString);
             return;
         }
         if (dataLines[0].split(" ")[1] == "/") {
@@ -152,11 +152,11 @@ export const server = net.createServer(sock => {
 
     });
 
-    const estiblishWsConnection = (dataString: string) => {
+    const establishWsConnection = (dataString: string) => {
         // Using Regex to find the needed Https headers, if the match returns null, then the ?? operator returns ["",""] and the [1] can return an empty string
         // This works because . doesn't match new line characters so the second group should only return the rest of the line
-        const userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/)??["",""])[1];
-        const cookiesHeader: string = (dataString.match(/cookie: (.*)/)??["",""])[1];
+        const userWebsocketKey: string = (dataString.match(/sec-websocket-key: (.*)/i)??["",""])[1];
+        const cookiesHeader: string = (dataString.match(/cookie: (.*)/i)??["",""])[1];
 
         if (verbose) console.log("sec-websocket-key request = " + userWebsocketKey)
         let magicString = userWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
@@ -167,7 +167,8 @@ export const server = net.createServer(sock => {
         const jwtCookie = (cookiesHeader.match(/jwt=([^;]*)/)??["",""])[1];
         if (!jwtCookie) {
             console.log("no jwt cookie found")
-            sock.write(`'HTTP/1.1 401 Unauthorized\r\n\r\n'`)
+            sock.write(`HTTP/1.1 401 Unauthorized\r\n\r\n`)
+            sock.end();
             return;
         }
 
@@ -250,7 +251,6 @@ export const server = net.createServer(sock => {
         sock.write(mergedArray);
     }
 
-    // I'm finding it hard to test this, looking for a resource that alow me to send arbitray pings from a websocket client.
     const sendPong = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
         if (message.length > 125) {
             throw new Error("message too long")

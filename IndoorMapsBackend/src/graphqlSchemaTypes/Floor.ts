@@ -1,7 +1,5 @@
 import { Field, Float, ID, Int, ObjectType } from "type-graphql"
-
 import { MutationResult } from '../utils/generic.js'
-
 
 @ObjectType()
 export class NewFloorResult extends MutationResult {

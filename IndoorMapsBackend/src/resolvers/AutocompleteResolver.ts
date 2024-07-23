@@ -1,6 +1,4 @@
 import { Arg, Query, Field, Resolver, InputType } from "type-graphql";
-import { GraphQLError } from "graphql";
-
 import { Autocomplete } from "../graphqlSchemaTypes/Geocoding.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";

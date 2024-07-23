@@ -1,6 +1,5 @@
 import 'reflect-metadata'
-import { ObjectType, Field, ID, Float, Int } from 'type-graphql'
-
+import { ObjectType, Field, ID, Int } from 'type-graphql'
 import { MutationResult } from '../utils/generic.js'
 
 @ObjectType()

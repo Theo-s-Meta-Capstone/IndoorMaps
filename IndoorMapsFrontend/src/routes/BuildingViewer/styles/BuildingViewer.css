@@ -37,11 +37,45 @@
     transition: transform .5s !important;
 }
 
+.title::before {
+    display: none;
+}
+
 .title {
     opacity: 0;
     transition: opacity .4s;
-    background: rgba(255, 255, 255, 0.8) !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px !important;
+    margin: 0px !important;
     pointer-events: none;
+    /* TODO: find a more performant way to do this with the same level of quality */
+    text-shadow:
+    1px 1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px -1px 0 #fff,
+    0px 1px 0 #fff,
+    0px -1px 0 #fff,
+    -1px 0px 0 #fff,
+    1px 0px 0 #fff,
+    2px 2px 0 #fff,
+    -2px 2px 0 #fff,
+    2px -2px 0 #fff,
+    -2px -2px 0 #fff,
+    0px 2px 0 #fff,
+    0px -2px 0 #fff,
+    -2px 0px 0 #fff,
+    2px 0px 0 #fff,
+    1px 2px 0 #fff,
+    -1px 2px 0 #fff,
+    1px -2px 0 #fff,
+    -1px -2px 0 #fff,
+    2px 1px 0 #fff,
+    -2px 1px 0 #fff,
+    2px -1px 0 #fff,
+    -2px -1px 0 #fff;
 }
 
 .AreaSearch {

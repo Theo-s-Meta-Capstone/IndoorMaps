@@ -56,7 +56,7 @@ const expandPolygon = (polygon: Position[], offset: number) => {
             new LatLng(pos[1] + offset, pos[0] + offset),
             new LatLng(pos[1] + offset, pos[0] - offset),
             new LatLng(pos[1] - offset, pos[0] + offset),
-            new LatLng(pos[1] -offset, pos[0] - offset),
+            new LatLng(pos[1] - offset, pos[0] - offset),
             new LatLng(pos[1] + offset, pos[0]),
             new LatLng(pos[1] - offset, pos[0]),
             new LatLng(pos[1], pos[0] + offset),
@@ -173,7 +173,9 @@ const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {
 }
 
 export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng[]) => {
-    newPoints.forEach((newPoint) => addPointToNavMesh(navMesh, walls, newPoint))
+    for (const newPoint of newPoints) {
+        addPointToNavMesh(navMesh, walls, newPoint)
+    }
 }
 
 export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExcludingIgnorable: Wall[], point: LatLng): number => {
@@ -183,8 +185,9 @@ export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExc
         extendNavMesh(navMesh, wallsExcludingIgnorable, entrancesCollection.map((entrance) => new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])));
         const edges = [];
         for (let i = beginningOfNewVerities; i < navMesh.length; i++) {
-            edges.push(new EdgeWithWeight(i, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
-            navMesh[i].edges.push(new EdgeWithWeight(navMesh.length, getDistanceBetweenGPSPoints(point, navMesh[i].point)))
+            const edgeWeight = getDistanceBetweenGPSPoints(point, navMesh[i].point);
+            edges.push(new EdgeWithWeight(i, edgeWeight))
+            navMesh[i].edges.push(new EdgeWithWeight(navMesh.length, edgeWeight))
         }
         navMesh.push({
             point,
