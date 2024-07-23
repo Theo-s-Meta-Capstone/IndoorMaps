@@ -5,11 +5,9 @@ import { httpServer } from '../server';
 const port = 4504;
 
 const date = new Date();
-const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
 
 describe('Testing the Navigation Resolver and helper functions', () => {
     let url = "";
-    const buildingId: number = 1;
 
     // before the tests we spin up a new Apollo Server
     beforeAll(async () => {

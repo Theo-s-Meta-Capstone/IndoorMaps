@@ -251,7 +251,6 @@ export const server = net.createServer(sock => {
         sock.write(mergedArray);
     }
 
-    // I'm finding it hard to test this, looking for a resource that alow me to send arbitray pings from a websocket client.
     const sendPong = (message = [0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64]) => {
         if (message.length > 125) {
             throw new Error("message too long")

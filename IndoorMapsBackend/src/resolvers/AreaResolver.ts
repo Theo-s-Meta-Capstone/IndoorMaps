@@ -3,7 +3,6 @@ import { checkAuthrizedAreaEditor, checkAuthrizedFloorEditor, getUserOrThrowErro
 import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
 import { convertToGraphQlArea } from "../utils/typeConversions.js"
-import { GraphQLError } from "graphql"
 import { NewShape, deleteNavMesh } from "./FloorResolver.js"
 import { throwGraphQLBadInput } from "../utils/generic.js"
 
