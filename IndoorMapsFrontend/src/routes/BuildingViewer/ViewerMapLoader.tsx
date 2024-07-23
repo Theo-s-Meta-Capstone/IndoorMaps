@@ -223,7 +223,12 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                         flyToArea(layer);
                     }
                     if (layer.feature.properties.title) {
-                        layer.bindTooltip(layer.feature.properties.title, { offset: [0, 18], direction: "top", permanent: true, className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom" });
+                        layer.bindTooltip(layer.feature.properties.title, {
+                            offset: [0, 18],
+                            direction: "top",
+                            permanent: true,
+                            className: "title showAtZoom" + getWhichZoomToShowToolTipAt(size, layer.feature.properties.title.length) + "showAtZoom",
+                        })
                         const areaDatabaseId = layer.feature.properties.databaseId;
                         const title = layer.feature.properties.title;
                         const description = layer.feature.properties.description;
