@@ -36,6 +36,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
     const hasAlreadyAddedImage = useRef<boolean>(false);
     const rotationRef = useRef<number>(0);
     const [guideImageUrl, setGuideImageUrl] = useState<string>(floorData.guideImage ?? "");
+    const imageOverlayRef = useRef<L.ImageOverlay>();
 
     useEffect(() => {
         rotationRef.current = debouncedRotation;
@@ -59,7 +60,21 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             guideBoundingRect = L.rectangle(startingLatLngBounds).addTo(imageOverlayMapLayer);
         }
 
-        guideBoundingRect.setStyle({ fillColor: 'url(#guideBackgroundImage)', fillOpacity: .6, fillRule: "evenodd" })
+        const imageOverlay = L.imageOverlay(guideImageUrl, guideBoundingRect.getBounds(), {
+            opacity: 0.7,
+            interactive: true
+        }).addTo(imageOverlayMapLayer);
+        imageOverlay.pm.setOptions({
+            allowEditing: false,
+            allowRemoval: false,
+            allowRotation: false,
+            draggable: false,
+            snappable: false,
+        })
+
+        imageOverlayRef.current = imageOverlay;
+
+        guideBoundingRect.setStyle({ fillColor: "white", fillOpacity: .0, fillRule: "evenodd" })
         guideBoundingRect.pm.disableRotate()
         guideBoundingRect.pm.setOptions({
             allowEditing: true,
@@ -67,20 +82,6 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             allowRotation: false,
             draggable: true,
         })
-
-        const guideBoundingRectElement = guideBoundingRect.getElement()
-
-        if (guideBoundingRectElement) {
-            guideBoundingRectElement.insertAdjacentHTML('beforebegin', `
-                <defs>
-                    <pattern height="100%" width="100%"
-                    patternContentUnits="objectBoundingBox"
-                    preserveAspectRatio="xMidYMid slice"
-                    id="guideBackgroundImage">
-                    </pattern>
-                </defs>
-                `);
-        }
 
         const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
         guideRotationHandle.pm.setOptions({
@@ -108,6 +109,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
                     }
                 }
             })
+            imageOverlay.setBounds(guideBoundingRect.getBounds())
             guideRotationHandle.setBounds(guideBoundingRect.getBounds())
             guideRotationHandle.pm.setInitAngle(0)
             guideRotationHandle.pm.rotateLayerToAngle(rotationRef.current)
@@ -142,14 +144,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             canvas.current.toBlob((blob) => {
                 if (!blob) return;
                 const url = URL.createObjectURL(blob);
-                const patternImage = document.getElementById("guideBackgroundImage");
-                if (!patternImage) {
-                    setFormError("failed to load guide image from canvas");
-                    clearGuideLayer();
-                    return;
-                };
-                patternImage.innerHTML = `<image id="patternImage"
-                href="${url}" height="1" width="1" preserveAspectRatio="none"/>`
+                imageOverlayRef.current?.setUrl(url)
             }, 'image/png');
         });
         img.addEventListener("error", () => {

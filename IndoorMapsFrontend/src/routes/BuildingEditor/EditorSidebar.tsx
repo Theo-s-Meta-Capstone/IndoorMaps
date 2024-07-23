@@ -118,6 +118,12 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     })
     map.pm.disableDraw();
     map.pm.disableGlobalRotateMode();
+
+    imageOverlayMapLayer.getLayers().map((layer) => {
+      if (layer instanceof L.ImageOverlay || layer instanceof L.Rectangle) {
+        layer.setStyle({ stroke: false, fill: false });
+      }
+    })
     openAreaSidebar();
   }
 
