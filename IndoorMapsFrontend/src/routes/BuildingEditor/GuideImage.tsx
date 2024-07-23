@@ -62,14 +62,14 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
 
         const imageOverlay = L.imageOverlay(guideImageUrl, guideBoundingRect.getBounds(), {
             opacity: 0.7,
-            interactive: true
+            interactive: true,
+            snapIgnore: true,
         }).addTo(imageOverlayMapLayer);
         imageOverlay.pm.setOptions({
             allowEditing: false,
             allowRemoval: false,
             allowRotation: false,
             draggable: false,
-            snappable: false,
         })
 
         imageOverlayRef.current = imageOverlay;
