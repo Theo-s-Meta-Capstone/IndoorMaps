@@ -45,8 +45,6 @@ describe('Testing the Navigation Resolver and helper functions', () => {
                     "floorDatabaseId": 1,
                     "areaToId": 129, // cafe
                     "areaFromId": 120, // English 103
-                    "locationFromLat": 37.485163351464315,
-                    "locationFromLon": -122.1478436920193,
                     "pathfindingMethod": "Standard"
                   }
             },
@@ -55,6 +53,8 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         const response = await request(url).post('/').send(testQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
     it('Get Path Voronoi', async () => {
@@ -78,8 +78,6 @@ describe('Testing the Navigation Resolver and helper functions', () => {
                     "floorDatabaseId": 1,
                     "areaToId": 129, // cafe
                     "areaFromId": 120, // English 103
-                    "locationFromLat": 37.485163351464315,
-                    "locationFromLon": -122.1478436920193,
                     "pathfindingMethod": "Voronoi"
                   }
             },
@@ -88,6 +86,8 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         const response = await request(url).post('/').send(testQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
     it('Get Path Standard w/ Cashed Nav Mesh', async () => {
@@ -111,8 +111,6 @@ describe('Testing the Navigation Resolver and helper functions', () => {
                     "floorDatabaseId": 1,
                     "areaToId": 129, // cafe
                     "areaFromId": 120, // English 103
-                    "locationFromLat": 37.485163351464315,
-                    "locationFromLon": -122.1478436920193,
                     "pathfindingMethod": "Standard"
                   }
             },
@@ -121,6 +119,8 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         const response = await request(url).post('/').send(testQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
     it('Get Path Voronoi w/ Cashed Nav Mesh', async () => {
@@ -144,6 +144,72 @@ describe('Testing the Navigation Resolver and helper functions', () => {
                     "floorDatabaseId": 1,
                     "areaToId": 129, // cafe
                     "areaFromId": 120, // English 103
+                    "pathfindingMethod": "Voronoi"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+    it('Get Path from gps Standard', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "areaToId": 129, // cafe
+                    "locationFromLat": 37.485163351464315,
+                    "locationFromLon": -122.1478436920193,
+                    "pathfindingMethod": "Standard"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+    it('Get Path from gps Voronoi', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "areaToId": 129, // cafe
                     "locationFromLat": 37.485163351464315,
                     "locationFromLon": -122.1478436920193,
                     "pathfindingMethod": "Voronoi"
@@ -154,5 +220,146 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         const response = await request(url).post('/').send(testQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+    it('Get Path to gps Standard', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "areaFromId": 129, // cafe
+                    "locationToLat": 37.485163351464315,
+                    "locationToLon": -122.1478436920193,
+                    "pathfindingMethod": "Standard"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+    it('Get Path from gps Voronoi', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "areaFromId": 129, // cafe
+                    "locationToLat": 37.485163351464315,
+                    "locationToLon": -122.1478436920193,
+                    "pathfindingMethod": "Voronoi"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+
+    it('Get Path gps <-> gps Standard', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "locationFromLat": 37.48557406208134,
+                    "locationFromLon": -122.14679174723355,
+                    "locationToLat": 37.484602650313676,
+                    "locationToLon": -122.14719320334484,
+                    "pathfindingMethod": "Standard"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
+    });
+
+    it('Get Path gps <-> gps Voronoi', async () => {
+        const testQuery = {
+            query: `
+            query GetNavBetweenAreas($data: NavigationInput!) {
+                getNavBetweenAreas(data: $data) {
+                  path {
+                    lat
+                    lon
+                  }
+                  neededToGenerateANavMesh
+                  distance
+                  walls
+                  navMesh
+                }
+              }
+        `,
+            variables: {
+                "data": {
+                    "floorDatabaseId": 1,
+                    "locationFromLat": 37.48557406208134,
+                    "locationFromLon": -122.14679174723355,
+                    "locationToLat": 37.484602650313676,
+                    "locationToLon": -122.14719320334484,
+                    "pathfindingMethod": "Voronoi"
+                  }
+            },
+        };
+        // send our request to the url of the test server
+        const response = await request(url).post('/').send(testQuery);
+        expect(response.error).toEqual(false);
+        expect(response.body.data?.getNavBetweenAreas.path).toBeInstanceOf(Array);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeGreaterThan(0);
+        expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 });
