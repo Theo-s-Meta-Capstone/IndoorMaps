@@ -60,7 +60,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             guideBoundingRect = L.rectangle(startingLatLngBounds).addTo(imageOverlayMapLayer);
         }
 
-        const imageOverlay = L.imageOverlay(guideImageUrl, guideBoundingRect.getBounds(), {
+        const imageOverlay = L.imageOverlay("", guideBoundingRect.getBounds(), {
             opacity: 0.7,
             interactive: true,
             snapIgnore: true,
@@ -71,10 +71,10 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
             allowRotation: false,
             draggable: false,
         })
-
         imageOverlayRef.current = imageOverlay;
 
-        guideBoundingRect.setStyle({ fillColor: "white", fillOpacity: .0, fillRule: "evenodd" })
+        // giving the rect a fill color so that it accepts pointer events
+        guideBoundingRect.setStyle({ fillColor: "white", fillOpacity: 0, fillRule: "evenodd" })
         guideBoundingRect.pm.disableRotate()
         guideBoundingRect.pm.setOptions({
             allowEditing: true,
@@ -84,6 +84,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         })
 
         const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds(), { className: "rotationControler" }).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+
         guideRotationHandle.pm.setOptions({
             allowEditing: false,
             allowRemoval: false,
@@ -96,6 +97,10 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
         guideRotationHandle.setStyle({ fill: false, stroke: false })
 
         guideBoundingRect.on("pm:edit", (e: L.LeafletEvent) => {
+            imageOverlay.setBounds(guideBoundingRect.getBounds())
+            guideRotationHandle.setBounds(guideBoundingRect.getBounds())
+            guideRotationHandle.pm.setInitAngle(0)
+            guideRotationHandle.pm.rotateLayerToAngle(rotationRef.current)
             modifyFloor({
                 data: {
                     id: floorData.databaseId,
@@ -104,11 +109,8 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
                     }
                 }
             })
-            imageOverlay.setBounds(guideBoundingRect.getBounds())
-            guideRotationHandle.setBounds(guideBoundingRect.getBounds())
-            guideRotationHandle.pm.setInitAngle(0)
-            guideRotationHandle.pm.rotateLayerToAngle(rotationRef.current)
         })
+
         hasAlreadyAddedImage.current = true;
     }
 
@@ -160,7 +162,6 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
     }, [debouncedRotation])
 
     useEffect(() => {
-        addEditableImageToFloor();
         if (guideImageUrl === "" || !canvas.current) return;
         getRotatedImage(guideImageUrl)
         if (guideImageUrl === floorData.guideImage) return;
