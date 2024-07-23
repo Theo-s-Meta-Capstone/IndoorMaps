@@ -1,4 +1,4 @@
-import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, ObjectType, Query, Resolver, Root, registerEnumType } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Float, InputType, Int, Query, Resolver, Root, registerEnumType } from "type-graphql";
 import { Context, prisma } from "../utils/context.js";
 import { Wall, generateNavMesh, NavMesh, NavMeshVertex, addAreaToMesh, FloorIncludeAreas } from "../navMesh/GenerateNavMesh.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
@@ -6,6 +6,7 @@ import { areWallsEqual, findPolygonCenter, pointInPolygon } from "../navMesh/hel
 import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
+import { NavigationResult } from "../graphqlSchemaTypes/Navigation.js";
 
 export enum PathfindingMethod {
     Standard = "Standard",
@@ -41,22 +42,6 @@ class NavigationInput {
 
     @Field(type => PathfindingMethod, { nullable: true })
     pathfindingMethod?: PathfindingMethod
-}
-
-@ObjectType()
-class NavigationResult {
-    @Field((type) => [LatLng]!)
-    path: LatLng[]
-
-    @Field(type => Boolean)
-    neededToGenerateANavMesh: boolean
-
-    @Field(type => Float)
-    distance: number
-
-    fromAreaIgnorableWalls: Wall[]
-    toAreaWallsWithoutIgnorable: Wall[]
-    navMeshData: NavMesh
 }
 
 const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locationLat?: number, locationLon?: number) => {
