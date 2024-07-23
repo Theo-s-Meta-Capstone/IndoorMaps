@@ -1,20 +1,15 @@
 import { describe, expect, beforeAll, afterAll, it, jest } from '@jest/globals';
-
-// we'll use supertest to test our server
 import request from 'supertest';
 import { httpServer } from '../server';
 import { seed } from '../utils/seed';
 import { server } from "../utils/websocketServer.js";
-
 import WebSocket from 'ws';
 
 // port is different then the other tests so the tests can run in parallel
 const port = 4503;
-
 const date = new Date();
 const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
 const testBuildingName = "testBuilding" + testDate;
-
 
 describe('Testing the ws server and GraphQL server by running a HttpServer and websocketServer', () => {
     let url = "";

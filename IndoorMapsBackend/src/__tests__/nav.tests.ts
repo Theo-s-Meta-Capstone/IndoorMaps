@@ -4,8 +4,6 @@ import { httpServer } from '../server';
 
 const port = 4504;
 
-const date = new Date();
-
 describe('Testing the Navigation Resolver and helper functions', () => {
     let url = "";
 
