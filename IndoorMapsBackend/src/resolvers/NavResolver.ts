@@ -114,7 +114,7 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
         navMesh = pathfindingMethod === PathfindingMethod.Standard ?
             (floor.navMesh as Prisma.JsonArray) as unknown as NavMeshVertex[] :
             (floor.voronoiNavMesh as Prisma.JsonArray) as unknown as NavMeshVertex[]
-        walls = (floor.walls as Prisma.JsonArray).map((wall) => wall as unknown as Wall)
+        walls = (floor.walls as Prisma.JsonArray) as unknown as Wall[];
     }
     return {navMesh, walls, neededToGenerateANavMesh} as const;
 }
