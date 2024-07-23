@@ -33,8 +33,11 @@ export const convertToGraphQLBuilding = (buildingFromDB: DbBuilding): Building =
 export const convertToGraphQLFloor = (floorFromDB: DbFloor): Floor => {
     const floor: Floor = {
         ...floorFromDB,
+        guideImage: floorFromDB.guideImage !== null ? floorFromDB.guideImage : undefined,
+        guideImageShape: floorFromDB.guideImageShape !== null ? JSON.stringify(floorFromDB.guideImageShape) : undefined,
         shape: floorFromDB.shape !== null ? JSON.stringify(floorFromDB.shape) : undefined,
         databaseId: floorFromDB.id,
+        guideImageRotation: floorFromDB.guideImageRotation ? floorFromDB.guideImageRotation : undefined,
         id: "floor" + floorFromDB.id.toString()
     }
     return floor;

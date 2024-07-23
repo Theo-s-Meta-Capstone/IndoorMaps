@@ -2,35 +2,64 @@ import { TextInput } from "@mantine/core"
 import { useEffect, useRef, useState } from "react";
 import * as L from "leaflet";
 import { useDebounce } from "../../utils/hooks";
+import { graphql, useFragment } from "react-relay";
+import { GuideImageFragment$key } from "./__generated__/GuideImageFragment.graphql";
+import { FloorSidebarFloorMutation$variables } from "./__generated__/FloorSidebarFloorMutation.graphql";
+import { FloorSidebarBodyFragment$data } from "./__generated__/FloorSidebarBodyFragment.graphql";
+import { removeAllLayersFromLayerGroup } from "../../utils/utils";
+
+const GuideImageFragment = graphql`
+  fragment GuideImageFragment on Floor
+  {
+    id
+    databaseId
+    guideImage
+    guideImageShape
+    guideImageRotation
+  }
+`;
 
 type Props = {
     map: L.Map;
-    floorMapLayer: L.GeoJSON;
     setFormError: (error: string) => void;
+    currentFloorData: GuideImageFragment$key;
+    modifyFloor: (variables: FloorSidebarFloorMutation$variables) => Promise<void>;
+    imageOverlayMapLayer: L.GeoJSON;
+    startPos: FloorSidebarBodyFragment$data["startPos"]
 }
 
-const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
+const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorData, map, setFormError }: Props) => {
+    const floorData = useFragment(GuideImageFragment, currentFloorData);
     const canvas = useRef<HTMLCanvasElement>(null);
-    const [rotation, setRotation] = useState<number>(0);
+    const [rotation, setRotation] = useState<number>(floorData.guideImageRotation ?? 0);
     const debouncedRotation = useDebounce(rotation, rotation, 100)
-    const hasAlreadyAddedImageRef = useRef<boolean>(false);
+    const hasAlreadyAddedImage = useRef<boolean>(false);
     const rotationRef = useRef<number>(0);
-    const [guideImageUrl, setGuideImageUrl] = useState<string>("");
+    const [guideImageUrl, setGuideImageUrl] = useState<string>(floorData.guideImage ?? "");
 
     useEffect(() => {
         rotationRef.current = debouncedRotation;
     }, [debouncedRotation])
 
+    const startingLatLngBounds = L.latLngBounds([startPos.lat, startPos.lon], [startPos.lat+.0005, startPos.lon+.0005]);
 
-    var latLngBounds = L.latLngBounds([37.48476370807255, -122.14827817912189], [37.485283029418994, -122.14775246616237]);
+    const clearGuideLayer = () => {
+        removeAllLayersFromLayerGroup(imageOverlayMapLayer, map)
+        hasAlreadyAddedImage.current = false;
+    }
 
     const addEditableImageToFloor = () => {
-        if (hasAlreadyAddedImageRef.current) return;
-        hasAlreadyAddedImageRef.current = true;
-        const coords = latLngBounds;
-        // imageGuideOverlay.addTo(floorMapLayer)
-        const guideBoundingRect = L.rectangle(coords).addTo(floorMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
-        guideBoundingRect.setStyle({ fillColor: 'url(#guideBackgroundImage)', fillOpacity: .5, fillRule: "evenodd" })
+        if (hasAlreadyAddedImage.current) return;
+
+        let guideBoundingRect: L.Rectangle;
+        if(floorData.guideImageShape) {
+            const coords = (JSON.parse(floorData.guideImageShape) as GeoJSON.Feature<GeoJSON.Polygon>);
+            guideBoundingRect = L.rectangle(L.geoJSON(coords).getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+        }else{
+            guideBoundingRect = L.rectangle(startingLatLngBounds).addTo(imageOverlayMapLayer);
+        }
+
+        guideBoundingRect.setStyle({ fillColor: 'url(#guideBackgroundImage)', fillOpacity: .6, fillRule: "evenodd" })
         guideBoundingRect.pm.disableRotate()
         guideBoundingRect.pm.setOptions({
             allowEditing: true,
@@ -53,7 +82,7 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
                 `);
         }
 
-        const guideRotationHandle = L.rectangle(coords).addTo(floorMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
+        const guideRotationHandle = L.rectangle(guideBoundingRect.getBounds()).addTo(imageOverlayMapLayer); // the Leaflet constructor always creates a non-rotated rectangle
         guideRotationHandle.pm.setOptions({
             allowEditing: false,
             allowRemoval: false,
@@ -70,11 +99,20 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
             guideRotationHandleElement.classList.add("rotationControler")
         }
 
-        guideBoundingRect.on("pm:edit", () => {
+        guideBoundingRect.on("pm:edit", (e: L.LeafletEvent) => {
+            modifyFloor({
+                data: {
+                    id: floorData.databaseId,
+                    newGuideImageShape: {
+                        shape: JSON.stringify(e.layer.toGeoJSON()),
+                    }
+                }
+            })
             guideRotationHandle.setBounds(guideBoundingRect.getBounds())
             guideRotationHandle.pm.setInitAngle(0)
             guideRotationHandle.pm.rotateLayerToAngle(rotationRef.current)
         })
+        hasAlreadyAddedImage.current = true;
     }
 
     const drawImage = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, image: HTMLImageElement, rotation: number) => {
@@ -106,7 +144,8 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
                 const url = URL.createObjectURL(blob);
                 const patternImage = document.getElementById("guideBackgroundImage");
                 if (!patternImage) {
-                    setFormError("fail to load guide image from canvas")
+                    setFormError("failed to load guide image from canvas");
+                    clearGuideLayer();
                     return;
                 };
                 patternImage.innerHTML = `<image id="patternImage"
@@ -115,26 +154,47 @@ const GuideImage = ({ map, floorMapLayer, setFormError }: Props) => {
         });
         img.addEventListener("error", () => {
             setFormError("failed to load guide image");
-            hasAlreadyAddedImageRef.current = false;
-            for(const layer of floorMapLayer.getLayers()){
-                if(layer instanceof L.Rectangle){
-                    map.removeLayer(layer);
-                    floorMapLayer.removeLayer(layer);
-                }
-            }
+            clearGuideLayer();
         })
     }
 
     useEffect(() => {
-        if (guideImageUrl === "") return;
-        addEditableImageToFloor();
+        if (guideImageUrl === "" || !canvas.current) return;
         getRotatedImage(guideImageUrl)
-    }, [guideImageUrl, canvas.current, debouncedRotation])
+        modifyFloor({
+            data: {
+                id: floorData.databaseId,
+                guideImageRotation: debouncedRotation,
+            }
+        })
+    }, [debouncedRotation])
+
+    useEffect(() => {
+        addEditableImageToFloor();
+        if (guideImageUrl === "" || !canvas.current) return;
+        getRotatedImage(guideImageUrl)
+        if (guideImageUrl === floorData.guideImage) return;
+        modifyFloor({
+            data: {
+                id: floorData.databaseId,
+                guideImage: guideImageUrl,
+            }
+        })
+    }, [guideImageUrl])
+
+    useEffect(() => {
+        hasAlreadyAddedImage.current = false
+        clearGuideLayer();
+        setGuideImageUrl(floorData.guideImage ?? "");
+        if (guideImageUrl === "" || !canvas.current) return;
+        addEditableImageToFloor();
+    }, [floorData.databaseId])
 
     return (
         <>
             <canvas style={{ display: "none" }} ref={canvas} id="tutorial" width="600" height="600"></canvas>
-            <TextInput label="Guide Image Url" placeholder="Enter Guide Image Url" onChange={(e) => setGuideImageUrl(e.target.value)} />
+            <TextInput label="Guide Image Url" placeholder="Enter Guide Image Url" value={guideImageUrl} onChange={(e) => setGuideImageUrl(e.target.value)} />
+            <p>Consider using <a href="https://imgbb.com/">https://imgbb.com/</a> to upload your image, then copy the embed url</p>
         </>
     )
 }

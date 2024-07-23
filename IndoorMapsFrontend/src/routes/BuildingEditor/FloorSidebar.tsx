@@ -16,12 +16,17 @@ const FloorSidebarFragment = graphql`
   {
     id
     databaseId
+    startPos {
+      lat
+      lon
+    }
     floors {
       id
       databaseId
       title
       shape
       ...FloorListItemFragment
+      ...GuideImageFragment
     }
   }
 `;
@@ -33,9 +38,10 @@ type Props = {
     floorMapLayer: L.GeoJSON;
     setCurrentFloor: (floor: number) => void;
     openAreaSidebar: () => void;
+    imageOverlayMapLayer: L.GeoJSON;
 }
 
-const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
+const FloorSidebar = ({imageOverlayMapLayer, buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -45,6 +51,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
     mutation FloorSidebarFloorMutation($data: FloorModifyInput!) {
         modifyFloor(data: $data) {
             ...FloorListItemFragment
+            ...GuideImageFragment
         }
     }
     `);
@@ -142,6 +149,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
                 layer.on('pm:edit', onShapeEdit)
                 layer.on('pm:remove', onShapeRemove)
             })
+            imageOverlayMapLayer.addTo(map)
         }
 
     }, [currentFloor])
@@ -160,7 +168,7 @@ const FloorSidebar = ({ buildingFromParent, map, currentFloor, floorMapLayer, se
             <ScrollArea h={250}>
                 {floorListElements}
             </ScrollArea>
-            <GuideImage map={map} floorMapLayer={floorMapLayer} setFormError={(e: string) => setFormError(e)} />
+            {currentFloorData ? <GuideImage key={currentFloorData.id} startPos={building.startPos} imageOverlayMapLayer={imageOverlayMapLayer} modifyFloor={modifyFloor} currentFloorData={currentFloorData} map={map} setFormError={(e: string) => setFormError(e)} /> : null}
             <CreateFloorModal isOpen={isCreateFloorModalOpen} closeModal={handleCloseCreateFloorModal} />
             <div>{isInFlight ? "saving ..." : "all saved"}</div>
         </>

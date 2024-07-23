@@ -1,4 +1,4 @@
-import { Field, ID, Int, ObjectType } from "type-graphql"
+import { Field, Float, ID, Int, ObjectType } from "type-graphql"
 
 import { MutationResult } from '../utils/generic.js'
 
@@ -28,4 +28,13 @@ export class Floor {
 
   @Field({ nullable: true })
   shape?: string
+
+  @Field({ nullable: true })
+  guideImage?: string
+
+  @Field({ nullable: true })
+  guideImageShape?: string
+
+  @Field(type => Float, { nullable: true })
+  guideImageRotation?: number
 }
