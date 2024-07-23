@@ -254,7 +254,7 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
-    it('Get Path from gps Voronoi', async () => {
+    it('Get Path to gps Voronoi', async () => {
         const testQuery = {
             query: `
             query GetNavBetweenAreas($data: NavigationInput!) {
