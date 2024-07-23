@@ -188,6 +188,7 @@ const GuideImage = ({ startPos, imageOverlayMapLayer, modifyFloor, currentFloorD
     return (
         <>
             <canvas style={{ display: "none" }} ref={canvas} id="tutorial" width="600" height="600"></canvas>
+            <i>Guide Image is currently experimental</i>
             <TextInput label="Guide Image Url" placeholder="Enter Guide Image Url" value={guideImageUrl} onChange={(e) => setGuideImageUrl(e.target.value)} />
             <p>Consider using <a href="https://imgbb.com/">https://imgbb.com/</a> to upload your image, then copy the embed url</p>
         </>
