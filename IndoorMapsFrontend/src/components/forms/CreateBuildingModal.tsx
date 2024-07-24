@@ -79,7 +79,7 @@ const CreateBuildingModal = ({ isOpen, closeModal, getGeocoder }: Props) => {
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-                <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name" placeholder="West Seattle Grocery Central" />
+                <TextInput {...form.getInputProps('buildingName')} autoComplete="on" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
                 <Suspense fallback={<div>Loading...</div>}>
                     <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />

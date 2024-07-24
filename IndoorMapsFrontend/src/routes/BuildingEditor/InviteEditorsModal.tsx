@@ -69,7 +69,7 @@ const InviteEditorsModal = ({ isOpen, closeModal }: Props) => {
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-                <TextInput {...form.getInputProps('userEmail')} autoComplete="" label="User Email" placeholder="" />
+                <TextInput {...form.getInputProps('userEmail')} autoComplete="on" label="User Email" placeholder="" />
                 <Group>
                     <Button type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
