@@ -79,8 +79,6 @@
 }
 
 .AreaSearch {
-    min-width: 30%;
-    max-width: 30%;
     padding: 0 1em;
     overflow: hidden;
     white-space: pre-line;
@@ -89,6 +87,13 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    width: 70%;
+    z-index: 2000;
+    margin: auto;
+    margin-right: 20%;
 }
 
 .description {
@@ -96,12 +101,13 @@
 }
 
 .areaResultsItem {
-    background-color: var(--main-3);
     padding: .5em;
     border-radius: .4em;
     margin-bottom: 1em;
     text-align: left;
     width: 100%;
+    /* I didn't use opacity because I wanted the text to remain solid */
+    background-color: var(--overlay-1);
 }
 
 .areaResultsItem p {
@@ -114,6 +120,7 @@
 
 .searchResultsContainer {
     overflow-y: scroll;
+    max-height: 36vh;
 }
 
 .navigationInputs {
@@ -139,31 +146,31 @@
     padding: .5em;
 }
 
-@media only screen and (max-width: 840px) {
+.extraOptionsForNav {
+    display: none;
+}
+
+@media only screen and (min-width: 840px) {
     .AreaSearch {
-        position: absolute;
-        left: 0px;
-        right: 0px;
-        min-width: unset;
-        max-width: unset;
-        width: 70%;
-        z-index: 2000;
-        margin: auto;
-        margin-right: 20%;
+        position: initial;
+        min-width: 30%;
+        max-width: 30%;
+        width: initial;
+        z-index: initial;
+        margin: initial;
+        margin-right: initial;
     }
 
     .searchResultsContainer {
-        max-height: 36vh;
-        overflow-y: scroll;
+        max-height: initial;
     }
 
     .areaResultsItem {
-        /* I didn't use opacity because I wanted the text to remain solid */
-        background-color: var(--overlay-1);
+        background-color: var(--main-3);
     }
 
     .extraOptionsForNav {
-        display: none;
+        display: initial;
     }
 }
 
