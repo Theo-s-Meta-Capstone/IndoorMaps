@@ -5,7 +5,7 @@ import { ButtonsContainerFragment$key } from "./__generated__/ButtonsContainerFr
 import { Link } from "react-router-dom";
 
 type HeaderNavProps = {
-    getUserFromCookie: ButtonsContainerFragment$key;
+    getUserFromCookie?: ButtonsContainerFragment$key;
     pageTitle: string;
     currentPage: string;
     children?: React.ReactNode;
@@ -25,7 +25,7 @@ const HeaderNav = ({ getUserFromCookie, pageTitle, children, showDesktopContent 
                 <Group component="nav" className="nav">
                     <Link to="/directory">Directory</Link>
                     {children}
-                    <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
+                    {getUserFromCookie ? <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} /> : null}
                 </Group>
                 :
                 <Group component="nav" className="nav">

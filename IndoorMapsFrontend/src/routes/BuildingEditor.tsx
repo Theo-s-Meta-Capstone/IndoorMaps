@@ -10,6 +10,7 @@ import { useBooleanState } from "../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
 import Footer from "../components/pageSections/Footer";
 import EditBuildingModal from "../components/forms/EditBuildingModal";
+import LoadingPage from "../components/pageSections/LoadingPage";
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!, $autocompleteInput: AutocompleteInput!, ) {
@@ -52,7 +53,7 @@ const BuildingEditor = () => {
     return (
         <div className="mainVerticalFlexContainer">
             {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback="Loading GraphQL">
+                <Suspense fallback={<LoadingPage pageTitle={`Building Editor - Loading Building`} currentPage={"/directory"}/>}>
                     <BuildingEditorBodyContainer queryReference={queryReference} />
                 </Suspense>
             }

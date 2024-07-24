@@ -5,7 +5,7 @@ import { ButtonsContainerFragment$key } from "./__generated__/ButtonsContainerFr
 type Props = {
     children?: React.ReactNode;
     showDesktopContent?: boolean
-    getUserFromCookie: ButtonsContainerFragment$key;
+    getUserFromCookie?: ButtonsContainerFragment$key;
     className?: string
 }
 
@@ -16,7 +16,7 @@ const Footer = ({className, getUserFromCookie, showDesktopContent = true }: Prop
                 :
                 <>
                     <Link className={"footerButton"} to="/directory"><img alt={"directory"} src={"/directory.svg"} /></Link>
-                    <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} />
+                    {getUserFromCookie ? <ButtonsContainer className="userButtons" getUserFromCookie={getUserFromCookie} /> : null}
                 </>}
         </footer>
     )

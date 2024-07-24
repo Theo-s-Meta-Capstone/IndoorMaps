@@ -10,6 +10,7 @@ import { Button, em } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
 import Footer from "../components/pageSections/Footer";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
+import LoadingPage from "../components/pageSections/LoadingPage";
 
 const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
@@ -48,7 +49,7 @@ const BuildingViewer = () => {
     return (
         <div className="mainVerticalFlexContainer">
             {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback="Loading GraphQL">
+                <Suspense fallback={<LoadingPage pageTitle={"Loading Building Viewer"} currentPage={"/"}/>}>
                     <BuildingViewerBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
