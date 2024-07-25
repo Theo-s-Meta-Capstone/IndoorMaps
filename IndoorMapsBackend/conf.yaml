@@ -1,7 +1,0 @@
-source:
-  connection_uri: $DATABASE_URL
-datastore:
-  local_disk:
-    dir: ./replibyte
-destination:
-  connection_uri: $DATABASE_URL

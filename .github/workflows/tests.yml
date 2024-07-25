@@ -40,7 +40,7 @@ jobs:
           cd IndoorMapsBackend
           npm ci --force
           npx prisma migrate deploy
-          replibyte -c conf.yaml dump restore remote -v latest
+          replibyte -c replibyte.conf.yaml dump restore remote -v latest
           npm run compile
           npm test
       # Environment variables used by the the vite project script to create a new PostgreSQL table.

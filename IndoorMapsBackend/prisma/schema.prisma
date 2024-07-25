@@ -37,15 +37,16 @@ model Floor {
 }
 
 model Building {
-  id             Int               @id @default(autoincrement())
-  title          String
-  address        String
-  startLat       Float
-  startLon       Float
-  floors         Floor[]
-  editors        BuildingEditors[]
-  areas          Area[]
-  buildingGroups BuildingGroup[]
+  id              Int               @id @default(autoincrement())
+  title           String
+  address         String
+  startLat        Float
+  startLon        Float
+  floors          Floor[]
+  editors         BuildingEditors[]
+  areas           Area[]
+  buildingGroup   BuildingGroup?     @relation(fields: [buildingGroupId], references: [id])
+  buildingGroupId Int?
 }
 
 model Area {
