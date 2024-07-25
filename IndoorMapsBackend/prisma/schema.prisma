@@ -29,6 +29,7 @@ model Floor {
   navMesh            Json?
   voronoiNavMesh     Json?
   walls              Json?
+  floorPerimeterWalls Json?
   guideImage         String?
   guideImageShape    Json?
   guideImageRotation Float?
