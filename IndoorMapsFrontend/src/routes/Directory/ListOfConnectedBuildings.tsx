@@ -42,8 +42,9 @@ function ListOfConnectedBuildings({ getUserFromCookie, getGeocoder }: ListOfConn
     if (!isLogedIn || !user) {
         return null;
     }
+    const selectOptions = user ? user.buildingGroups.map(buildingGroup => {return {value: buildingGroup.databaseId.toString(), label: buildingGroup.name}}) : [];
     const buildingItems = user.BuildingWithPerms.map((building) => {
-        return <ConnectedBuildingItem key={building.id} buildingWithPermsFromParent={building} />
+        return <ConnectedBuildingItem key={building.id} buildingWithPermsFromParent={building} selectOptions={selectOptions} />
     })
 
     return (

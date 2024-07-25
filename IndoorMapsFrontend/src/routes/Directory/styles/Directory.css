@@ -15,20 +15,22 @@
     border: 1px solid black;
 }
 
-.buildingsContainer a {
+.buildingsContainer .buildingListLink {
     background-color: var(--main-1);
 }
 
-.buildingsContainer a:nth-child(odd) {
+.buildingsContainer .buildingListLink:nth-child(odd) {
     background-color: var(--main-2);
 }
 
 .buildingListItem {
     background-color: inherit;
     border-bottom: 1px solid black;
+    text-align: left;
+    padding: 0em .5em;
 }
 
-.buildingsContainer a:last-child {
+.buildingsContainer .buildingListLink:last-child {
     border-bottom-width: 0px;
 }
 
