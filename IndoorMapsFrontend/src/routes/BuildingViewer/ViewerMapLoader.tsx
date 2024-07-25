@@ -177,7 +177,10 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         removeAllLayersFromLayerGroup(floorMapLayer, map);
         removeAllLayersFromLayerGroup(areasMapLayer, map);
 
-        setSearchParams(prev => { return { ...prev, floor: currentFloor } })
+        setSearchParams(prev => {
+            prev.set("floor", currentFloor.toString());
+            return prev
+        })
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {
