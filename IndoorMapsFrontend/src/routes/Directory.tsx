@@ -40,11 +40,11 @@ const Directory = () => {
     }, []);
 
     if (queryReference == null) {
-        return <div>Waiting for useEffect</div>
+        return <LoadingPage />
     }
 
     return (
-        <Suspense fallback={<LoadingPage pageTitle={"Indoor Maps"} currentPage={"/directory"} />}>
+        <Suspense fallback={<LoadingPage />}>
             <DirectoryBodyContainer queryReference={queryReference} />
         </Suspense>
 

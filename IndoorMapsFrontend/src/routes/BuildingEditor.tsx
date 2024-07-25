@@ -52,8 +52,8 @@ const BuildingEditor = () => {
 
     return (
         <div className="mainVerticalFlexContainer">
-            {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback={<LoadingPage pageTitle={`Building Editor - Loading Building`} currentPage={"/directory"}/>}>
+            {queryReference == null ? <LoadingPage /> :
+                <Suspense fallback={<LoadingPage />}>
                     <BuildingEditorBodyContainer queryReference={queryReference} />
                 </Suspense>
             }

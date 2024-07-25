@@ -64,7 +64,7 @@ const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
 const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setAreaToAreaRouteInfo, children }: Props) => {
     const building = useFragment(ViewerMapFragment, buildingFromParent);
     // Used to ensure the map is only set up once
-    const [mapIsSetUp, setMapIsSetUp] = useState(false);
+    const mapIsSetUp = useRef(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
     const prefersReducedMotion = usePrefersReducedMotion();
@@ -135,8 +135,8 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     }
 
     const setUpMapBuilder = () => {
-        if (mapIsSetUp) return;
-        setMapIsSetUp(true)
+        if (mapIsSetUp.current) return;
+        mapIsSetUp.current = true;
         areasMapLayer.addTo(map)
         floorMapLayer.addTo(map)
     }
@@ -206,6 +206,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         currentFloorRef.areas.forEach((area) => {
             const geoJson: GeoJSON.Feature = JSON.parse(area.shape);
+            if (geoJson.type !== "Feature") return;
             // inject my data into the geojson properties
             geoJson.properties!.databaseId = area.databaseId
             geoJson.properties!.title = area.title

@@ -34,8 +34,8 @@ const Root = () => {
 
     return (
         <div>
-            {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback={<LoadingPage pageTitle={"Welcome to IndoorMaps"} currentPage={"/"} />}>
+            {queryReference == null ? <LoadingPage /> :
+                <Suspense fallback={<LoadingPage />}>
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }
