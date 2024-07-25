@@ -118,6 +118,11 @@ type BuildingWithPerms {
   id: ID!
 }
 
+input ConnectBuildingToBuildingGroup {
+  buildingGroupDatabaseId: Int
+  id: Float!
+}
+
 input CreateBuildingGroup {
   name: String!
 }
@@ -207,6 +212,7 @@ type LogedInUser {
 }
 
 type Mutation {
+  addBuildingToBuildingGroup(data: ConnectBuildingToBuildingGroup!): Building
   createArea(data: AreaCreateInput!): NewAreaResult!
   createBuilding(data: BuildingCreateInput!): Building!
   createBuildingGroup(data: CreateBuildingGroup!): BuildingGroup!
