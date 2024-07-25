@@ -305,14 +305,14 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
 
     return (
         <>
-            <Button onClick={closeSidebar}>{"<- Back to floors"}</Button>
+            <Button color="dark-blue" onClick={closeSidebar}>{"<- Back to floors"}</Button>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>{floorData?.title} Area Editor</h2>
             {selectedArea ?
                 <EditAreaForm area={selectedArea} />
                 :
                 <p className="noAreaSelectedText">Create New areas with the <img src={"/polygonTool.svg"} alt="React Logo" />polygon tool <br />
-                Select an Area to edit its Name and Description
+                    Select an Area to edit its Name and Description
                 </p>
             }
             <div>{(isInFlightCreateArea || isInFlightDeleteArea || isInFlightUpdateArea) ? "saving area map ..." : "area map saved"}</div>

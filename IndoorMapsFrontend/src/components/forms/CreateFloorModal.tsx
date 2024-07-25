@@ -76,7 +76,7 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
                 <TextInput {...form.getInputProps('title')} label="Floor Name" placeholder="F1" />
                 <TextInput {...form.getInputProps('description')} label="Floor Description" placeholder="Geology department" />
                 <Group>
-                    <Button type="submit" disabled={isInFlight}>Submit</Button>
+                    <Button color="dark-blue" type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
             </form>
         </Modal>

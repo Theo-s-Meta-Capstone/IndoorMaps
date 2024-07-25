@@ -141,7 +141,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 <i>You must be logged in to share your location</i><br />
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 {(webSocket && webSocket.readyState !== 1) ? "Setting up connection" : null}
-                {isRunningTimeout ? <Button onClick={() => {
+                {isRunningTimeout ? <Button color="dark-blue" onClick={() => {
                     clearInterval(isRunningTimeout);
                     setIsRunningTimeout(null);
                 }}>Stop current location share</Button> : null}
@@ -149,7 +149,7 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
                 <TextInput {...form.getInputProps('message')} label="Message" placeholder="Ask me questions about new student orientation" />
                 <TextInput {...form.getInputProps('cords')} label="Mock coordinates (default is your gps location, only set to override)" placeholder="lat1, lng1- lat2, lng2- lat3, lng3 " />
                 <Group>
-                    <Button type="submit">Submit</Button>
+                    <Button color="dark-blue" type="submit">Submit</Button>
                 </Group>
             </form>
         </Modal>

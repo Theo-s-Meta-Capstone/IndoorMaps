@@ -76,8 +76,8 @@ const RegisterModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }
                 <TextInput {...form.getInputProps('email')} autoComplete="email" label="Email" placeholder="zuck@meta.com" />
                 <PasswordInput {...form.getInputProps('password')} autoComplete="new-password" label="Password" placeholder="" />
                 <Group>
-                    <Button type="submit" disabled={isInFlight}>Submit</Button>
-                    <Button onClick={switchAuthAction}>Log In instead</Button>
+                    <Button color="dark-blue" type="submit" disabled={isInFlight}>Submit</Button>
+                    <Button color="dark-blue" onClick={switchAuthAction}>Log In instead</Button>
                 </Group>
             </form>
         </Modal>

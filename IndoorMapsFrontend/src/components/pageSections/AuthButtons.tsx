@@ -13,13 +13,13 @@ const AuthButton = ({ refreshUserData, className }: Props) => {
     const [isRegisterOpen, handleCloseRegister, handleOpenRegister] = useBooleanState(false);
 
     return (
-        <Group className={"userButtons "+className}>
-            <Button onClick={() => { handleOpenLogIn() }} variant="default">Log In</Button>
-            <Button onClick={() => { handleOpenRegister() }} variant="default">Sign up</Button>
+        <Group className={"userButtons " + className}>
+            <Button color="dark-blue" onClick={() => { handleOpenLogIn() }} variant="default">Log In</Button>
+            <Button color="dark-blue" onClick={() => { handleOpenRegister() }} variant="default">Sign up</Button>
             <LogInModal isOpen={isLogInOpen} refreshUserData={refreshUserData} closeModal={handleCloseLogIn} switchAuthAction={() => {
                 handleCloseLogIn()
                 handleOpenRegister()
-            }}/>
+            }} />
             <RegisterModal isOpen={isRegisterOpen} refreshUserData={refreshUserData} closeModal={handleCloseRegister} switchAuthAction={() => {
                 handleCloseRegister()
                 handleOpenLogIn()

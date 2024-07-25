@@ -72,16 +72,16 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
     return (
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"} showDesktopContent={isNotMobile}>
-                <Button onClick={handleOpenShareLiveLocation}>
+                <Button color="dark-blue" onClick={handleOpenShareLiveLocation}>
                     Share Location Live
                 </Button>
                 <ShareLocationModal isOpen={isShareLiveLocationOpen} closeModal={handleCloseShareLiveLocation} />
                 {searchParams.get("preview") !== null && searchParams.get("preview") === "true" ?
                     <>
-                        <Button onClick={() => navigate(`/building/${getBuilding.databaseId}/editor`)}>
+                        <Button color="dark-blue" onClick={() => navigate(`/building/${getBuilding.databaseId}/editor`)}>
                             Back To Editor
                         </Button>
-                        <Button onClick={() => clipboard.copy(window.location.origin + `/building/${getBuilding.databaseId}/viewer`)}>
+                        <Button color="dark-blue" onClick={() => clipboard.copy(window.location.origin + `/building/${getBuilding.databaseId}/viewer`)}>
                             {clipboard.copied ? "Link Copied" : "Share"}
                         </Button>
                     </>

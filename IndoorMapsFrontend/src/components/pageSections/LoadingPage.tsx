@@ -11,7 +11,7 @@ const LoadingPage = () => {
     return (
         <>
             <HeaderNav pageTitle="" currentPage="" showDesktopContent={isNotMobile} />
-            <Group align="center" justify="center"><p>Loading From GraphQL</p><Loader color="blue" /></Group>
+            <Group align="center" justify="center"><p>Loading From GraphQL</p><Loader color="dark-blue" /></Group>
             <Footer className="notDeviceHeightPage" showDesktopContent={isNotMobile} />
         </>
     )

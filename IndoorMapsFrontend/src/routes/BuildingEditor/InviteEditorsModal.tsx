@@ -32,7 +32,7 @@ const InviteEditorsModal = ({ isOpen, closeModal }: Props) => {
     `);
 
     const handleSubmit = async (values: typeof form.values) => {
-        if(!buildingId){
+        if (!buildingId) {
             setFormError("building not found");
             return;
         }
@@ -71,7 +71,7 @@ const InviteEditorsModal = ({ isOpen, closeModal }: Props) => {
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
                 <TextInput {...form.getInputProps('userEmail')} autoComplete="on" label="User Email" placeholder="" />
                 <Group>
-                    <Button type="submit" disabled={isInFlight}>Submit</Button>
+                    <Button color="dark-blue" type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
             </form>
         </Modal>

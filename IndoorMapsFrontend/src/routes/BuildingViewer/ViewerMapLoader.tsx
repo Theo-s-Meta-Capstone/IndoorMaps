@@ -180,7 +180,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         setSearchParams(prev => {
             prev.set("floor", currentFloor.toString());
             return prev
-        }, {replace: true})
+        }, { replace: true })
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {
@@ -275,7 +275,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const floorListElements = building.floors.map((floor) => {
         return (
             <Button
-                color={(currentFloor === floor.databaseId) ? "red" : "blue"}
+                color={(currentFloor === floor.databaseId) ? "red" : "dark-blue"}
                 onClick={() => setCurrentFloor(floor.databaseId)}
                 key={floor.id}>
                 {floor.title}

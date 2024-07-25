@@ -79,27 +79,27 @@ function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyConta
     return (
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={`Building Editor - ${getBuilding.title}`} currentPage={"/directory"} showDesktopContent={isNotMobile}>
-                <Button onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
+                <Button color="dark-blue" onClick={() => clipboard.copy(window.location.origin + `/building/${buildingId}/viewer`)}>
                     {clipboard.copied ? "Link Copied" : "Share"}
                 </Button>
-                <Button onClick={() => {
+                <Button color="dark-blue" onClick={() => {
                     const floor = searchParams.get("floor")
                     const perviewLink = floor == null ? `/building/${buildingId}/viewer?preview=true` : `/building/${buildingId}/viewer?preview=true&floor=${floor}`;
                     navigate(perviewLink)
                 }}>
                     Preview
                 </Button>
-                <Button onClick={handleOpenInviteEditor}>
+                <Button color="dark-blue" onClick={handleOpenInviteEditor}>
                     Invite Editors
                 </Button>
                 <InviteEditorsModal isOpen={isInviteEditorOpen} closeModal={handleCloseInviteEditor} />
-                <Button onClick={handleOpenEditBuildingDetails}>
+                <Button color="dark-blue" onClick={handleOpenEditBuildingDetails}>
                     Edit Building Details
                 </Button>
                 <EditBuildingModal isOpen={isEditBuildingDetailsOpen} closeModal={handleCloseEditBuildingDetails} getGeocoder={data} buildingFromParent={getBuilding} />
             </HeaderNav>
             <BuildingEditorBody buildingFromParent={getBuilding} />
-            <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile}/>
+            <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>
     )
 }

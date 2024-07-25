@@ -14,10 +14,10 @@ const UserButtons = ({ user, logout, formError, closeFormError, className }: Pro
     if (user == null) return (<div>Error loading User</div>)
 
     return (
-        <Group className={"userButtons "+className}>
+        <Group className={"userButtons " + className}>
             <FormErrorNotification formError={formError} onClose={() => { closeFormError() }} />
             <p>Hello {user.name}</p>
-            <Button onClick={() => { logout() }} variant="default">Log Out</Button>
+            <Button color="dark-blue" onClick={() => { logout() }} variant="default">Log Out</Button>
         </Group>
     )
 }
