@@ -180,7 +180,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         setSearchParams(prev => {
             prev.set("floor", currentFloor.toString());
             return prev
-        })
+        }, {replace: true})
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {

@@ -8,6 +8,7 @@ import AreaSidebar from "./AreaSidebar";
 import { Group } from "@mantine/core";
 import { DoorMarkerIcon } from "../../utils/markerIcon";
 import { removeAllLayersFromLayerGroup } from "../../utils/utils";
+import { useSearchParams } from "react-router-dom";
 
 const EditorSidebarFragment = graphql`
   fragment EditorSidebarBodyFragment on Building
@@ -37,7 +38,7 @@ type Props = {
 
 const floorMapLayer = L.geoJSON(null, {
   pointToLayer: function (_feature, latlng) {
-    return L.marker(latlng, {icon: DoorMarkerIcon});
+    return L.marker(latlng, { icon: DoorMarkerIcon });
   }
 });
 const imageOverlayMapLayer = L.geoJSON();
@@ -48,6 +49,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   const building = useFragment(EditorSidebarFragment, buildingFromParent);
   const [currentFloor, setCurrentFloor] = useState<number | null>(null);
   const [isAreaSidebarOpen, closeAreaSidebar, openAreaSidebar] = useBooleanState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleFloorChange = (newFloor: number) => {
     setCurrentFloor(newFloor);
@@ -55,7 +57,12 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
 
   useEffect(() => {
     if (currentFloor == null && building.floors.length !== 0) {
-      setCurrentFloor(building.floors[0].databaseId)
+      let initialFloor = building.floors[0].databaseId;
+      const floorFromUrlSearchParams = searchParams.get("floor");
+      if (floorFromUrlSearchParams && building.floors.find((floor) => floor.databaseId === parseInt(floorFromUrlSearchParams))) {
+          initialFloor = parseInt(floorFromUrlSearchParams);
+      }
+      setCurrentFloor(initialFloor)
     }
   }, [building.floors])
 
@@ -130,6 +137,11 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
   // If the floor changes any left over areas from the previous floor needs to be removed
   useEffect(() => {
     removeAllLayersFromLayerGroup(areasMapLayer, map);
+    if (!currentFloor) return
+    setSearchParams(prev => {
+      prev.set("floor", currentFloor.toString());
+      return prev
+    }, {replace: true})
   }, [currentFloor])
 
   return (
