@@ -139,12 +139,14 @@ export class NavResolver {
             return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
-        }).concat(floorPerimeterWalls)
+        })
         const toAreaWallsWithoutIgnorable = walls.filter(wall => {
             return toAreaIgnorableWalls.findIndex((ignorableWall) => {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
-        }).concat(floorPerimeterWalls)
+        })
+        fromAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
+        toAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
 
         //  adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
         const fromIndex = addAreaToMesh(navMesh, fromArea, fromAreaWallsWithoutIgnorable, fromLatLon);
