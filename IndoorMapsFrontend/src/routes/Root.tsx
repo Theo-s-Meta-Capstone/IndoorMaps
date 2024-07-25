@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import Footer from "../components/pageSections/Footer";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
+import LoadingPage from "../components/pageSections/LoadingPage";
 
 const RootPageQuery = graphql`
     query RootQuery {
@@ -33,8 +34,8 @@ const Root = () => {
 
     return (
         <div>
-            {queryReference == null ? <div>Waiting for useEffect</div> :
-                <Suspense fallback="Loading GraphQL...">
+            {queryReference == null ? <LoadingPage /> :
+                <Suspense fallback={<LoadingPage />}>
                     <RootBodyContainer queryReference={queryReference} />
                 </Suspense>
             }

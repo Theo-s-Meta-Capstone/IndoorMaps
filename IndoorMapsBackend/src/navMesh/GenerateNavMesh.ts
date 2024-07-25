@@ -65,7 +65,7 @@ const expandPolygon = (polygon: Position[], offset: number) => {
     }))
 }
 
-export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[]] => {
+export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[], Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
     const floorOutline = floorGeoJSON.features.find((feature) => feature.geometry.type === "Polygon") as GeoJSON.Feature<GeoJSON.Polygon> | undefined;
@@ -81,7 +81,8 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         walls.push(...floorWalls)
         vertices = coords.flatMap((pos) => {
             return new LatLng(pos[1], pos[0])
-        }).concat(
+        })
+        vertices.push(
             // adds outside verticies to help with navigation from outside a building
             ...expandPolygon(coords, offsetInDegrees * floorPlanOffsetWeight)
         )
@@ -115,12 +116,16 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             return posArr.map((pos) => new LatLng(pos[1], pos[0]))
         })
 
-    let wallsToUse = walls;
+    const areaWalls = realPolygons.flatMap((polygon) => {
+        return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
+    })
+
+    walls.push(...areaWalls)
+
     if (vertexMethod === "Standard") {
         vertices.push(...expandedPolygons.flatMap((polygon) => {
             return polygon.map((latLng) => latLng)
-        })
-        )
+        }))
     } else {
         vertices.push(
             ...vorornoiDriver(
@@ -129,20 +134,15 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
                 })
             )
         )
-
-        wallsToUse = walls.concat(expandedPolygons.flatMap((polygon) => {
+        walls.push(...expandedPolygons.flatMap((polygon) => {
             return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
         }))
     }
 
-    walls.push(...realPolygons.flatMap((polygon) => {
-        return polygon.map((latLng, i) => new Wall(latLng, polygon[(i + 1) % polygon.length]))
-    }))
-
     const navMesh: NavMesh = [];
-    extendNavMesh(navMesh, wallsToUse, vertices)
+    extendNavMesh(navMesh, walls, vertices)
 
-    const wallsExcludingFloorWalls = wallsToUse.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
+    const wallsExcludingFloorWalls = walls.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
     floorGeoJSON.features.forEach((feature) => {
         if (feature.geometry.type === "Point") {
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
@@ -150,7 +150,7 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         }
     })
 
-    return [navMesh, walls] as const
+    return [navMesh, areaWalls, floorWalls] as const
 }
 
 const addPointToNavMesh = (navMesh: NavMesh, walls: Wall[], start: LatLng) => {

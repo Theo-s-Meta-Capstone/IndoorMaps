@@ -228,12 +228,12 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 // show results if nothing is selected, or if the search query doesn't match the title
                 showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
                 leftOfInputElements={(
-                    <Button className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
+                    <Button color="dark-blue" className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
                         <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
                     </Button>
                 )}
             >
-                <Button style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
+                <Button color="dark-blue" style={{ width: "100%", margin: ".5em 0px" }} onClick={() => {
                     setFromSearchQuery(areaToAreaRouteInfo.from?.isLatLon ? "gpsLocation " + areaToAreaRouteInfo.from.location.lat + ", " + areaToAreaRouteInfo.from.location.lng : "gpsLocation Loading...")
                     if (userGPSCoords.current) setFromWithGPS(userGPSCoords.current)
                     isUsingCurrentLocationNav.current = true

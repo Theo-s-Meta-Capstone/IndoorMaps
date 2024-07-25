@@ -71,8 +71,8 @@ const LogInModal = ({ isOpen, closeModal, switchAuthAction, refreshUserData }: P
                 <TextInput {...form.getInputProps('email')} autoComplete="email" label="Email" placeholder="zuck@meta.com" />
                 <PasswordInput {...form.getInputProps('password')} autoComplete="current-password" label="Password" placeholder="" />
                 <Group>
-                    <Button disabled={isInFlight} type="submit">Submit</Button>
-                    <Button onClick={switchAuthAction}>Sign Up instead</Button>
+                    <Button color="dark-blue" disabled={isInFlight} type="submit">Submit</Button>
+                    <Button color="dark-blue" onClick={switchAuthAction}>Sign Up instead</Button>
                 </Group>
             </form>
         </Modal>

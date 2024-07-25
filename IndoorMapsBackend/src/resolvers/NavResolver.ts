@@ -74,13 +74,15 @@ const getAreaDetails = async (floor: FloorIncludeAreas, areaId?: number, locatio
 const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod: PathfindingMethod) => {
     let navMesh: NavMesh;
     let walls: Wall[];
+    let floorPerimeterWalls: Wall[];
     let neededToGenerateANavMesh = false;
     // checks if the requested navMesh is standard and a computed version of the standard nav mesh is not available, or the same but for the voronoi nav mesh
-    if ((pathfindingMethod === "Standard" && floor.navMesh === null) || (pathfindingMethod === "Voronoi" && floor.voronoiNavMesh === null)) {
+    if (floor.floorPerimeterWalls === null || (pathfindingMethod === "Standard" && floor.navMesh === null) || (pathfindingMethod === "Voronoi" && floor.voronoiNavMesh === null)) {
         neededToGenerateANavMesh = true;
-        const [genNavMesh, genWalls] = generateNavMesh(floor, pathfindingMethod);
+        const [genNavMesh, genAreaWalls, genFloorPerimeterWalls] = generateNavMesh(floor, pathfindingMethod);
         const data: Prisma.FloorUpdateInput = {
-            walls: JSON.parse(JSON.stringify(genWalls))
+            walls: JSON.parse(JSON.stringify(genAreaWalls)),
+            floorPerimeterWalls: JSON.parse(JSON.stringify(genFloorPerimeterWalls))
         }
         pathfindingMethod === "Standard" ?
             data.navMesh = JSON.parse(JSON.stringify(genNavMesh)) :
@@ -92,7 +94,8 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
             data
         })
         navMesh = genNavMesh
-        walls = genWalls
+        walls = genAreaWalls
+        floorPerimeterWalls = genFloorPerimeterWalls
     }
     else {
         // sets the nav mesh to the voronoi or standard nav mesh as stored in the floor row
@@ -100,8 +103,9 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
             (floor.navMesh as Prisma.JsonArray) as unknown as NavMeshVertex[] :
             (floor.voronoiNavMesh as Prisma.JsonArray) as unknown as NavMeshVertex[]
         walls = (floor.walls as Prisma.JsonArray) as unknown as Wall[];
+        floorPerimeterWalls = (floor.floorPerimeterWalls as Prisma.JsonArray) as unknown as Wall[];
     }
-    return { navMesh, walls, neededToGenerateANavMesh } as const;
+    return { navMesh, walls, floorPerimeterWalls, neededToGenerateANavMesh } as const;
 }
 
 @Resolver(of => NavigationResult)
@@ -128,7 +132,8 @@ export class NavResolver {
         if (fromArea && fromArea.floorId !== data.floorDatabaseId) throw throwGraphQLBadInput("Navigation between floors is not supported")
 
         const pathfindingMethod = data.pathfindingMethod ?? PathfindingMethod.Standard;
-        const { navMesh, walls, neededToGenerateANavMesh } = await loadOrGenerateNavMesh(floor, pathfindingMethod);
+        // The floorPerimeterWalls are added back in after the ignorable walls are removed, This ensures that the floor perimeter walls are respected
+        const { navMesh, walls, floorPerimeterWalls, neededToGenerateANavMesh } = await loadOrGenerateNavMesh(floor, pathfindingMethod);
 
         const fromAreaWallsWithoutIgnorable = walls.filter(wall => {
             return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
@@ -140,6 +145,8 @@ export class NavResolver {
                 return areWallsEqual(ignorableWall, wall)
             }) === -1
         })
+        fromAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
+        toAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
 
         //  adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
         const fromIndex = addAreaToMesh(navMesh, fromArea, fromAreaWallsWithoutIgnorable, fromLatLon);

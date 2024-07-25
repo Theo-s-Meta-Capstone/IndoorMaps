@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from './routes/Root';
 import BuildingViewer from './routes/BuildingViewer';
 import BuildingEditor from './routes/BuildingEditor';
+import { generateColors } from '@mantine/colors-generator';
 
 const router = createBrowserRouter([
   {
@@ -28,7 +29,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <MantineProvider>
+    <MantineProvider theme={{
+      colors: {
+        'dark-blue': generateColors('#0e316e'),
+      },
+    }}>
       <RouterProvider router={router} />
     </MantineProvider>
   );

@@ -43,7 +43,7 @@ function ListOfConnectedBuildings({ getUserFromCookie, getGeocoder }: ListOfConn
         <div className="buildingsTitle">
             <Group justify="space-between">
                 <h2>Your Buildings:</h2>
-                <Button onClick={handleOpenCreateBuilding}>Create Building</Button>
+                <Button color="dark-blue" onClick={handleOpenCreateBuilding}>Create Building</Button>
             </Group>
             <div className="connectedBuildingsContainer buildingsContainer">
                 <CreateBuildingModal getGeocoder={getGeocoder} isOpen={isCreateBuildingOpen} closeModal={handleCloseCreateBuilding} />

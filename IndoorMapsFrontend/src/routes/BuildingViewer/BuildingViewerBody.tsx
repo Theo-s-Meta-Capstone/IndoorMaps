@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
@@ -51,18 +51,20 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 style={mapStyle}
                 ref={setMap}
             >
-                {map ?
-                    <ViewerMapLoader setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
-                        <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
-                    </ViewerMapLoader>
-                    : null
-                }
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    maxNativeZoom={18}
-                    maxZoom={27}
-                />
+                <Suspense>
+                    {map ?
+                        <ViewerMapLoader setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
+                            <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
+                        </ViewerMapLoader>
+                        : null
+                    }
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        maxNativeZoom={18}
+                        maxZoom={27}
+                    />
+                </Suspense>
             </MapContainer>
             <AreaSearch areaToAreaRouteInfo={areaToAreaRouteInfo} setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} buildingId={building.databaseId} />
         </main>

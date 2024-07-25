@@ -2,8 +2,6 @@ import { Group, HoverCard, Text } from "@mantine/core"
 import { graphql, useFragment } from "react-relay";
 import { FloorListItemFragment$key } from "./__generated__/FloorListItemFragment.graphql";
 
-const noShapeAlertText = "This floor does not have a shape yet, create one with the polygon tool";
-
 const FloorListFragment = graphql`
   fragment FloorListItemFragment on Floor
   {
@@ -23,6 +21,7 @@ type Props = {
 
 const FloorListItem = ({ floorFromParent, currentFloor, setCurrentFloor }: Props) => {
   const floorData = useFragment(FloorListFragment, floorFromParent);
+  const noShapeAlertText = `Floor ${floorData.title} does not have a shape yet, create one with the polygon tool`;
   return (
     <Group onClick={() => setCurrentFloor(floorData.databaseId)} className={"FloorListItem " + (currentFloor === floorData.databaseId ? "Selected" : "")}>
       <div>{floorData.title}</div>
@@ -30,7 +29,7 @@ const FloorListItem = ({ floorFromParent, currentFloor, setCurrentFloor }: Props
       {floorData.shape ? null :
         <HoverCard width={200} position="bottom" withArrow shadow="md">
           <HoverCard.Target>
-            <div aria-label={noShapeAlertText} className='NoAreaInformer'>!</div>
+            <button style={{border: "none"}} aria-label={noShapeAlertText} className='NoAreaInformer'>!</button>
           </HoverCard.Target>
           <HoverCard.Dropdown>
             <Text>{noShapeAlertText}</Text>

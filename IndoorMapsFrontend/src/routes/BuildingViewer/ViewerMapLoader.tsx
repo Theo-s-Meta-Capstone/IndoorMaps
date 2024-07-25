@@ -9,6 +9,7 @@ import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import { usePrefersReducedMotion } from "../../utils/hooks";
+import { useSearchParams } from "react-router-dom";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -63,10 +64,11 @@ const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
 const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setAreaToAreaRouteInfo, children }: Props) => {
     const building = useFragment(ViewerMapFragment, buildingFromParent);
     // Used to ensure the map is only set up once
-    const [mapIsSetUp, setMapIsSetUp] = useState(false);
+    const mapIsSetUp = useRef(false);
     const [currentFloor, setCurrentFloor] = useState<number | null>(null);
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
     const prefersReducedMotion = usePrefersReducedMotion();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -133,8 +135,8 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     }
 
     const setUpMapBuilder = () => {
-        if (mapIsSetUp) return;
-        setMapIsSetUp(true)
+        if (mapIsSetUp.current) return;
+        mapIsSetUp.current = true;
         areasMapLayer.addTo(map)
         floorMapLayer.addTo(map)
     }
@@ -161,7 +163,12 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
     useEffect(() => {
         if (currentFloor == null && building.floors.length !== 0) {
-            setCurrentFloor(building.floors[0].databaseId)
+            let initialFloor = building.floors[0].databaseId;
+            const floorFromUrlSearchParams = searchParams.get("floor");
+            if (floorFromUrlSearchParams && building.floors.find((floor) => floor.databaseId === parseInt(floorFromUrlSearchParams))) {
+                initialFloor = parseInt(floorFromUrlSearchParams);
+            }
+            setCurrentFloor(initialFloor)
         }
         if (currentFloor === null) {
             return;
@@ -169,6 +176,11 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         removeAllLayersFromLayerGroup(floorMapLayer, map);
         removeAllLayersFromLayerGroup(areasMapLayer, map);
+
+        setSearchParams(prev => {
+            prev.set("floor", currentFloor.toString());
+            return prev
+        }, { replace: true })
 
         const currentFloorRef = building.floors.find(floor => floor.databaseId === currentFloor);
         if (!currentFloorRef) {
@@ -194,6 +206,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         currentFloorRef.areas.forEach((area) => {
             const geoJson: GeoJSON.Feature = JSON.parse(area.shape);
+            if (geoJson.type !== "Feature") return;
             // inject my data into the geojson properties
             geoJson.properties!.databaseId = area.databaseId
             geoJson.properties!.title = area.title
@@ -262,7 +275,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const floorListElements = building.floors.map((floor) => {
         return (
             <Button
-                color={(currentFloor === floor.databaseId) ? "red" : "blue"}
+                color={(currentFloor === floor.databaseId) ? "red" : "dark-blue"}
                 onClick={() => setCurrentFloor(floor.databaseId)}
                 key={floor.id}>
                 {floor.title}

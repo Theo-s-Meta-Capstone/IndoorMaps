@@ -9,6 +9,7 @@ import HeaderNav from "../components/pageSections/HeaderNav";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
 import Footer from "../components/pageSections/Footer";
+import LoadingPage from "../components/pageSections/LoadingPage";
 
 const DirectoryPageQuery = graphql`
     query DirectoryQuery($autocompleteInput: AutocompleteInput!, $buildingSearchInput: BuildingSearchInput!) {
@@ -39,11 +40,11 @@ const Directory = () => {
     }, []);
 
     if (queryReference == null) {
-        return <div>Waiting for useEffect</div>
+        return <LoadingPage />
     }
 
     return (
-        <Suspense fallback="Loading GraphQL">
+        <Suspense fallback={<LoadingPage />}>
             <DirectoryBodyContainer queryReference={queryReference} />
         </Suspense>
 

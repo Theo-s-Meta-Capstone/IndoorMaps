@@ -41,7 +41,7 @@ type Props = {
     imageOverlayMapLayer: L.GeoJSON;
 }
 
-const FloorSidebar = ({imageOverlayMapLayer, buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
+const FloorSidebar = ({ imageOverlayMapLayer, buildingFromParent, map, currentFloor, floorMapLayer, setCurrentFloor, openAreaSidebar }: Props) => {
     const building = useFragment(FloorSidebarFragment, buildingFromParent);
     const [isCreateFloorModalOpen, handleCloseCreateFloorModal, handleOpenCreateFloorModal] = useBooleanState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -160,10 +160,10 @@ const FloorSidebar = ({imageOverlayMapLayer, buildingFromParent, map, currentFlo
         <>
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Editor Sidebar {currentFloorData ?
-                <Button onClick={openAreaSidebar}>Edit {currentFloorData.title} Areas</Button>
+                <Button color="dark-blue" onClick={openAreaSidebar}>Edit {currentFloorData.title} Areas</Button>
                 : null}</h2>
             <Tooltip zIndex={50} opened={currentFloor === null} label="Create your first floor to get started">
-                <Button onClick={handleOpenCreateFloorModal}>New Floor</Button>
+                <Button color="dark-blue" onClick={handleOpenCreateFloorModal}>New Floor</Button>
             </Tooltip>
             <ScrollArea h={250}>
                 {floorListElements}

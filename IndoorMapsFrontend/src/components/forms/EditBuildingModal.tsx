@@ -1,4 +1,4 @@
-import { Button, Modal, TextInput, Group } from "@mantine/core";
+import { Button, Modal, TextInput, Group, Loader } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { Suspense, useState } from "react";
 import { graphql, useFragment, useMutation } from "react-relay";
@@ -97,14 +97,14 @@ const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-                <TextInput {...form.getInputProps('buildingName')} autoComplete="" label="Building Name (Changing the name will break all links to the building)" placeholder="West Seattle Grocery Central" />
+                <TextInput {...form.getInputProps('buildingName')} autoComplete="on" label="Building Name (Changing the name will break all links to the building)" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<Loader color="dark-blue" />}>
                     <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />
                 </Suspense>
                 <TextInput {...form.getInputProps('startingPosition')} label="Starting Position Lat, Long" placeholder="47.57975292676628, -122.38632782878642" />
                 <Group>
-                    <Button type="submit" disabled={isInFlight}>Submit</Button>
+                    <Button color="dark-blue" type="submit" disabled={isInFlight}>Submit</Button>
                 </Group>
             </form>
         </Modal>

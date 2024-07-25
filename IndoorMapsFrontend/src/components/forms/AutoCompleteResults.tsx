@@ -64,7 +64,7 @@ const AutoCompleteResults = ({ getGeocoder, searchString, chooseAutocompleteResu
             }
             titleToDispaly = newTitle
         }
-        return (<li className="autocompleteResultItem" key={item.id}><Button onClick={() => chooseAutocompleteResult(item)}><p dangerouslySetInnerHTML={{ __html: titleToDispaly }} /></Button></li>)
+        return (<li className="autocompleteResultItem" key={item.id}><Button color="dark-blue" onClick={() => chooseAutocompleteResult(item)}><p dangerouslySetInnerHTML={{ __html: titleToDispaly }} /></Button></li>)
     })
 
     return (

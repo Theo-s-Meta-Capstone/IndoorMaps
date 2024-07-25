@@ -66,14 +66,14 @@ const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props
         map.panTo(buildingAnkerLatLon);
     }
     return (<>
-        <Button onClick={startTrackingUserLocation}>
+        <Button color="dark-blue" onClick={startTrackingUserLocation}>
             {isLocationLoading ?
                 "loading"
                 :
                 <img src="/location.svg" alt="Get GPS Location" />
             }
         </Button>
-        <Button onClick={resetMapToStartingLocation}><img src="/resetLocation.svg" alt="Reset Location" /></Button>
+        <Button color="dark-blue" onClick={resetMapToStartingLocation}><img src="/resetLocation.svg" alt="Reset Location" /></Button>
     </>)
 }
 
