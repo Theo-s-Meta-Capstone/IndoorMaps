@@ -1,7 +1,7 @@
 source:
-  connection_uri: postgresql://postgres:fipsyg-kuttop-pIzje0@localhost:5432/IndoorMaps?schema=public
+  connection_uri: $DATABASE_URL
 datastore:
   local_disk:
     dir: ./replibyte
 destination:
-  connection_uri: postgresql://postgres:fipsyg-kuttop-pIzje0@localhost:5432/IndoorMaps?schema=public
+  connection_uri: $DATABASE_URL
