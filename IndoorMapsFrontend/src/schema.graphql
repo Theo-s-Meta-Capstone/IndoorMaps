@@ -74,6 +74,7 @@ type AutocompleteItem {
 
 type Building {
   address: String!
+  buildingGroup: BuildingGroup
   databaseId: Int!
   floors: [Floor!]!
   id: ID!
@@ -86,6 +87,13 @@ input BuildingCreateInput {
   startLat: Float!
   startLon: Float!
   title: String!
+}
+
+type BuildingGroup {
+  buildings: [Building!]!
+  databaseId: Int!
+  id: ID!
+  name: String!
 }
 
 input BuildingSearchInput {
@@ -108,6 +116,10 @@ type BuildingWithPerms {
   building: Building!
   editorLevel: EditorLevel!
   id: ID!
+}
+
+input CreateBuildingGroup {
+  name: String!
 }
 
 enum EditorLevel {
@@ -197,6 +209,7 @@ type LogedInUser {
 type Mutation {
   createArea(data: AreaCreateInput!): NewAreaResult!
   createBuilding(data: BuildingCreateInput!): Building!
+  createBuildingGroup(data: CreateBuildingGroup!): BuildingGroup!
   createFloor(data: FloorCreateInput!): NewFloorResult!
   deleteArea(data: AreaUniqueInput!): NewAreaResult!
   inviteEditor(data: InviteEditorInput!): MutationResult!
@@ -280,6 +293,7 @@ type TitleHighlightsRange {
 
 type User {
   BuildingWithPerms: [BuildingWithPerms!]!
+  buildingGroups: [BuildingGroup!]!
   databaseId: Float!
   email: String!
   id: ID!

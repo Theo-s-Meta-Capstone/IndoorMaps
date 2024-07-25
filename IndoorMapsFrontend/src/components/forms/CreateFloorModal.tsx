@@ -14,12 +14,12 @@ type Props = {
 
 const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
-    const [, refreshBuildingData] = useRefreshRelayCache();
+    const { refreshBuildingData } = useRefreshRelayCache();
     const { buildingId } = useParams();
 
     const form = useForm({
         mode: 'controlled',
-        initialValues: { title: '', description: ''},
+        initialValues: { title: '', description: '' },
         validate: {
             title: hasLength({ min: 1, max: 8 }, 'Floor must be between 1 and 8 characters long'),
         },
@@ -34,7 +34,7 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
     `);
 
     const handleSubmit = async (values: typeof form.values) => {
-        if(buildingId == undefined){
+        if (buildingId == undefined) {
             setFormError("Building url param not found");
             return
         }

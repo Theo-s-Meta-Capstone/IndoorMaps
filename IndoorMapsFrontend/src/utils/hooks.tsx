@@ -84,7 +84,30 @@ export const useRefreshRelayCache = () => {
         );
     }
 
-    return [refreshFloorData, refreshBuildingData] as const;
+    const refreshUserBuildingGroupsQuery = graphql`
+        query hooksUserBuildingGroupsQuery {
+            getUserFromCookie {
+            user {
+                buildingGroups {
+                    id
+                    databaseId
+                    name
+                }
+            }
+        }
+        }
+    `;
+
+    const refreshUserBuildingGroupsgData = () => {
+        loadQuery(
+            environment,
+            refreshUserBuildingGroupsQuery,
+            {},
+            { fetchPolicy: "network-only" }
+        );
+    }
+
+    return {refreshFloorData, refreshBuildingData, refreshUserBuildingGroupsgData} as const;
 }
 
 // based on https://www.telerik.com/blogs/how-to-create-custom-debounce-hook-react, I added typing

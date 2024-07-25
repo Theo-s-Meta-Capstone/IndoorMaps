@@ -1,12 +1,17 @@
 /**
  * this file containes functions that convert between the database type and the Graphql Types, It is used any time data is sent from the database to the front end
 */
-
 import { User } from '../graphqlSchemaTypes/User.js'
-import { Building, LatLng } from '../graphqlSchemaTypes/Building.js'
-import { Building as DbBuilding, Floor as DbFloor, Area as DbArea, User as DbUser } from '@prisma/client'
+import { Building, BuildingGroup, LatLng } from '../graphqlSchemaTypes/Building.js'
+import { Building as DbBuilding, Floor as DbFloor, Area as DbArea, User as DbUser, Prisma } from '@prisma/client'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
+
+type DbBuildingGroup = Prisma.BuildingGroupGetPayload<{
+    include: {
+        buildings: true
+    }
+}>
 
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
     const user: User = {
@@ -53,4 +58,14 @@ export const convertToGraphQlArea = (areaFromDB: DbArea): Area => {
         floorDatabaseId: areaFromDB.floorId,
     }
     return area;
+}
+
+export const convertToGraphQLBuildingGroup = (buildingGroupFromDB: DbBuildingGroup): BuildingGroup => {
+    const buildingGroup: BuildingGroup = {
+        ...buildingGroupFromDB,
+        id: "buildingGroup" + buildingGroupFromDB.id,
+        databaseId: buildingGroupFromDB.id,
+        buildings: buildingGroupFromDB.buildings.map(building => convertToGraphQLBuilding(building))
+    }
+    return buildingGroup;
 }

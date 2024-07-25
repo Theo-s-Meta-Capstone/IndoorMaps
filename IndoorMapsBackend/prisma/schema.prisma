@@ -16,34 +16,36 @@ model User {
   tokens          String[]
   buildings       BuildingEditors[]
   isEmailVerified Boolean
+  BuildingGroup   BuildingGroup[]
 }
 
 model Floor {
-  id                 Int      @id @default(autoincrement())
-  areas              Area[]
-  title              String
-  description        String
-  building           Building @relation(fields: [buildingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  buildingId         Int
-  shape              Json?
-  navMesh            Json?
-  voronoiNavMesh     Json?
-  walls              Json?
+  id                  Int      @id @default(autoincrement())
+  areas               Area[]
+  title               String
+  description         String
+  building            Building @relation(fields: [buildingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  buildingId          Int
+  shape               Json?
+  navMesh             Json?
+  voronoiNavMesh      Json?
+  walls               Json?
   floorPerimeterWalls Json?
-  guideImage         String?
-  guideImageShape    Json?
-  guideImageRotation Float?
+  guideImage          String?
+  guideImageShape     Json?
+  guideImageRotation  Float?
 }
 
 model Building {
-  id       Int               @id @default(autoincrement())
-  title    String
-  address  String
-  startLat Float
-  startLon Float
-  floors   Floor[]
-  editors  BuildingEditors[]
-  areas    Area[]
+  id             Int               @id @default(autoincrement())
+  title          String
+  address        String
+  startLat       Float
+  startLon       Float
+  floors         Floor[]
+  editors        BuildingEditors[]
+  areas          Area[]
+  buildingGroups BuildingGroup[]
 }
 
 model Area {
@@ -75,4 +77,14 @@ model BuildingEditors {
   buildingId  Int
   editorLevel EditorLevel
   timestamp   DateTime    @default(now())
+}
+
+// Join table used to connect buildings and users
+model BuildingGroup {
+  id        Int        @id @default(autoincrement())
+  name      String
+  buildings Building[]
+  userId    Int
+  creator   User       @relation(fields: [userId], references: [id])
+  timestamp DateTime   @default(now())
 }
