@@ -1,4 +1,4 @@
-import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
+import { describe, expect, beforeAll, afterAll, it, jest } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
 
@@ -16,7 +16,8 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // We pass in the port as 0 to let the server pick its own ephemeral port for testing
         httpServer.listen({ port: port });
         url = `http://localhost:${port}/graphql`
-    });
+        // Sometimes starting the server takes longer then the standard 5 seconds
+    }, 15 * 1000);
 
     // after the tests we'll stop the server
     afterAll(async () => {
@@ -124,7 +125,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // send our request to the url of the test server
         const response = await request(url).post('/').set('Cookie', [
             cookie
-          ]).send(getUserQuery);
+        ]).send(getUserQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getUserFromCookie.id).toEqual("LogedInUser");
         expect(response.body.data?.getUserFromCookie.isLogedIn).toEqual(true);
@@ -145,7 +146,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // send our request to the url of the test server
         const response = await request(url).post('/').set('Cookie', [
             cookie
-          ]).send(signOutMutation);
+        ]).send(signOutMutation);
         expect(response.error).toEqual(false);
         expect(response.body.data?.signOut.success).toEqual(true);
     });
@@ -155,7 +156,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // send our request to the url of the test server
         const response = await request(url).post('/').set('Cookie', [
             cookie
-          ]).send(getUserQuery);
+        ]).send(getUserQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.getUserFromCookie.id).toEqual("LogedInUser");
         expect(response.body.data?.getUserFromCookie.isLogedIn).toEqual(false);
