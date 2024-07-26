@@ -12,7 +12,7 @@ import { useUserLocation } from "../../../utils/hooks";
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
 const kmToFeet = 3280.84;
-const gpsUpdateDebounce = 1000;
+const gpsUpdateDebounce = 500;
 
 type Props = {
     areaToAreaRouteInfo: AreaToAreaRouteInfo,
@@ -235,6 +235,11 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     autoFocus: true,
                     leftSection: iconCurrentLocation,
                     label: "From:",
+                    onFocus: () => {
+                        if (fromSearchQuery.startsWith("gpsLocation")){
+                            setFromSearchQuery("")
+                        }
+                    }
                 }}
                 searchQuery={fromSearchQuery}
                 setSearchQuery={(newQuery: string) => setFromSearchQuery(newQuery)}
