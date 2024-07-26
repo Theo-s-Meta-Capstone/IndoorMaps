@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { graphql, useFragment } from "react-relay";
 import { BuildingViewerBodyFragment$key } from "./__generated__/BuildingViewerBodyFragment.graphql";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import FormErrorNotification from "../../components/forms/FormErrorNotification";
 import ViewerMapLoader from "./ViewerMapLoader";
 import DisplayMyLiveLocation from "./DisplayMyLiveLocation";
@@ -36,10 +36,19 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
     const [pageError, setPageError] = useState<string | null>(null);
     const [areaToAreaRouteInfo, setAreaToAreaRouteInfo] = useState<AreaToAreaRouteInfo>({ options: { useVoronoi: true } });
     const [map, setMap] = useState<L.Map | null>(null);
+    const mapHasBeenDragged = useRef(false)
+
 
     const handleUpdateAreaToAreaRouteInfo = (newRouteData: AreaToAreaRouteInfo) => {
         setAreaToAreaRouteInfo(newRouteData);
     }
+
+    // When the .from Changes the map flys to the new area, the map should not then pan back to the user's location marker
+    useEffect(() => {
+        if(areaToAreaRouteInfo.to) {
+            mapHasBeenDragged.current = true;
+        }
+    }, [areaToAreaRouteInfo.to])
 
     return (
         <main className="ViewerMain">
@@ -54,7 +63,7 @@ const BuildingViewerBody = ({ buildingFromParent }: Props) => {
                 <Suspense>
                     {map ?
                         <ViewerMapLoader setAreaToAreaRouteInfo={handleUpdateAreaToAreaRouteInfo} areaToAreaRouteInfo={areaToAreaRouteInfo} map={map} buildingFromParent={building}>
-                            <DisplayMyLiveLocation setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
+                            <DisplayMyLiveLocation mapHasBeenDragged={mapHasBeenDragged} setPageError={(errorMessage) => { setPageError(errorMessage) }} buildingAnkerLatLon={buildingAnkerLatLon} map={map} />
                         </ViewerMapLoader>
                         : null
                     }

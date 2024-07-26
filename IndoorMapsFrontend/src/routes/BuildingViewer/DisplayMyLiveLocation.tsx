@@ -9,14 +9,14 @@ type Props = {
     map: L.Map;
     setPageError: (errorMessage: string) => void;
     buildingAnkerLatLon: L.LatLng;
+    mapHasBeenDragged: React.MutableRefObject<boolean>;
 }
 
-const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon }: Props) => {
+const DisplayMyLiveLocation = ({ map, setPageError, buildingAnkerLatLon, mapHasBeenDragged }: Props) => {
     const [isLocationLoading, setLocationLoading] = useState(false)
     const [alreadyWatching, setAlreadyWatching] = useState(false)
     const [gpsMarker,] = useState(L.marker([0, 0], { icon: locationMarkerIcon }));
     const [accurecyMarker,] = useState(L.circle([0, 0], { radius: 0 }))
-    const mapHasBeenDragged = useRef(false)
 
     const updateUserLocation = (position: GeolocationPosition) => {
         setLocationLoading(false)
