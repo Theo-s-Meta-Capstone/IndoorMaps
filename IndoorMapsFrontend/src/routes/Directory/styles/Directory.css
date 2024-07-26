@@ -30,7 +30,7 @@
     padding: 0em .5em;
 }
 
-.buildingsContainer .buildingListLink:last-child {
+.buildingsContainer .buildingListItem:last-child {
     border-bottom-width: 0px;
 }
 

@@ -83,9 +83,11 @@ function ConnectedBuildingItem({ selectOptions, buildingWithPermsFromParent }: C
             <p style={{ marginLeft: "auto" }}>you are: {buildingWithPerms.editorLevel}</p>
             <Tooltip label="Buildings in the same group will apear on eachother's map">
                 <Select
+                    aria-label="Group"
                     placeholder="Choose a group"
                     defaultValue={buildingGroup?.databaseId.toString()}
                     allowDeselect
+                    clearable
                     data={selectOptions}
                     onChange={handleChangeSelectedBuildingGroup}
                 />
