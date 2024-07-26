@@ -47,7 +47,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![https://example.com](https://private-user-images.githubusercontent.com/26506274/350169766-6812e40b-a3a0-4595-9ecb-51507c6c6206.gif?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjE0NDY2NjEsIm5iZiI6MTcyMTQ0NjM2MSwicGF0aCI6Ii8yNjUwNjI3NC8zNTAxNjk3NjYtNjgxMmU0MGItYTNhMC00NTk1LTllY2ItNTE1MDdjNmM2MjA2LmdpZj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA3MjAlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNzIwVDAzMzI0MVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTY4MzRhODJiYTcxYTBkYjg0Mjc5NTMyMjc3MGEwOTkzMTNhOWFjYmExMzI5OWFjMzdkOWQ1NmIwMWE2ZWY1MzQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.K25SWy6ATMl4xLGXtzv4ohEkkBDa3x6aOnR7kfsjbhs)
+IndoorMaps is the easy way to create useful and accurate maps of any building.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -66,6 +66,8 @@
   nvm install 18
   run nvm use 18
   ```
+* A Postgres Server
+  The link to your postgres server will go into your backend .env file
 
 ### Installation
 
