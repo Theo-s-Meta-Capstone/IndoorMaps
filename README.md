@@ -87,6 +87,7 @@
 4. Set up backend
    ```sh
    cd IndoorMapsBackend/
+   // --force is needed due to an issue with ESLint (--force is the recommended solution)
    npm ci --force
    npx prisma migrate dev
    npm run dev
