@@ -210,7 +210,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     useEffect(() => {
         getNewPath()
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options?.showEdges, areaToAreaRouteInfo.options?.showWalls, areaToAreaRouteInfo.options?.useVoronoi])
+    }, [areaToAreaRouteInfo.forceUpdate, areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options?.showEdges, areaToAreaRouteInfo.options?.showWalls, areaToAreaRouteInfo.options?.useVoronoi])
 
     const isUsingLatLonForFrom = (areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location);
     const isUsingLatLonForTo = (areaToAreaRouteInfo.to?.isLatLon ? areaToAreaRouteInfo.to.location : undefined);
