@@ -55,7 +55,6 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const isUsingCurrentLocationNav = useRef(false)
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
     const userGPSCoords = useRef<number[] | undefined>(undefined);
-    const debouncedGPSUpdate = useRef<NodeJS.Timeout>()
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
