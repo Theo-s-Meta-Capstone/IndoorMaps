@@ -12,7 +12,6 @@ import { useUserLocation } from "../../../utils/hooks";
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
 const kmToFeet = 3280.84;
-const gpsUpdateDebounce = 500;
 
 type Props = {
     areaToAreaRouteInfo: AreaToAreaRouteInfo,
@@ -75,30 +74,16 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         // only updates the search query if setFromWithGPS isn't just updating the latlons
         if (!areaToAreaRouteInfoRef.current.from || !areaToAreaRouteInfoRef.current.from.isLatLon) {
             setFromSearchQuery("gpsLocation " + curPos)
-            // I think this sufferers from the same issue as clicking on an area in viewer map loader, which is why I'm using a Ref
-            setAreaToAreaRouteInfo({
-                ...areaToAreaRouteInfoRef.current,
-                from: {
-                    isLatLon: true,
-                    location: new LatLng(curPos[0], curPos[1]),
-                    title: "Your Location",
-                },
-            })
-        } else {
-            clearTimeout(debouncedGPSUpdate.current)
-            debouncedGPSUpdate.current = setTimeout(() => {
-                if (isUsingCurrentLocationNav.current) {
-                    setAreaToAreaRouteInfo({
-                        ...areaToAreaRouteInfoRef.current,
-                        from: {
-                            isLatLon: true,
-                            location: new LatLng(curPos[0], curPos[1]),
-                            title: "Your Location",
-                        },
-                    })
-                }
-            }, gpsUpdateDebounce)
         }
+        // I think this sufferers from the same issue as clicking on an area in viewer map loader, which is why I'm using a Ref
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfoRef.current,
+            from: {
+                isLatLon: true,
+                location: new LatLng(curPos[0], curPos[1]),
+                title: "Your Location",
+            },
+        })
     }
 
     const setFrom = (area: AreaSearchBoxQuery$data["areaSearch"][number]) => {
@@ -236,7 +221,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     leftSection: iconCurrentLocation,
                     label: "From:",
                     onFocus: () => {
-                        if (fromSearchQuery.startsWith("gpsLocation")){
+                        if (fromSearchQuery.startsWith("gpsLocation")) {
                             setFromSearchQuery("")
                         }
                     }
