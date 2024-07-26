@@ -20,3 +20,7 @@ export const throwGraphQLBadInput = (meassage: string) => {
     },
   });
 }
+
+export function timeout(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

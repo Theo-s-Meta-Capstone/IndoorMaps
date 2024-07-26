@@ -1,6 +1,7 @@
 import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
+import { timeout } from '../utils/generic';
 
 const port = 4502;
 const date = new Date();
@@ -17,6 +18,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         httpServer.listen({ port: port });
         url = `http://localhost:${port}/graphql`
         // Sometimes starting the server takes longer then the standard 5 seconds
+        await timeout(1000);
     }, 15 * 1000);
 
     // after the tests we'll stop the server

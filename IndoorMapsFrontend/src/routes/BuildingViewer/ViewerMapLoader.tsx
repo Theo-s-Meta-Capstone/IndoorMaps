@@ -167,7 +167,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                                 direction: "top",
                                 permanent: true,
                                 // showAtZoom +1 becuase the text is so much bigger due to the buildingTitle clas
-                                className: `title buildingTitle showAtZoom${getWhichZoomToShowToolTipAt(getAreaOfPolygon(layer), linkedBuilding.title.length)+1}showAtZoom`,
+                                className: `title buildingTitle showAtZoom${getWhichZoomToShowToolTipAt(getAreaOfPolygon(layer), linkedBuilding.title.length) + 1}showAtZoom`,
                             })
                                 .on("click", () => {
                                     navigate(`/building/${linkedBuilding.databaseId}/viewer`);
@@ -301,14 +301,25 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         updateDisplayedTags()
         map.on("zoomend", updateDisplayedTags);
 
-        setAreaToAreaRouteInfo({
+        const newAreaToAreaRouteInfo = {
             ...areaToAreaRouteInfo,
             path: undefined,
             walls: undefined,
             navMesh: undefined,
             info: undefined,
             distance: undefined,
-        })
+        }
+
+        if (areaToAreaRouteInfo.to?.isLatLon === true && (areaToAreaRouteInfo.from?.isLatLon ?? true) === false && newAreaToAreaRouteInfo.to) {
+            newAreaToAreaRouteInfo.to = undefined
+        }
+
+        // If the to areas are on the current floor, force an update to the path
+        if (areaToAreaRouteInfo.to?.floorDatabaseId === currentFloor && (areaToAreaRouteInfo.from?.isLatLon || areaToAreaRouteInfo.from?.floorDatabaseId === currentFloor)) {
+            newAreaToAreaRouteInfo.forceUpdate = (areaToAreaRouteInfo.forceUpdate ?? 0) + 1
+        }
+
+        setAreaToAreaRouteInfo(newAreaToAreaRouteInfo)
 
     }, [currentFloor])
 

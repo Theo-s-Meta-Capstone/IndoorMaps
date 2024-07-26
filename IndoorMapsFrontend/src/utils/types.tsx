@@ -51,4 +51,5 @@ export type AreaToAreaRouteInfo = {
         showInfo?: boolean,
         useVoronoi?: boolean,
     }
+    forceUpdate?: number,
 }
