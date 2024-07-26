@@ -55,6 +55,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const isUsingCurrentLocationNav = useRef(false)
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
     const userGPSCoords = useRef<number[] | undefined>(undefined);
+    const fromTextBoxRef = useRef<HTMLInputElement>(null);
+    const toTextBoxRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -96,6 +98,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 areaDatabaseId: area.databaseId
             }
         })
+        fromTextBoxRef.current ? fromTextBoxRef.current.blur() : null;
     }
 
     const setTo = (area: AreaSearchBoxQuery$data["areaSearch"][number]) => {
@@ -108,6 +111,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 areaDatabaseId: area.databaseId
             }
         })
+        toTextBoxRef.current ? toTextBoxRef.current.blur() : null;
     }
 
     const updateOptions = (event: React.ChangeEvent<HTMLInputElement>, optionToUpdate: string) => {
@@ -219,7 +223,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     autoFocus: true,
                     leftSection: iconCurrentLocation,
                     label: "From:",
-                    onFocus: () => {
+onFocus: () => {
                         if (fromSearchQuery.startsWith("gpsLocation")) {
                             setFromSearchQuery("")
                         }
@@ -232,6 +236,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 setSelectedResponse={setFrom}
                 // show results if nothing is selected, or if the search query doesn't match the title
                 showResults={!(areaToAreaRouteInfo.from instanceof Object) || areaToAreaRouteInfo.from.title !== fromSearchQuery}
+                textBoxRef={fromTextBoxRef}
                 leftOfInputElements={(
                     <Button color="dark-blue" className="backToSearchAreaButton" title="back to area search" onClick={() => setIsNavigating(false)}>
                         <IconArrowLeft style={{ width: rem(16), height: rem(16) }} />
@@ -256,6 +261,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 setFormError={(newVal: string) => setFormError(newVal)}
                 buildingId={buildingId}
                 setSelectedResponse={setTo}
+                textBoxRef={toTextBoxRef}
                 showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
             />
             {areaToAreaRouteInfo.distance !== undefined && areaToAreaRouteInfo.distance < 0 ? <span style={{ color: "red" }}>Unable to find path</span> : null}

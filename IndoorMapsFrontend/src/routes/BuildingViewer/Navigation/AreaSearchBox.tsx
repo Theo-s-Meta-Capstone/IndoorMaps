@@ -17,9 +17,10 @@ type Props = {
     children?: React.ReactNode;
     showResults?: boolean
     leftOfInputElements?: React.ReactNode;
+    textBoxRef?: React.MutableRefObject<HTMLInputElement | null>;
 }
 
-const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children, showResults = true, leftOfInputElements }: Props) => {
+const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedResponse, buildingId, setFormError, textInputProps, children, showResults = true, leftOfInputElements }: Props) => {
     const environment = useRelayEnvironment();
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
@@ -73,6 +74,7 @@ const AreaSearchBox = ({ searchQuery, setSearchQuery, setSelectedResponse, build
                     leftSectionPointerEvents="none"
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
+                    ref={textBoxRef}
                 />
             </Group>
             <div className="searchResultsContainer">
