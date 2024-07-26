@@ -4,6 +4,7 @@ import { httpServer } from '../server';
 import { seed } from '../utils/seed';
 import { server } from "../utils/websocketServer.js";
 import WebSocket from 'ws';
+import { timeout } from '../utils/generic';
 
 // port is different then the other tests so the tests can run in parallel
 const port = 4503;
@@ -24,6 +25,7 @@ describe('Testing the ws server and GraphQL server by running a HttpServer and w
         url = `http://localhost:${port}/graphql`
 
         await seed();
+        await timeout(1000);
     // Sometimes starting the server takes longer then the standard 5 seconds
     }, 15 * 1000);
 
