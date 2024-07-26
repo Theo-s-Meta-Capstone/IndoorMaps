@@ -1,8 +1,7 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
-import BuildingEditorBody from "./BuildingEditor/BuildingEditorBody";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { Button, em } from "@mantine/core";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
@@ -11,6 +10,8 @@ import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
 import Footer from "../components/pageSections/Footer";
 import EditBuildingModal from "../components/forms/EditBuildingModal";
 import LoadingPage from "../components/pageSections/LoadingPage";
+
+const BuildingEditorBody = lazy(() => import("./BuildingEditor/BuildingEditorBody"));
 
 const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!, $autocompleteInput: AutocompleteInput!, ) {
