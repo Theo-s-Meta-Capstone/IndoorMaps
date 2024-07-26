@@ -220,6 +220,9 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         removeAllLayersFromLayerGroup(floorMapLayer, map);
         removeAllLayersFromLayerGroup(areasMapLayer, map);
 
+        // This seems to stop an error that occurs when flying to an area after currentFloor change
+        areasMapLayer.addTo(map)
+
         setSearchParams(prev => {
             prev.set("floor", currentFloor.toString());
             return prev
@@ -297,6 +300,15 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         updateDisplayedTags()
         map.on("zoomend", updateDisplayedTags);
+
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            path: undefined,
+            walls: undefined,
+            navMesh: undefined,
+            info: undefined,
+            distance: undefined,
+        })
 
     }, [currentFloor])
 
