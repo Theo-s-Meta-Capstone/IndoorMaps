@@ -10,7 +10,7 @@
   <h3 align="center">Indoor Maps</h3>
 
   <p align="center">
-    The easiest free way to map out any building | Schools | Universities | Convention Centers | AirPorts | 
+    The easiest free way to map out any building | Schools | Universities | Convention Centers | AirPorts |
     <br />
     <a href="https://indoormaps.onrender.com/">View Live</a>
     ·
@@ -60,7 +60,7 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
   ```sh
   npm install npm@latest -g
   ```
-* Node 18 (or newer)
+* Node 18 (or newer - the deployment is Node 20 running on Bun)
   * Using nvm
   ```sh
   nvm install 18
@@ -74,19 +74,29 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
 1. Clone the repo
    ```sh
    git clone https://github.com/Theo-s-Meta-Capstone/IndoorMaps.git
+   cd IndoorMaps/
    ```
 2. Enter your backend env variables in `IndoorMapsBackend/.env`
+   ```sh
+   touch IndoorMapsBackend/.env
+   ```
+   `Then use your favorite editor to add these values`
    ```.env
    DATABASE_URL="<A POSTGRES DB>"
    FRONTEND_URL="http://localhost:5173"
+   # If you don't have a here API key most functionality will still work
    HERE_API_KEY="<Get An API Key at [HERE](https://developer.here.com/)"
    ```
-3. Enter your frontend env variables in `IndoorMapsFrontend/.env`
+4. Enter your frontend env variables in `IndoorMapsFrontend/.env`
+   ```sh
+   touch IndoorMapsFrontend/.env
+   ```
+   `Then use your favorite editor to add these values`
    ```.env
    VITE_BACKEND_GRAPHQL_URL="http://localhost:4000/graphql"
    VITE_BACKEND_WEBSOCKET_URL="ws://localhost:4000/ws"
    ```
-4. Set up backend
+6. Set up backend
    ```sh
    cd IndoorMapsBackend/
    // --force is needed due to an issue with ESLint (--force is the recommended solution)
@@ -94,16 +104,16 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
    npx prisma migrate dev
    npm run dev
    ```
-5. Set up frontend
+7. Set up frontend
    ```sh
    cd IndoorMapsFrontend/
    npm ic
-   npm run dev
+   npm run relay
    ```
    In another process
    ```sh
    cd IndoorMapsFrontend/
-   npm run relay
+   npm run dev
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
