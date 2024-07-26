@@ -103,7 +103,6 @@ const ShareLocationModal = ({ isOpen, closeModal }: Props) => {
         }
         webSocket.onopen = () => {
             if (form.values.cords != null && form.values.cords.length > 0) {
-                countOfSteps = 0;
                 if (isRunningTimeout) {
                     clearInterval(isRunningTimeout)
                 }
