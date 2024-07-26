@@ -85,6 +85,7 @@ const numberOfPointsToIncludeFromEachVoronoiEdge = 1;
  */
 export const vorornoiDriver = (vertices: LatLng[]): LatLng[] => {
     // js constructor hack from https://stackoverflow.com/a/51622913
+    // eslint-disable-next-line
     const voronoi = new (Voronoi as any);
     const bbox = {
         xl: Math.min(...vertices.map(vertex => vertex.lat)),

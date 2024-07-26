@@ -1,4 +1,4 @@
-import { describe, expect, beforeAll, afterAll, it, jest } from '@jest/globals';
+import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
 
