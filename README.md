@@ -67,7 +67,7 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
   run nvm use 18
   ```
 * A Postgres Server
-  The link to your postgres server will go into your backend .env file
+  * The link to your postgres server will go into your backend .env file
 
 ### Installation
 
