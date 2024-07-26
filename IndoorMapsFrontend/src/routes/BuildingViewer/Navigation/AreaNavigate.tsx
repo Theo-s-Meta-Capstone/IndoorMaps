@@ -254,7 +254,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 setSelectedResponse={setTo}
                 showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
             />
-            {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
+            {areaToAreaRouteInfo.distance !== undefined && areaToAreaRouteInfo.distance < 0 ? <span style={{ color: "red" }}>Unable to find path</span> : null}
+            {areaToAreaRouteInfo.distance !== undefined && areaToAreaRouteInfo.distance > 0 ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
             {areaToAreaRouteInfo.to?.description ? <p className="areaDescription">{areaToAreaRouteInfo.to.description}</p> : null}
             <div className="extraOptionsForNav">
                 <Switch
