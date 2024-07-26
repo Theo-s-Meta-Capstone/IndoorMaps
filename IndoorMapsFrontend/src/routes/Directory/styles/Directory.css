@@ -25,7 +25,6 @@
 
 .buildingListItem {
     background-color: inherit;
-    border-bottom: 1px solid black;
     text-align: left;
     padding: 0em .5em;
 }
