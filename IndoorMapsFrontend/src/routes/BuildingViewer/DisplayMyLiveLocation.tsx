@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import * as L from "leaflet";
 import { locationMarkerIcon } from "../../utils/markerIcon";
 import { useUserLocation } from "../../utils/hooks";
