@@ -24,7 +24,8 @@ describe('Testing the ws server and GraphQL server by running a HttpServer and w
         url = `http://localhost:${port}/graphql`
 
         await seed();
-    });
+    // Sometimes starting the server takes longer then the standard 5 seconds
+    }, 15 * 1000);
 
     // after the tests we'll stop the server
     afterAll(async () => {

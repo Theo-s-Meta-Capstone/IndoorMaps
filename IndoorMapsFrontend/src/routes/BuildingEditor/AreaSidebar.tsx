@@ -45,7 +45,7 @@ const AreaSidebar = ({ floorFromParent, map, areasMapLayer, areaEntranceMapLayer
     const floorData = useFragment(AreaSidebarFragment, floorFromParent);
     const [formError, setFormError] = useState<string | null>(null);
     const [selectedArea, setSelectedArea] = useState<L.Layer | null>(null);
-    const [refreshFloorData,] = useRefreshRelayCache();
+    const {refreshFloorData} = useRefreshRelayCache();
 
     const handleChangeSelectedArea = (layer: L.Layer) => {
         setSelectedArea(prev => {

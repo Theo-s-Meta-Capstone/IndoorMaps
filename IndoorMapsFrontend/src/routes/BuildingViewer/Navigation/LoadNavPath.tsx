@@ -33,8 +33,8 @@ const pathLayerGroup = new L.LayerGroup();
 const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
 
     useEffect(() => {
-        if (!areaToAreaRouteInfo.path) return;
         removeAllLayersFromLayerGroup(pathLayerGroup, map)
+        if (!areaToAreaRouteInfo.path) return;
 
         if (areaToAreaRouteInfo.options && areaToAreaRouteInfo.options.showWalls && areaToAreaRouteInfo.walls) {
             const walls = JSON.parse(areaToAreaRouteInfo.walls)

@@ -22,7 +22,7 @@ function BuildingItem({ buildingFromParent }: BuildingItemProps) {
         buildingFromParent,
     );
     return (
-        <Link to={`/building/${building.databaseId}/viewer`}>
+        <Link className="buildingListLink" to={`/building/${building.databaseId}/viewer`}>
             <Group className="buildingListItem">
                 <h2>{building.title}</h2>
                 <p>{building.address}</p>

@@ -197,12 +197,13 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         getNewPath()
     }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.from, areaToAreaRouteInfo.options?.showEdges, areaToAreaRouteInfo.options?.showWalls, areaToAreaRouteInfo.options?.useVoronoi])
 
+    const isUsingLatLonForFrom = (areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location);
+    const isUsingLatLonForTo = (areaToAreaRouteInfo.to?.isLatLon ? areaToAreaRouteInfo.to.location : undefined);
     useEffect(() => {
         if (isUsingCurrentLocationNav.current) {
             getNewPath()
         }
-    }, [(areaToAreaRouteInfo.from?.isLatLon && areaToAreaRouteInfo.from.location),])
-
+    }, [isUsingLatLonForFrom])
     useEffect(() => {
         if (areaToAreaRouteInfo.to) {
             if (!areaToAreaRouteInfo.to.isLatLon || areaToAreaRouteInfo.to.isLatLon && !areaToAreaRouteInfo.to.isUpdate) {
@@ -210,7 +211,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
             }
             getNewPath()
         }
-    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title, (areaToAreaRouteInfo.to?.isLatLon ? areaToAreaRouteInfo.to.location : undefined)])
+    }, [areaToAreaRouteInfo.to, areaToAreaRouteInfo.to?.isLatLon, areaToAreaRouteInfo.to?.title, isUsingLatLonForTo])
 
     return (
         <div className="navigationInputs">
@@ -253,7 +254,8 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 setSelectedResponse={setTo}
                 showResults={areaToAreaRouteInfo.to?.title !== toSearchQuery}
             />
-            {areaToAreaRouteInfo.distance !== undefined ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
+            {areaToAreaRouteInfo.distance !== undefined && areaToAreaRouteInfo.distance < 0 ? <span style={{ color: "red" }}>Unable to find path</span> : null}
+            {areaToAreaRouteInfo.distance !== undefined && areaToAreaRouteInfo.distance > 0 ? Math.round(areaToAreaRouteInfo.distance * kmToFeet) + " ft" : null}
             {areaToAreaRouteInfo.to?.description ? <p className="areaDescription">{areaToAreaRouteInfo.to.description}</p> : null}
             <div className="extraOptionsForNav">
                 <Switch

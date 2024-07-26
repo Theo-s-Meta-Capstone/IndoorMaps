@@ -4,9 +4,10 @@ import { Context } from '../utils/context.js'
 import { BuildingWithPerms, LogedInUser, SignedOutSuccess, User } from '../graphqlSchemaTypes/User.js'
 import auth from '../auth/auth.js'
 import { validateUser } from '../auth/validateUser.js';
-import { convertToGraphQLBuilding, convertToGraphQLUser } from '../utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLUser } from '../utils/typeConversions.js'
 import { deleteAccessToken } from '../auth/jwt.js'
 import { throwGraphQLBadInput } from '../utils/generic.js'
+import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -122,5 +123,28 @@ export class UserResolver {
             isLogedIn: true,
             user: user,
         }
+    }
+
+    @FieldResolver((type) => [BuildingGroup]!)
+    async buildingGroups(
+        @Root() user: User,
+        @Ctx() ctx: Context,
+    ): Promise<BuildingGroup[]> {
+        const buildingGroups = await ctx.prisma.buildingGroup.findMany({
+            where: {
+                creator: {
+                    is: {
+                        id: user.databaseId
+                    }
+                }
+            },
+            include: {
+                buildings: true
+            }
+        });
+        if (!buildingGroups) {
+            return [];
+        }
+        return buildingGroups.map((buildingGroup) => convertToGraphQLBuildingGroup(buildingGroup));
     }
 }

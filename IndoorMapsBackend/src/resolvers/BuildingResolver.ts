@@ -3,8 +3,8 @@ import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, R
 import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
-import { Building } from '../graphqlSchemaTypes/Building.js'
-import { convertToGraphQLBuilding, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
+import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
+import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult, throwGraphQLBadInput } from '../utils/generic.js'
@@ -67,6 +67,12 @@ class AreaSearchInput extends BuildingUniqueInput {
 }
 
 @InputType()
+class ConnectBuildingToBuildingGroup extends BuildingUniqueInput {
+    @Field(type => Int, { nullable: true })
+    buildingGroupDatabaseId?: number
+}
+
+@InputType()
 class LiveLocationInput extends BuildingUniqueInput {
     @Field(() => Float)
     latitude: number;
@@ -87,53 +93,10 @@ class BuildingSearchInput {
     searchQuery: string
 }
 
-const connectAllAreasToBuilding = async (databaseId: number, ctx: Context) => {
-    const data = await ctx.prisma.building.findFirst({
-        where: {
-            id: databaseId
-        },
-        select: {
-            floors: {
-                select: {
-                    areas: {
-                        select: {
-                            id: true
-                        }
-                    }
-                }
-            }
-        }
-    })
-    if (!data) return;
-    const areas: { id: number }[] = [];
-    data.floors.forEach((floor) => {
-        floor.areas.forEach((area) => {
-            areas.push({ id: area.id })
-            ctx.prisma.area.update({
-                where: {
-                    id: area.id
-                },
-                data: {
-                    building: {
-                        connect: {
-                            id: databaseId
-                        }
-                    }
-                }
-            })
-        })
-    })
-    await ctx.prisma.building.update({
-        where: {
-            id: databaseId
-        },
-        data: {
-            areas: {
-                connect: areas
-            }
-        }
-    })
-
+@InputType()
+class CreateBuildingGroup {
+    @Field()
+    name: string
 }
 
 @Resolver(of => Building)
@@ -348,9 +311,93 @@ export class BuildingResolver {
                 }
             }
         })
-        if(!building) {
+        if (!building) {
             return [];
         }
         return building.areas.map((area) => convertToGraphQlArea(area));
+    }
+
+    @FieldResolver((type) => BuildingGroup, { nullable: true })
+    async buildingGroup(
+        @Root() building: Building,
+        @Ctx() ctx: Context,
+    ): Promise<BuildingGroup | null> {
+        //TODO: investigate why using findUnique throws a error
+        const buildingWithGroup = await ctx.prisma.building.findFirst({
+            where: {
+                id: building.databaseId
+            },
+            select: {
+                buildingGroup: {
+                    include: {
+                        buildings: true
+                    }
+                }
+            }
+        });
+        const buildingGroup = buildingWithGroup?.buildingGroup
+        if (!buildingGroup) {
+            return null;
+        }
+        return convertToGraphQLBuildingGroup(buildingGroup);
+    }
+
+    @Mutation((returns) => BuildingGroup)
+    async createBuildingGroup(
+        @Arg('data') data: CreateBuildingGroup,
+        @Ctx() ctx: Context,
+    ): Promise<BuildingGroup> {
+        const user = await getUserOrThrowError(ctx.cookies);
+        const buildingGroup = await ctx.prisma.buildingGroup.create({
+            data: {
+                name: data.name,
+                creator: {
+                    connect: {
+                        id: user.databaseId,
+                    }
+                }
+            },
+            include: {
+                buildings: true
+            }
+        });
+        return convertToGraphQLBuildingGroup(buildingGroup);
+    }
+
+    @Mutation((returns) => Building, { nullable: true })
+    async addBuildingToBuildingGroup(
+        @Arg('data') data: ConnectBuildingToBuildingGroup,
+        @Ctx() ctx: Context,
+    ): Promise<Building | null> {
+        const authError = await checkAuthrizedBuildingEditor(data.id, ctx);
+        if (authError) {
+            throw authError;
+        }
+        if (data.buildingGroupDatabaseId === null) {
+            await ctx.prisma.building.update({
+                where: {
+                    id: data.id
+                },
+                data: {
+                    buildingGroup: {
+                        disconnect: true
+                    }
+                },
+            });
+            return null
+        }
+        const building = await ctx.prisma.building.update({
+            where: {
+                id: data.id
+            },
+            data: {
+                buildingGroup: {
+                    connect: {
+                        id: data.buildingGroupDatabaseId,
+                    }
+                }
+            },
+        });
+        return convertToGraphQLBuilding(building);
     }
 }

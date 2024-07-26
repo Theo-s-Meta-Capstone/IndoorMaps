@@ -9,7 +9,7 @@ import { AreaToAreaRouteInfo } from "../../utils/types";
 import LoadNavPath from "./Navigation/LoadNavPath";
 import DispalyLiveMarkers from "./DisplayLiveMarkers";
 import { usePrefersReducedMotion } from "../../utils/hooks";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const ViewerMapFragment = graphql`
   fragment ViewerMapLoaderFragment on Building
@@ -29,6 +29,15 @@ const ViewerMapFragment = graphql`
         description
         shape
         entrances
+      }
+    }
+    buildingGroup {
+      buildings {
+        title
+        databaseId
+        floors {
+          shape
+        }
       }
     }
   }
@@ -54,6 +63,8 @@ const areasMapLayer = L.geoJSON(null, {
     }
 });
 
+const otherBuildingsMapLayer = L.geoJSON(null);
+
 const getWhichZoomToShowToolTipAt = (size: number, textLength: number) => {
     // Formula found by messing around with values and some linear regression in desmos, /2 becuase the zoom can be .0 or .5
     // note, an increase in size and/or textLenght causes the result to decrease
@@ -69,6 +80,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
     const areaToAreaRouteInfoRef = useRef(areaToAreaRouteInfo);
     const prefersReducedMotion = usePrefersReducedMotion();
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -139,6 +151,37 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         mapIsSetUp.current = true;
         areasMapLayer.addTo(map)
         floorMapLayer.addTo(map)
+
+        if (building.buildingGroup?.buildings) {
+            for (const linkedBuilding of building.buildingGroup.buildings) {
+                if (linkedBuilding.databaseId !== building.databaseId && linkedBuilding.floors.length > 0 && linkedBuilding.floors[0].shape) {
+                    const geoJson: GeoJSON.FeatureCollection = JSON.parse(linkedBuilding.floors[0].shape);
+                    const tempLayerGroup = L.geoJSON(geoJson, {
+                        pointToLayer: function (_feature, latlng) {
+                            return L.marker(latlng, { icon: IndoorDoorMarkerIcon });
+                        }
+                    });
+                    tempLayerGroup.getLayers().map((layer) => {
+                        if (layer instanceof L.Polygon) {
+                            layer.bindTooltip(linkedBuilding.title, {
+                                direction: "top",
+                                permanent: true,
+                                // showAtZoom +1 becuase the text is so much bigger due to the buildingTitle clas
+                                className: `title buildingTitle showAtZoom${getWhichZoomToShowToolTipAt(getAreaOfPolygon(layer), linkedBuilding.title.length)+1}showAtZoom`,
+                            })
+                                .on("click", () => {
+                                    navigate(`/building/${linkedBuilding.databaseId}/viewer`);
+                                    window.location.reload();
+                                })
+                                .setStyle({ fillColor: 'black', color: 'black', className: "otherBuildingOutline" })
+                        }
+                    })
+                    tempLayerGroup.addTo(otherBuildingsMapLayer)
+                }
+            }
+        }
+
+        otherBuildingsMapLayer.addTo(map)
     }
 
     const updateToArea = (newToData: { areaDatabaseId: number; currentFloor: number; title: string; description: string; }) => {
@@ -176,6 +219,9 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         removeAllLayersFromLayerGroup(floorMapLayer, map);
         removeAllLayersFromLayerGroup(areasMapLayer, map);
+
+        // This seems to stop an error that occurs when flying to an area after currentFloor change
+        areasMapLayer.addTo(map)
 
         setSearchParams(prev => {
             prev.set("floor", currentFloor.toString());
@@ -254,6 +300,15 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
 
         updateDisplayedTags()
         map.on("zoomend", updateDisplayedTags);
+
+        setAreaToAreaRouteInfo({
+            ...areaToAreaRouteInfo,
+            path: undefined,
+            walls: undefined,
+            navMesh: undefined,
+            info: undefined,
+            distance: undefined,
+        })
 
     }, [currentFloor])
 

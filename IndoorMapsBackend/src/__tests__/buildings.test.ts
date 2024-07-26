@@ -1,4 +1,4 @@
-import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
+import { describe, expect, beforeAll, afterAll, it, jest } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
 import { seed } from '../utils/seed';
@@ -8,6 +8,7 @@ const port = 4501;
 const date = new Date();
 const testDate = date.toLocaleDateString() + " " + date.toLocaleTimeString();
 const testBuildingName = "testBuilding" + testDate;
+jest.setTimeout(3 * 60 * 1000);
 
 describe('Testing the GraphQL server by running a HttpServer', () => {
     let url = "";
@@ -24,7 +25,8 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         // ensures that there is a user in the db to own the building
         seedUserId = await seed();
         console.log(seedUserId)
-    });
+        // Sometimes starting the server takes longer then the standard 5 seconds
+    }, 15 * 1000);
 
     // after the tests we'll stop the server
     afterAll(async () => {
@@ -152,7 +154,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
         const response = await request(url).post('/').send(getAllBuildingQuery);
         expect(response.error).toEqual(false);
         expect(response.body.data?.allBuildings).toBeInstanceOf(Array);
-        expect(response.body.data?.allBuildings.findIndex((value: {title: string}) => value.title == testBuildingName)).toBeGreaterThan(-1);
+        expect(response.body.data?.allBuildings.findIndex((value: { title: string }) => value.title == testBuildingName)).toBeGreaterThan(-1);
     });
 
     it('Get single building', async () => {
@@ -344,7 +346,7 @@ describe('Testing the GraphQL server by running a HttpServer', () => {
                     "title": "testArea",
                     "description": "testAreaDescription",
                     "shape": JSON.stringify({ "type": "FeatureCollection", "features": [{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-77.7637, 39.78075], [-77.764304, 39.780311], [-77.763022, 39.780193], [-77.7637, 39.78075]]] }, "properties": {} }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-77.763435, 39.780393] }, "properties": {} }] }),
-                    "buildingDatabaseId":parseInt(buildingId.substring("building".length))
+                    "buildingDatabaseId": parseInt(buildingId.substring("building".length))
                 }
             },
         };

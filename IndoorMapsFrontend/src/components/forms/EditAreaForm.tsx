@@ -13,7 +13,7 @@ type Props = {
 
 const EditAreaForm = ({ area }: Props) => {
     const [formError, setFormError] = useState<string | null>(null);
-    const [refreshFloorData,] = useRefreshRelayCache();
+    const { refreshFloorData } = useRefreshRelayCache();
     const feature = (area as L.GeoJSON<Geometry>).feature as Feature;
 
     const form = useForm({

@@ -73,7 +73,7 @@ function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyConta
         <>
             <HeaderNav getUserFromCookie={getUserFromCookie} pageTitle={getBuilding.title} currentPage={"/"} showDesktopContent={isNotMobile}>
                 <Button color="dark-blue" onClick={handleOpenShareLiveLocation}>
-                    Share Location Live
+                    {isNotMobile ? "Share Location Live" : <img alt={"share live location"} src={"/shareLiveLocation.svg"} />}
                 </Button>
                 <ShareLocationModal isOpen={isShareLiveLocationOpen} closeModal={handleCloseShareLiveLocation} />
                 {searchParams.get("preview") !== null && searchParams.get("preview") === "true" ?

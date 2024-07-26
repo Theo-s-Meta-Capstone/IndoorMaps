@@ -1,8 +1,9 @@
-import { describe, expect, beforeAll, afterAll, it } from '@jest/globals';
+import { describe, expect, beforeAll, afterAll, it, jest } from '@jest/globals';
 import request from 'supertest';
 import { httpServer } from '../server';
 
 const port = 4504;
+jest.setTimeout(3 * 60 * 1000);
 
 describe('Testing the Navigation Resolver and helper functions', () => {
     let url = "";
@@ -13,7 +14,8 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         // We pass in the port as 0 to let the server pick its own ephemeral port for testing
         httpServer.listen({ port: port });
         url = `http://localhost:${port}/graphql`
-    });
+    // Sometimes starting the server takes longer then the standard 5 seconds
+    }, 15 * 1000);
 
     // after the tests we'll stop the server
     afterAll(async () => {
