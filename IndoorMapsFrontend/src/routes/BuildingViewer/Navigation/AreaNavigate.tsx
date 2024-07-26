@@ -87,14 +87,16 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         } else {
             clearTimeout(debouncedGPSUpdate.current)
             debouncedGPSUpdate.current = setTimeout(() => {
-                setAreaToAreaRouteInfo({
-                    ...areaToAreaRouteInfoRef.current,
-                    from: {
-                        isLatLon: true,
-                        location: new LatLng(curPos[0], curPos[1]),
-                        title: "Your Location",
-                    },
-                })
+                if (isUsingCurrentLocationNav.current) {
+                    setAreaToAreaRouteInfo({
+                        ...areaToAreaRouteInfoRef.current,
+                        from: {
+                            isLatLon: true,
+                            location: new LatLng(curPos[0], curPos[1]),
+                            title: "Your Location",
+                        },
+                    })
+                }
             }, gpsUpdateDebounce)
         }
     }
