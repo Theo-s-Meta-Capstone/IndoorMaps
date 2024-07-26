@@ -166,7 +166,8 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                             layer.bindTooltip(linkedBuilding.title, {
                                 direction: "top",
                                 permanent: true,
-                                className: "title buildingTitle showAtZoom0showAtZoom",
+                                // showAtZoom +1 becuase the text is so much bigger due to the buildingTitle clas
+                                className: `title buildingTitle showAtZoom${getWhichZoomToShowToolTipAt(getAreaOfPolygon(layer), linkedBuilding.title.length)+1}showAtZoom`,
                             })
                                 .on("click", () => {
                                     navigate(`/building/${linkedBuilding.databaseId}/viewer`);
