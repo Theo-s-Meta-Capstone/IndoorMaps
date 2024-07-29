@@ -146,7 +146,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         }
     }
 
-    const setUpMapBuilder = () => {
+    const setUpMapViewer = () => {
         if (mapIsSetUp.current) return;
         mapIsSetUp.current = true;
         areasMapLayer.addTo(map)
@@ -200,9 +200,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         })
     }
 
-    useEffect(() => {
-        setUpMapBuilder();
-    }, [map]);
+    setUpMapViewer();
 
     useEffect(() => {
         if (currentFloor == null && building.floors.length !== 0) {

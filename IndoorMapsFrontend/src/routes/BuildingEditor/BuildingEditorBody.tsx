@@ -1,7 +1,7 @@
 import "./styles/BuildingEditorBody.css"
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet'
 import { GeomanControl } from "./GeomanControl";
 import { graphql, useFragment } from "react-relay";
@@ -38,15 +38,12 @@ const BuildingEditorBody = ({ buildingFromParent }: Props) => {
     const buildingData = useFragment(BuildingEditorFragment, buildingFromParent);
     const startingPosition = L.latLng(buildingData.startPos.lat, buildingData.startPos.lon);
     const mapStyle = { height: '100%', width: '100%', padding: 0, zIndex: 50 };
-
-    // Used to ensure the map is only set up once
-    const [mapIsSetUp, setMapIsSetUp] = useState(false);
-
     const [map, setMap] = useState<L.Map | null>(null);
+    const mapIsSetUp = useRef(false);
 
     const setUpMapBuilder = () => {
-        if (!map || mapIsSetUp) return;
-        setMapIsSetUp(true)
+        if (!map || mapIsSetUp.current) return;
+        mapIsSetUp.current = true;
         // Setting Up the Place Entrances Control
         const doorMarker = map.pm.Toolbar.copyDrawControl('drawMarker', {
             name: 'Entrances',
