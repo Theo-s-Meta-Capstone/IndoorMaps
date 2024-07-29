@@ -8,6 +8,7 @@ import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { LatLng } from "leaflet";
 import { AreaNavigateAllDataQuery, AreaNavigateAllDataQuery$variables } from "./__generated__/AreaNavigateAllDataQuery.graphql";
 import { useUserLocation } from "../../../utils/hooks";
+import type { Subscription } from "relay-runtime/lib/network/RelayObservable";
 
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
@@ -57,6 +58,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const userGPSCoords = useRef<number[] | undefined>(undefined);
     const fromTextBoxRef = useRef<HTMLInputElement>(null);
     const toTextBoxRef = useRef<HTMLInputElement>(null);
+    const fetchQueryRef = useRef<Subscription | null>(null); // RelayObservable<AreaNavigateAllDataQuery>
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
@@ -147,7 +149,9 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
         }
 
         data["pathfindingMethod"] = areaToAreaRouteInfo.options?.useVoronoi ?? false ? "Voronoi" : "Standard";
-        fetchQuery<AreaNavigateAllDataQuery>(
+        // cancles any existing requests
+        if (fetchQueryRef.current !== null) fetchQueryRef.current.unsubscribe();
+        fetchQueryRef.current = fetchQuery<AreaNavigateAllDataQuery>(
             environment,
             query,
             {
@@ -223,7 +227,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     autoFocus: true,
                     leftSection: iconCurrentLocation,
                     label: "From:",
-onFocus: () => {
+                    onFocus: () => {
                         if (fromSearchQuery.startsWith("gpsLocation")) {
                             setFromSearchQuery("")
                         }
