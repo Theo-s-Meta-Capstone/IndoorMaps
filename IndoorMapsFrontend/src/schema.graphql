@@ -8,6 +8,7 @@ type Area {
   databaseId: Int!
   description: String!
   entrances: String
+  floor: Floor!
   floorDatabaseId: Int!
   id: ID!
   shape: String!

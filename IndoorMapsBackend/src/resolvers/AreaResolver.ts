@@ -1,10 +1,11 @@
-import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query } from "type-graphql"
+import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query, FieldResolver, Root } from "type-graphql"
 import { checkAuthrizedAreaEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js"
 import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
-import { convertToGraphQlArea } from "../utils/typeConversions.js"
+import { convertToGraphQLFloor, convertToGraphQlArea } from "../utils/typeConversions.js"
 import { NewShape, deleteNavMesh } from "./FloorResolver.js"
 import { throwGraphQLBadInput } from "../utils/generic.js"
+import { Floor } from "../graphqlSchemaTypes/Floor.js"
 
 @InputType()
 class AreaCreateInput {
@@ -159,5 +160,23 @@ export class AreaResolver {
         })
         if (!dbArea) throw throwGraphQLBadInput('Floor not found')
         return convertToGraphQlArea(dbArea);
+    }
+
+    // TODO: fix n+1 query problem here
+    @FieldResolver((type) => Floor)
+    async floor(
+        @Root() area: Area,
+        @Ctx() ctx: Context,
+    ) {
+        //TODO: investigate why using findUnique throws a error
+        const dbFloor = await ctx.prisma.floor.findFirst({
+            where: {
+                id: area.floorDatabaseId
+            },
+        });
+        if (!dbFloor) {
+            throw throwGraphQLBadInput('Floor not found')
+        }
+        return convertToGraphQLFloor(dbFloor);
     }
 }

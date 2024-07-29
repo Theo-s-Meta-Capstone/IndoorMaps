@@ -183,6 +183,10 @@
     fill: darkblue;
 }
 
+.areaResultsItemFloor {
+    float: right;
+}
+
 @media (prefers-reduced-motion) {
     .highMotionAnimation {
         display: none;
