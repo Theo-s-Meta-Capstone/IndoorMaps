@@ -1,15 +1,13 @@
 import "../components/pageSections/style/FixedFooter.css"
-import { Suspense, useEffect } from "react";
-import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
+import { PreloadedQuery, graphql, usePreloadedQuery } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../components/pageSections/HeaderNav";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import Footer from "../components/pageSections/Footer";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
-import LoadingPage from "../components/pageSections/LoadingPage";
 
-const RootPageQuery = graphql`
+export const RootPageQuery = graphql`
     query RootQuery {
     getUserFromCookie {
         ...ButtonsContainerFragment,
@@ -17,37 +15,7 @@ const RootPageQuery = graphql`
 }`
 
 const Root = () => {
-    const [
-        queryReference,
-        loadQuery,
-    ] = useQueryLoader<RootQuery>(
-        RootPageQuery,
-    );
-
-    // In the example on the relay docs, they run loadQuery after a button press https://www.internalfb.com/intern/staticdocs/relay/docs/api-reference/use-query-loader/
-    // I want the query to run on page load, so I'm using useEffect to run loadQuery on page load.
-    // When it is not inside of a loadQuery this error is produced: "Too many re-renders. React limits the number of renders to prevent an infinite loop."
-    // There is likely a better way to load the main relay query for a page, I just havent found it
-    useEffect(() => {
-        loadQuery({});
-    }, []);
-
-    return (
-        <div>
-            {queryReference == null ? <LoadingPage /> :
-                <Suspense fallback={<LoadingPage />}>
-                    <RootBodyContainer queryReference={queryReference} />
-                </Suspense>
-            }
-        </div>
-    )
-}
-
-type RootBodyContainerProps = {
-    queryReference: PreloadedQuery<RootQuery>
-}
-
-function RootBodyContainer({ queryReference }: RootBodyContainerProps) {
+    const queryReference = useLoaderData() as PreloadedQuery<RootQuery>;
     const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
 

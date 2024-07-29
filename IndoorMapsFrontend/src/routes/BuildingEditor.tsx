@@ -1,6 +1,6 @@
-import { Suspense, lazy, useEffect } from "react";
-import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { lazy } from "react";
+import { PreloadedQuery, graphql, usePreloadedQuery } from "react-relay";
+import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BuildingEditorQuery } from "./__generated__/BuildingEditorQuery.graphql";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { Button, em } from "@mantine/core";
@@ -9,11 +9,10 @@ import { useBooleanState } from "../utils/hooks";
 import InviteEditorsModal from "./BuildingEditor/InviteEditorsModal";
 import Footer from "../components/pageSections/Footer";
 import EditBuildingModal from "../components/forms/EditBuildingModal";
-import LoadingPage from "../components/pageSections/LoadingPage";
 
 const BuildingEditorBody = lazy(() => import("./BuildingEditor/BuildingEditorBody"));
 
-const BuildingEditorPageQuery = graphql`
+export const BuildingEditorPageQuery = graphql`
     query BuildingEditorQuery($data: BuildingUniqueInput!, $autocompleteInput: AutocompleteInput!, ) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
@@ -27,46 +26,7 @@ const BuildingEditorPageQuery = graphql`
 }`
 
 const BuildingEditor = () => {
-    const { buildingId } = useParams();
-
-    const [
-        queryReference,
-        loadQuery,
-    ] = useQueryLoader<BuildingEditorQuery>(
-        BuildingEditorPageQuery,
-    );
-
-    // See ./Root.tsx line 24 for explanation of this useEffect
-    useEffect(() => {
-        if (buildingId == null) {
-            return;
-        }
-        loadQuery({
-            autocompleteInput: {
-                p: null,
-            },
-            data: {
-                id: parseInt(buildingId)
-            }
-        });
-    }, []);
-
-    return (
-        <div className="mainVerticalFlexContainer">
-            {queryReference == null ? <LoadingPage /> :
-                <Suspense fallback={<LoadingPage />}>
-                    <BuildingEditorBodyContainer queryReference={queryReference} />
-                </Suspense>
-            }
-        </div>
-    )
-}
-
-type BuildingEditorBodyContainerProps = {
-    queryReference: PreloadedQuery<BuildingEditorQuery>
-}
-
-function BuildingEditorBodyContainer({ queryReference }: BuildingEditorBodyContainerProps) {
+    const queryReference = useLoaderData() as PreloadedQuery<BuildingEditorQuery>;
     const [isInviteEditorOpen, handleCloseInviteEditor, handleOpenInviteEditor] = useBooleanState(false);
     const [isEditBuildingDetailsOpen, handleCloseEditBuildingDetails, handleOpenEditBuildingDetails] = useBooleanState(false);
     const data = usePreloadedQuery(BuildingEditorPageQuery, queryReference);
