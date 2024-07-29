@@ -58,7 +58,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const userGPSCoords = useRef<number[] | undefined>(undefined);
     const fromTextBoxRef = useRef<HTMLInputElement>(null);
     const toTextBoxRef = useRef<HTMLInputElement>(null);
-    const fetchQueryRef = useRef<Subscription | null>(null); // RelayObservable<AreaNavigateAllDataQuery>
+    const fetchQueryRef = useRef<Subscription | null>(null);
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
