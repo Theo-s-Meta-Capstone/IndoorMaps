@@ -44,7 +44,7 @@ const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
         if (!areaToAreaRouteInfo.path) {
             cleanAnimatedNavMarkersFromDom(0)
             return;
-        };
+        }
 
         if (areaToAreaRouteInfo.options && areaToAreaRouteInfo.options.showWalls && areaToAreaRouteInfo.walls) {
             const walls = JSON.parse(areaToAreaRouteInfo.walls)
@@ -65,7 +65,7 @@ const LoadNavPath = ({ map, areaToAreaRouteInfo }: Props) => {
         if (areaToAreaRouteInfo.path.length === 0) {
             cleanAnimatedNavMarkersFromDom(0);
             return;
-        };
+        }
         const polyLine = new L.Polyline(areaToAreaRouteInfo.path)
         polyLine.addTo(pathLayerGroup);
         const element = polyLine.getElement()
