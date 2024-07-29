@@ -1,7 +1,7 @@
 import { Area, Prisma } from "@prisma/client";
 import { doIntersect } from "./doIntersect.js";
 import { LatLng } from "../graphqlSchemaTypes/Building.js";
-import { areWallsEqual, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
+import { areWallsEqual, distanceFromPointToLine, getDistanceBetweenGPSPoints, vorornoiDriver } from "./helpers.js";
 import GrahamScan from "@lucio/graham-scan"
 import { PathfindingMethod } from "../resolvers/NavResolver.js";
 import { Position } from "geojson";
@@ -10,6 +10,7 @@ const feetPerLatitudeDegree = 364000;
 const oneFootInLatitude = 1 / feetPerLatitudeDegree;
 const offsetInDegrees = oneFootInLatitude
 const floorPlanOffsetWeight = 3;
+const minDistanceFromDoorToWall = Math.pow(10, -10)
 
 export type FloorIncludeAreas = Prisma.FloorGetPayload<{
     include: {
@@ -142,10 +143,10 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
     const navMesh: NavMesh = [];
     extendNavMesh(navMesh, walls, vertices)
 
-    const wallsExcludingFloorWalls = walls.filter((wall) => !floorWalls.some((floorWall) => areWallsEqual(floorWall, wall)))
     floorGeoJSON.features.forEach((feature) => {
         if (feature.geometry.type === "Point") {
             const point = new LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+            const wallsExcludingFloorWalls = walls.filter((wall) => !((distanceFromPointToLine(point, wall) < minDistanceFromDoorToWall) && floorWalls.some((floorWall) => areWallsEqual(floorWall, wall))))
             addPointToNavMesh(navMesh, wallsExcludingFloorWalls, point)
         }
     })
@@ -178,11 +179,21 @@ export const extendNavMesh = (navMesh: NavMesh, walls: Wall[], newPoints: LatLng
     }
 }
 
-export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExcludingIgnorable: Wall[], point: LatLng): number => {
+export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, walls: Wall[], areaWalls: Wall[], floorPerimeterWalls: Wall[], point: LatLng): number => {
     if (area && area.entrances !== null) {
         const entrancesCollection = (area.entrances as unknown as GeoJSON.FeatureCollection).features.filter((entrance) => entrance.geometry.type === "Point") as GeoJSON.Feature<GeoJSON.Point>[];
         const beginningOfNewVerities = navMesh.length;
-        extendNavMesh(navMesh, wallsExcludingIgnorable, entrancesCollection.map((entrance) => new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])));
+        for (const entrance of entrancesCollection) {
+            const entrancePoint = new LatLng(entrance.geometry.coordinates[1], entrance.geometry.coordinates[0])
+            addPointToNavMesh(
+                navMesh,
+                walls.filter(wall => {
+                    return !((distanceFromPointToLine(entrancePoint, wall) < minDistanceFromDoorToWall) && areaWalls.findIndex((ignorableWall) => {
+                        return areWallsEqual(ignorableWall, wall)
+                    }) !== -1 )
+                }).concat(floorPerimeterWalls),
+                entrancePoint);
+        }
         const edges = [];
         for (let i = beginningOfNewVerities; i < navMesh.length; i++) {
             const edgeWeight = getDistanceBetweenGPSPoints(point, navMesh[i].point);
@@ -197,6 +208,15 @@ export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, wallsExc
 
         return navMesh.length - 1;
     }
-    extendNavMesh(navMesh, wallsExcludingIgnorable, [point]);
+    else {
+        const wallsExcludingIgnorable = walls.filter(wall => {
+            return areaWalls.findIndex((ignorableWall) => {
+                return areWallsEqual(ignorableWall, wall)
+            }) === -1
+        })
+        wallsExcludingIgnorable.push(...floorPerimeterWalls)
+        addPointToNavMesh(navMesh, wallsExcludingIgnorable, point)
+    }
+
     return navMesh.length - 1;
 }

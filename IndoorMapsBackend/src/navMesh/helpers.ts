@@ -101,3 +101,42 @@ export const vorornoiDriver = (vertices: LatLng[]): LatLng[] => {
         return new LatLng(vertex.x, vertex.y)
     })).filter((vertex: LatLng) => isIn(vertex, bbox))
 }
+
+// modified from https://stackoverflow.com/a/6853926
+export const distanceFromPointToLine = (point: LatLng, line: Wall): number => {
+    const x1 = line.point1.lat;
+    const y1 = line.point1.lon;
+
+    const x2 = line.point2.lat;
+    const y2 = line.point2.lon;
+
+    const A = point.lat - x1;
+    const B = point.lon - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+
+    const dot = A * C + B * D;
+    const len_sq = C * C + D * D;
+    let param = -1;
+    if (len_sq != 0) //in case of 0 length line
+        param = dot / len_sq;
+
+    let xx, yy;
+
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    }
+    else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    }
+    else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+
+    const dx = point.lat - xx;
+    const dy = point.lon - yy;
+    return dx * dx + dy * dy;
+}
