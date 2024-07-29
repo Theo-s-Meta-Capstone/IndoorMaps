@@ -76,6 +76,7 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                 {leftOfInputElements}
                 <TextInput
                     {...textInputProps}
+                    className="hideLabelOnMobile"
                     style={{ flexGrow: "2" }}
                     leftSectionPointerEvents="none"
                     value={searchQuery}
