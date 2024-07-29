@@ -46,7 +46,6 @@ const router = createBrowserRouter([
         </Suspense>
       </div>,
     loader: async ({ params }) => {
-      console.log(params)
       return loadQuery(
         RelayEnvironment,
         BuildingViewerPageQuery,

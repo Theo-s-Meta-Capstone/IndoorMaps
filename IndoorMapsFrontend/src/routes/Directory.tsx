@@ -22,7 +22,6 @@ export const DirectoryPageQuery = graphql`
 
 const Directory = () => {
     const queryReference = useLoaderData() as PreloadedQuery<DirectoryQuery>;
-
     const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
     const { getUserFromCookie } = data;
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
