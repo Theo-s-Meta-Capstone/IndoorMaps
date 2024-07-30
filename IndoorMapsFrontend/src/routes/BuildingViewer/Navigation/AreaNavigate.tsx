@@ -186,6 +186,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             },
                             distance: data.getNavBetweenAreas.distance
                         })
+                        setFormError("")
                     } else {
                         const newRouteInfo = {
                             ...areaToAreaRouteInfo,
@@ -199,6 +200,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                         newRouteInfo.navMesh = undefined;
                         newRouteInfo.walls = undefined;
                         setAreaToAreaRouteInfo(newRouteInfo)
+                        setFormError("")
                     }
                 }
             });
