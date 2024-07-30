@@ -1,4 +1,4 @@
-import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query, FieldResolver, Root } from "type-graphql"
+import { InputType, Field, Int, Resolver, Mutation, Arg, Ctx, Query, FieldResolver, Root, Directive } from "type-graphql"
 import { checkAuthrizedAreaEditor, checkAuthrizedFloorEditor, getUserOrThrowError } from "../auth/validateUser.js"
 import { Context } from "../utils/context.js"
 import { Area, NewAreaResult } from "../graphqlSchemaTypes/Area.js"
@@ -166,6 +166,7 @@ export class AreaResolver {
     // Not currently in use due to performance issues
     @FieldResolver((type) => Floor)
     async floor(
+        @Directive('@deprecated(reason: "slow due to n+1 query problem, use floorTitle instead")')
         @Root() area: Area,
         @Ctx() ctx: Context,
     ) {
