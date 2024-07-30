@@ -68,7 +68,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         console.log(autoGPSReloadCooldown.current)
         if (isUsingCurrentLocationNav.current && !autoGPSReloadCooldown.current) {
-            autoGPSReloadCooldown.current = setTimeout(() => clearTimeout(autoGPSReloadCooldown.current), 2500)
+            autoGPSReloadCooldown.current = setTimeout(() => autoGPSReloadCooldown.current = undefined, 2500)
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
         }
     }, (errorMessage: string) => {
