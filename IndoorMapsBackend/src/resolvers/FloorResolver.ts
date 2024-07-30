@@ -7,6 +7,7 @@ import { Floor, NewFloorResult } from "../graphqlSchemaTypes/Floor.js";
 import { Area } from "../graphqlSchemaTypes/Area.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
+import { invalidateCashe } from "../utils/redisCache.js";
 
 @InputType()
 class FloorCreateInput {
@@ -66,6 +67,7 @@ export const deleteNavMesh = async (floorDatabaseId: number) => {
             floorPerimeterWalls: Prisma.DbNull,
         }
     })
+    invalidateCashe("floor"+floorDatabaseId);
 }
 
 @Resolver(of => Floor)

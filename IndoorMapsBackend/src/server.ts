@@ -20,6 +20,7 @@ import { FloorResolver } from "./resolvers/FloorResolver.js";
 import { AreaResolver } from "./resolvers/AreaResolver.js";
 import { GeododerResolver } from "./resolvers/AutocompleteResolver.js";
 import { NavResolver } from "./resolvers/NavResolver.js";
+import { initializeRedisClient } from "./utils/redisCache.js";
 
 const app = express();
 export const httpServer = http.createServer(app);
@@ -61,6 +62,8 @@ async function main() {
         },
         ],
     });
+
+    await initializeRedisClient();
 
     await server.start();
 
