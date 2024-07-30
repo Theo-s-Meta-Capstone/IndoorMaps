@@ -79,7 +79,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                     newPath[0] = new LatLng(position.coords.latitude, position.coords.longitude);
                     setAreaToAreaRouteInfo({
                         ...areaToAreaRouteInfoRef.current,
-                        path: newPath,
+                        path: [...newPath],
                     })
                 }
             }
