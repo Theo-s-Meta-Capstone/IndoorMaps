@@ -152,6 +152,7 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
         areasMapLayer.addTo(map)
         floorMapLayer.addTo(map)
 
+        removeAllLayersFromLayerGroup(otherBuildingsMapLayer, map)
         if (building.buildingGroup?.buildings) {
             for (const linkedBuilding of building.buildingGroup.buildings) {
                 if (linkedBuilding.databaseId !== building.databaseId && linkedBuilding.floors.length > 0 && linkedBuilding.floors[0].shape) {
@@ -169,9 +170,8 @@ const ViewerMapLoader = ({ map, buildingFromParent, areaToAreaRouteInfo, setArea
                                 // showAtZoom +1 becuase the text is so much bigger due to the buildingTitle clas
                                 className: `title buildingTitle showAtZoom${getWhichZoomToShowToolTipAt(getAreaOfPolygon(layer), linkedBuilding.title.length) + 1}showAtZoom`,
                             })
-                                .on("click", () => {
+                                .on("click", async () => {
                                     navigate(`/building/${linkedBuilding.databaseId}/viewer`);
-                                    window.location.reload();
                                 })
                                 .setStyle({ fillColor: 'black', color: 'black', className: "otherBuildingOutline" })
                         }

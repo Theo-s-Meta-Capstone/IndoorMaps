@@ -42,7 +42,7 @@ const router = createBrowserRouter([
     element:
       <div className="mainVerticalFlexContainer">
         <Suspense fallback={<LoadingPage />}>
-          <BuildingViewer />
+          <BuildingViewer  />
         </Suspense>
       </div>,
     loader: async ({ params }) => {

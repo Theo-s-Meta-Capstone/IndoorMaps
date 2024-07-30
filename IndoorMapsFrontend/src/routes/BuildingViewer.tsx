@@ -50,7 +50,7 @@ const BuildingViewer = () => {
                     : null
                 }
             </HeaderNav>
-            <BuildingViewerBody buildingFromParent={getBuilding} />
+            <BuildingViewerBody key={getBuilding.databaseId} buildingFromParent={getBuilding} />
             <Footer getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>
     )
