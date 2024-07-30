@@ -13,6 +13,7 @@ import type { Subscription } from "relay-runtime/lib/network/RelayObservable";
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
 const kmToFeet = 3280.84;
+const gpsChangeCooldown = 5000;
 
 type Props = {
     areaToAreaRouteInfo: AreaToAreaRouteInfo,
@@ -68,7 +69,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         console.log(autoGPSReloadCooldown.current)
         if (isUsingCurrentLocationNav.current && !autoGPSReloadCooldown.current) {
-            autoGPSReloadCooldown.current = setTimeout(() => autoGPSReloadCooldown.current = undefined, 2500)
+            autoGPSReloadCooldown.current = setTimeout(() => autoGPSReloadCooldown.current = undefined, gpsChangeCooldown)
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
         }
     }, (errorMessage: string) => {
