@@ -60,7 +60,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
       let initialFloor = building.floors[0].databaseId;
       const floorFromUrlSearchParams = searchParams.get("floor");
       if (floorFromUrlSearchParams && building.floors.find((floor) => floor.databaseId === parseInt(floorFromUrlSearchParams))) {
-          initialFloor = parseInt(floorFromUrlSearchParams);
+        initialFloor = parseInt(floorFromUrlSearchParams);
       }
       setCurrentFloor(initialFloor)
     }
@@ -141,7 +141,7 @@ const EditorSidebar = ({ buildingFromParent, map }: Props) => {
     setSearchParams(prev => {
       prev.set("floor", currentFloor.toString());
       return prev
-    }, {replace: true})
+    }, { replace: true })
   }, [currentFloor])
 
   return (

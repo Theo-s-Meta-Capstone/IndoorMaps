@@ -1,17 +1,16 @@
 import "./Directory/styles/Directory.css"
 import "../components/pageSections/style/FixedFooter.css"
-import { Suspense, useEffect } from "react";
-import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
+import { PreloadedQuery, graphql, usePreloadedQuery } from "react-relay";
 import ListOfBuildings from "./Directory/ListOfBuildings";
-import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 import ListOfConnectedBuildings from "./Directory/ListOfConnectedBuildings";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { useMediaQuery } from "@mantine/hooks";
 import { em } from "@mantine/core";
 import Footer from "../components/pageSections/Footer";
-import LoadingPage from "../components/pageSections/LoadingPage";
+import { useLoaderData } from "react-router";
+import { DirectoryQuery } from "./__generated__/DirectoryQuery.graphql";
 
-const DirectoryPageQuery = graphql`
+export const DirectoryPageQuery = graphql`
     query DirectoryQuery($autocompleteInput: AutocompleteInput!, $buildingSearchInput: BuildingSearchInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment,
@@ -22,40 +21,7 @@ const DirectoryPageQuery = graphql`
 }`
 
 const Directory = () => {
-    const [
-        queryReference,
-        loadQuery,
-    ] = useQueryLoader<DirectoryQuery>(
-        DirectoryPageQuery,
-    );
-
-    // See ./Root.tsx line 24 for explanation of this useEffect
-    useEffect(() => {
-        loadQuery({
-            autocompleteInput: {
-                p: null,
-            },
-            buildingSearchInput: {}
-        });
-    }, []);
-
-    if (queryReference == null) {
-        return <LoadingPage />
-    }
-
-    return (
-        <Suspense fallback={<LoadingPage />}>
-            <DirectoryBodyContainer queryReference={queryReference} />
-        </Suspense>
-
-    )
-}
-
-type DirectoryBodyContainerProps = {
-    queryReference: PreloadedQuery<DirectoryQuery>
-}
-
-function DirectoryBodyContainer({ queryReference }: DirectoryBodyContainerProps) {
+    const queryReference = useLoaderData() as PreloadedQuery<DirectoryQuery>;
     const data = usePreloadedQuery(DirectoryPageQuery, queryReference);
     const { getUserFromCookie } = data;
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);

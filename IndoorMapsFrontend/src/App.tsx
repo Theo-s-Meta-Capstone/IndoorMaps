@@ -1,29 +1,84 @@
 import './App.css'
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
-import Directory from './routes/Directory';
+import Directory, { DirectoryPageQuery } from './routes/Directory';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Root from './routes/Root';
-import BuildingViewer from './routes/BuildingViewer';
-import BuildingEditor from './routes/BuildingEditor';
+import Root, { RootPageQuery } from './routes/Root';
+import BuildingViewer, { BuildingViewerPageQuery } from './routes/BuildingViewer';
+import BuildingEditor, { BuildingEditorPageQuery } from './routes/BuildingEditor';
 import { generateColors } from '@mantine/colors-generator';
+import { Suspense } from 'react';
+import LoadingPage from './components/pageSections/LoadingPage';
+import { loadQuery } from 'react-relay';
+import { RelayEnvironment } from './RelayEnvironment';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element:
+      <Suspense fallback={<LoadingPage />}><Root /></Suspense>,
+    loader: async () => loadQuery(
+      RelayEnvironment,
+      RootPageQuery,
+      {},
+    ),
   },
   {
     path: "directory",
-    element: <Directory />,
+    element: <Suspense fallback={<LoadingPage />}><Directory /></Suspense>,
+    loader: async () => loadQuery(
+      RelayEnvironment,
+      DirectoryPageQuery,
+      {
+        autocompleteInput: {
+          p: null,
+        },
+        buildingSearchInput: {}
+      },
+    ),
   },
   {
     path: "building/:buildingId/viewer",
-    element: <BuildingViewer />,
+    element:
+      <div className="mainVerticalFlexContainer">
+        <Suspense fallback={<LoadingPage />}>
+          <BuildingViewer />
+        </Suspense>
+      </div>,
+    loader: async ({ params }) => {
+      return loadQuery(
+        RelayEnvironment,
+        BuildingViewerPageQuery,
+        {
+          data: {
+            id: parseInt(params.buildingId!),
+          }
+        },
+      )
+    },
   },
   {
     path: "building/:buildingId/editor",
-    element: <BuildingEditor />,
+    element:
+      <div className="mainVerticalFlexContainer">
+        <Suspense fallback={<LoadingPage />}>
+          <BuildingEditor />
+        </Suspense>
+      </div>,
+    loader: async ({ params }) => {
+      return loadQuery(
+        RelayEnvironment,
+        BuildingEditorPageQuery,
+        {
+          autocompleteInput: {
+            p: null,
+          },
+          data: {
+            id: parseInt(params.buildingId!),
+          }
+        },
+      )
+    },
   },
 ]);
 

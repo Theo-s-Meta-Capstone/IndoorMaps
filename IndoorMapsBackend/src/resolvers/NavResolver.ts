@@ -135,22 +135,9 @@ export class NavResolver {
         // The floorPerimeterWalls are added back in after the ignorable walls are removed, This ensures that the floor perimeter walls are respected
         const { navMesh, walls, floorPerimeterWalls, neededToGenerateANavMesh } = await loadOrGenerateNavMesh(floor, pathfindingMethod);
 
-        const fromAreaWallsWithoutIgnorable = walls.filter(wall => {
-            return fromAreaIgnorableWalls.findIndex((ignorableWall) => {
-                return areWallsEqual(ignorableWall, wall)
-            }) === -1
-        })
-        const toAreaWallsWithoutIgnorable = walls.filter(wall => {
-            return toAreaIgnorableWalls.findIndex((ignorableWall) => {
-                return areWallsEqual(ignorableWall, wall)
-            }) === -1
-        })
-        fromAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
-        toAreaWallsWithoutIgnorable.push(...floorPerimeterWalls)
-
         //  adds points on the nav mesh for the tromLatlon and the toLatLon. These points are added based on the edgesWithoutIgnorable so that they can go through the walls of their own building
-        const fromIndex = addAreaToMesh(navMesh, fromArea, fromAreaWallsWithoutIgnorable, fromLatLon);
-        const toIndex = addAreaToMesh(navMesh, toArea, toAreaWallsWithoutIgnorable, toLatLon);
+        const fromIndex = addAreaToMesh(navMesh, fromArea, walls, fromAreaIgnorableWalls, floorPerimeterWalls, fromLatLon);
+        const toIndex = addAreaToMesh(navMesh, toArea, walls, toAreaIgnorableWalls, floorPerimeterWalls, toLatLon);
 
         const [shortestPath, distance] = findShortestPath(navMesh, fromIndex, toIndex)
         return {
@@ -159,7 +146,7 @@ export class NavResolver {
             distance,
             // these fields pass data to the field resolvers below
             fromAreaIgnorableWalls,
-            toAreaWallsWithoutIgnorable,
+            toAreaWallsWithoutIgnorable: walls,
             navMeshData: navMesh,
         };
     }

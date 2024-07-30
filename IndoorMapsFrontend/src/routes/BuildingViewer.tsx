@@ -1,8 +1,6 @@
 import "./BuildingViewer/styles/BuildingViewer.css"
-import { Suspense, useEffect } from "react";
-import { PreloadedQuery, graphql, usePreloadedQuery, useQueryLoader } from "react-relay";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
+import { PreloadedQuery, graphql, usePreloadedQuery } from "react-relay";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import BuildingViewerBody from "./BuildingViewer/BuildingViewerBody";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { useBooleanState } from "../utils/hooks";
@@ -10,9 +8,9 @@ import { Button, em } from "@mantine/core";
 import ShareLocationModal from "./BuildingViewer/ShareLocationModal";
 import Footer from "../components/pageSections/Footer";
 import { useClipboard, useMediaQuery } from "@mantine/hooks";
-import LoadingPage from "../components/pageSections/LoadingPage";
+import { BuildingViewerQuery } from "./__generated__/BuildingViewerQuery.graphql";
 
-const BuildingViewerPageQuery = graphql`
+export const BuildingViewerPageQuery = graphql`
     query BuildingViewerQuery($data: BuildingUniqueInput!) {
     getUserFromCookie {
         ...ButtonsContainerFragment
@@ -25,43 +23,7 @@ const BuildingViewerPageQuery = graphql`
 }`
 
 const BuildingViewer = () => {
-    const { buildingId } = useParams();
-
-    const [
-        queryReference,
-        loadQuery,
-    ] = useQueryLoader<BuildingViewerQuery>(
-        BuildingViewerPageQuery,
-    );
-
-    // See ./Root.tsx line 24 for explanation of this useEffect
-    useEffect(() => {
-        if (buildingId == null) {
-            return;
-        }
-        loadQuery({
-            "data": {
-                id: parseInt(buildingId)
-            }
-        });
-    }, []);
-
-    return (
-        <div className="mainVerticalFlexContainer">
-            {queryReference == null ? <LoadingPage /> :
-                <Suspense fallback={<LoadingPage />}>
-                    <BuildingViewerBodyContainer queryReference={queryReference} />
-                </Suspense>
-            }
-        </div>
-    )
-}
-
-type BuildingViewerBodyContainerProps = {
-    queryReference: PreloadedQuery<BuildingViewerQuery>
-}
-
-function BuildingViewerBodyContainer({ queryReference }: BuildingViewerBodyContainerProps) {
+    const queryReference = useLoaderData() as PreloadedQuery<BuildingViewerQuery>;
     const { getUserFromCookie, getBuilding } = usePreloadedQuery(BuildingViewerPageQuery, queryReference);
     const [isShareLiveLocationOpen, handleCloseShareLiveLocation, handleOpenShareLiveLocation] = useBooleanState(false);
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);

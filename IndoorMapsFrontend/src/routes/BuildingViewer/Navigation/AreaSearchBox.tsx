@@ -1,8 +1,9 @@
 import { Group, TextInput, TextInputProps } from "@mantine/core";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { fetchQuery, graphql, useRelayEnvironment } from "react-relay";
 import { useDebounce } from "../../../utils/hooks";
 import { AreaSearchBoxQuery, AreaSearchBoxQuery$data } from "./__generated__/AreaSearchBoxQuery.graphql";
+import { Subscription } from "relay-runtime";
 
 const debounceTime = 140;
 
@@ -25,9 +26,11 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
     const debouncedSearchQuery = useDebounce(searchQuery, "", debounceTime);
     const [, startTransition] = useTransition();
     const [results, setResults] = useState<AreaSearchBoxQuery$data>();
+    const fetchQueryRef = useRef<Subscription | null>(null);
 
     useEffect(() => {
-        fetchQuery<AreaSearchBoxQuery>(
+        if (fetchQueryRef.current !== null) fetchQueryRef.current.unsubscribe();
+        fetchQueryRef.current = fetchQuery<AreaSearchBoxQuery>(
             environment,
             graphql`
             query AreaSearchBoxQuery($data: AreaSearchInput!) {
@@ -37,6 +40,9 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                     title
                     floorDatabaseId
                     description
+                    floor {
+                        title
+                    }
                 }
             }
             `,
@@ -70,6 +76,7 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                 {leftOfInputElements}
                 <TextInput
                     {...textInputProps}
+                    className="hideLabelOnMobile"
                     style={{ flexGrow: "2" }}
                     leftSectionPointerEvents="none"
                     value={searchQuery}
@@ -83,7 +90,7 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                 {showResults && results ? results.areaSearch.map((area) => {
                     return (
                         <button onClick={() => setSelectedResponse(area)} key={area.id} className="areaResultsItem">
-                            <p className="areaResultsItemTitle">{area.title}</p>
+                            <p className="areaResultsItemTitle">{area.title} <span className="areaResultsItemFloor">{area.floor.title}</span></p>
                             {area.description ?
                                 <p>Description:<br />{area.description}</p>
                                 : null}
