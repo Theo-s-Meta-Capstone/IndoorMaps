@@ -151,6 +151,13 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         }
     })
 
+    // Remove unneeded specificity from floats (because they are stored in json)
+    for (const navVertex of navMesh) {
+        for (const edge of navVertex.edges) {
+            edge.weight = parseFloat(edge.weight.toFixed(6));
+        }
+    }
+
     return [navMesh, areaWalls, floorWalls] as const
 }
 
