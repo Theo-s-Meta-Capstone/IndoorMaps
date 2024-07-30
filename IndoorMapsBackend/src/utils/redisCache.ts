@@ -7,13 +7,26 @@ let redisClient: RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
 const cacheLifespan = 60 * 60 * 24 * 14;
 export const initializeRedisClient = async () => {
     // read the Redis connection URL from the envs
-    let redisURL = process.env.REDIS_URI
-    if (redisURL) {
+    const redisURL = process.env.REDIS_URI
+    const redisHost = process.env.REDIS_HOST
+    const redisPort = process.env.REDIS_PORT
+    const redisPassword = process.env.REDIS_PASSWORD
+    if (redisURL || redisHost) {
         // create the Redis client object
-        redisClient = createClient({ url: redisURL }).on("error", (e) => {
-            console.error(`Failed to create the Redis client with error:`);
-            console.error(e);
-        });
+        if(redisHost && redisPort && redisPassword) {
+            redisClient = createClient({
+                password: redisPassword,
+                socket: {
+                    host: redisHost,
+                    port: parseInt(redisPort)
+                }
+            });
+        }else {
+            redisClient = createClient({ url: redisURL }).on("error", (e) => {
+                console.error(`Failed to create the Redis client with error:`);
+                console.error(e);
+            });
+        }
 
         try {
             // connect to the Redis server

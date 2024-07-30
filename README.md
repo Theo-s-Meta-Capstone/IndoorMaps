@@ -10,7 +10,7 @@
   <h3 align="center">Indoor Maps</h3>
 
   <p align="center">
-    The easiest free way to map out any building | Schools | Universities | Convention Centers | Airports | Offices 
+    The easiest free way to map out any building | Schools | Universities | Convention Centers | Airports | Offices
     <br />
     <a href="https://indoormaps.onrender.com/">View Live</a>
     ·
@@ -69,6 +69,13 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
 * A Postgres Server
   * The link to your postgres server will go into your backend .env file
 
+#### Optional
+
+* A Here API Key
+  * Get An API Key at [HERE](https://developer.here.com/)
+* REDIS server
+  * Spin up a local dev server easily with `docker run -p 6379:6379 -it redis/redis-stack-server:latest`
+
 ### Installation
 
 1. Clone the repo
@@ -86,6 +93,12 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
    FRONTEND_URL="http://localhost:5173"
    # If you don't have a here API key most functionality will still work
    HERE_API_KEY="<Get An API Key at [HERE](https://developer.here.com/)"
+   # All functionality will work without a REDIS cache
+   REDIS_URI="redis://localhost:6379"
+   # you can also connect with a password using
+   REDIS_PASSWORD='******'
+   REDIS_PORT='6379'
+   REDIS_HOST='localhost'
    ```
 4. Enter your frontend env variables in `IndoorMapsFrontend/.env`
    ```sh
