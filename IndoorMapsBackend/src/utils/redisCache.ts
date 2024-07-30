@@ -13,7 +13,7 @@ export const initializeRedisClient = async () => {
     const redisPassword = process.env.REDIS_PASSWORD
     if (redisURL || redisHost) {
         // create the Redis client object
-        if(redisHost && redisPort && redisPassword) {
+        if (redisHost && redisPort && redisPassword) {
             redisClient = createClient({
                 password: redisPassword,
                 socket: {
@@ -21,7 +21,7 @@ export const initializeRedisClient = async () => {
                     port: parseInt(redisPort)
                 }
             });
-        }else {
+        } else {
             redisClient = createClient({ url: redisURL }).on("error", (e) => {
                 console.error(`Failed to create the Redis client with error:`);
                 console.error(e);
@@ -68,6 +68,8 @@ export const readData = async (key: string) => {
     }
 }
 
-export const invalidateCashe = async (key: string) => {
-    redisClient.del(key);
+export const invalidateCache = async (key: string) => {
+    if (isRedisWorking()) {
+        await redisClient.del(key);
+    }
 }

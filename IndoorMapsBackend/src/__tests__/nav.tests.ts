@@ -90,7 +90,7 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
-    it('Get Path Standard w/ Cashed Nav Mesh', async () => {
+    it('Get Path Standard w/ Cached Nav Mesh', async () => {
         const testQuery = {
             query: `
             query GetNavBetweenAreas($data: NavigationInput!) {
@@ -123,7 +123,7 @@ describe('Testing the Navigation Resolver and helper functions', () => {
         expect(response.body.data?.getNavBetweenAreas.distance).toBeLessThan(3);
     });
 
-    it('Get Path Voronoi w/ Cashed Nav Mesh', async () => {
+    it('Get Path Voronoi w/ Cached Nav Mesh', async () => {
         const testQuery = {
             query: `
             query GetNavBetweenAreas($data: NavigationInput!) {
