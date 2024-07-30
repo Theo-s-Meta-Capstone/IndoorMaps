@@ -59,13 +59,16 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
     const fromTextBoxRef = useRef<HTMLInputElement>(null);
     const toTextBoxRef = useRef<HTMLInputElement>(null);
     const fetchQueryRef = useRef<Subscription | null>(null);
+    const autoGPSReloadCooldown = useRef<NodeJS.Timeout>()
 
     useEffect(() => {
         areaToAreaRouteInfoRef.current = areaToAreaRouteInfo;
     }, [areaToAreaRouteInfo])
 
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
-        if (isUsingCurrentLocationNav.current) {
+        console.log(autoGPSReloadCooldown.current)
+        if (isUsingCurrentLocationNav.current && !autoGPSReloadCooldown.current) {
+            autoGPSReloadCooldown.current = setTimeout(() => clearTimeout(autoGPSReloadCooldown.current), 2500)
             setFromWithGPS([position.coords.latitude, position.coords.longitude]);
         }
     }, (errorMessage: string) => {
