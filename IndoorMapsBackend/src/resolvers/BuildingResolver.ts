@@ -4,7 +4,7 @@ import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
 import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
-import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLFloor, convertToGraphQlArea } from '../utils/typeConversions.js'
+import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLFloor, convertToGraphQlArea, convertToGraphQlAreaWithFloorTitle } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult, throwGraphQLBadInput } from '../utils/generic.js'
@@ -307,6 +307,13 @@ export class BuildingResolver {
                         title: {
                             search: query,
                         }
+                    },
+                    include: {
+                        floor: {
+                            select: {
+                                title: true
+                            }
+                        }
                     }
                 }
             }
@@ -314,7 +321,7 @@ export class BuildingResolver {
         if (!building) {
             return [];
         }
-        return building.areas.map((area) => convertToGraphQlArea(area));
+        return building.areas.map((area) => convertToGraphQlAreaWithFloorTitle(area));
     }
 
     @FieldResolver((type) => BuildingGroup, { nullable: true })

@@ -163,6 +163,7 @@ export class AreaResolver {
     }
 
     // TODO: fix n+1 query problem here
+    // Not currently in use due to performance issues
     @FieldResolver((type) => Floor)
     async floor(
         @Root() area: Area,

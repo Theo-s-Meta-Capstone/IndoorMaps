@@ -40,9 +40,7 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                     title
                     floorDatabaseId
                     description
-                    floor {
-                        title
-                    }
+                    floorTitle
                 }
             }
             `,
@@ -90,7 +88,7 @@ const AreaSearchBox = ({ textBoxRef, searchQuery, setSearchQuery, setSelectedRes
                 {showResults && results ? results.areaSearch.map((area) => {
                     return (
                         <button onClick={() => setSelectedResponse(area)} key={area.id} className="areaResultsItem">
-                            <p className="areaResultsItemTitle">{area.title} <span className="areaResultsItemFloor">{area.floor.title}</span></p>
+                            <p className="areaResultsItemTitle">{area.title} <span className="areaResultsItemFloor">{area.floorTitle}</span></p>
                             {area.description ?
                                 <p>Description:<br />{area.description}</p>
                                 : null}

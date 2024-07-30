@@ -13,9 +13,19 @@ type DbBuildingGroup = Prisma.BuildingGroupGetPayload<{
     }
 }>
 
+type DbAreaWithFloorTitle = Prisma.AreaGetPayload<{
+    include: {
+        floor: {
+            select: {
+                title: true
+            }
+        }
+    }
+}>
+
 export const convertToGraphQLUser = (userFromDB: DbUser): User => {
     const user: User = {
-        id: "user"+userFromDB.id,
+        id: "user" + userFromDB.id,
         databaseId: userFromDB.id,
         name: userFromDB.name,
         email: userFromDB.email,
@@ -56,7 +66,14 @@ export const convertToGraphQlArea = (areaFromDB: DbArea): Area => {
         id: "area" + areaFromDB.id.toString(),
         entrances: areaFromDB.entrances !== null ? JSON.stringify(areaFromDB.entrances) : undefined,
         floorDatabaseId: areaFromDB.floorId,
+        floorTitle: undefined
     }
+    return area;
+}
+
+export const convertToGraphQlAreaWithFloorTitle = (areaFromDB: DbAreaWithFloorTitle): Area => {
+    const area = convertToGraphQlArea(areaFromDB);
+    area.floorTitle = areaFromDB.floor.title
     return area;
 }
 

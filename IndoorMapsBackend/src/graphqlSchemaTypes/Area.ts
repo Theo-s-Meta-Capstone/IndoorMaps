@@ -34,9 +34,12 @@ export class Area {
   @Field()
   category: string
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   entrances?: string
 
   @Field(type => Int)
   floorDatabaseId: number
+
+  @Field({ nullable: true })
+  floorTitle?: string
 }
