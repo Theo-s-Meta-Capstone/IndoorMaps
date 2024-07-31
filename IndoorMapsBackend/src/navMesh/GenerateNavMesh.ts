@@ -66,6 +66,19 @@ const expandPolygon = (polygon: Position[], offset: number) => {
     }))
 }
 
+const removeDuplicates = (vertices: LatLng[]) => {
+    const elementTracker: { [key: string]: Boolean } = {};
+    const noDuplicates: LatLng[] = [];
+    for (const vertex of vertices) {
+        let key = vertex.lat + " " + vertex.lon;
+        if (!elementTracker[key]) {
+            elementTracker[key] = true;
+            noDuplicates.push(vertex)
+        }
+    }
+    return noDuplicates;
+}
+
 export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: PathfindingMethod): [NavMesh, Wall[], Wall[]] => {
     const floorGeoJSON: GeoJSON.FeatureCollection = floor.shape as unknown as GeoJSON.FeatureCollection;
     // The floor contains may doors (which are type Marker) and 1 outline (which is type shape)
@@ -140,6 +153,8 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
         }))
     }
 
+    vertices = removeDuplicates(vertices);
+
     const navMesh: NavMesh = [];
     extendNavMesh(navMesh, walls, vertices)
 
@@ -150,6 +165,13 @@ export const generateNavMesh = (floor: FloorIncludeAreas, vertexMethod: Pathfind
             addPointToNavMesh(navMesh, wallsExcludingFloorWalls, point)
         }
     })
+
+    // Remove unneeded specificity from floats (because they are stored in json)
+    for (const navVertex of navMesh) {
+        for (const edge of navVertex.edges) {
+            edge.weight = parseFloat(edge.weight.toFixed(6));
+        }
+    }
 
     return [navMesh, areaWalls, floorWalls] as const
 }
@@ -190,7 +212,7 @@ export const addAreaToMesh = (navMesh: NavMesh, area: Area | undefined, walls: W
                 walls.filter(wall => {
                     return !((distanceFromPointToLine(entrancePoint, wall) < minDistanceFromDoorToWall) && areaWalls.findIndex((ignorableWall) => {
                         return areWallsEqual(ignorableWall, wall)
-                    }) !== -1 )
+                    }) !== -1)
                 }).concat(floorPerimeterWalls),
                 entrancePoint);
         }

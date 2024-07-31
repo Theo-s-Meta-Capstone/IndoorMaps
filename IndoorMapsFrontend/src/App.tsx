@@ -33,7 +33,9 @@ const router = createBrowserRouter([
         autocompleteInput: {
           p: null,
         },
-        buildingSearchInput: {}
+        buildingSearchInput: {
+          searchQuery: "",
+        }
       },
     ),
   },

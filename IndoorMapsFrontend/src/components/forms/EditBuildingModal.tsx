@@ -97,7 +97,7 @@ const EditBuildingModal = ({ isOpen, closeModal, getGeocoder, buildingFromParent
         >
             <form method="dialog" onSubmit={form.onSubmit(handleSubmit)}>
                 <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-                <TextInput {...form.getInputProps('buildingName')} autoComplete="on" label="Building Name (Changing the name will break all links to the building)" placeholder="West Seattle Grocery Central" />
+                <TextInput {...form.getInputProps('buildingName')} autoComplete="on" label="Building Name" placeholder="West Seattle Grocery Central" />
                 <TextInput {...form.getInputProps('address')} autoComplete="address" label="Address" placeholder="123 California Way" />
                 <Suspense fallback={<Loader color="dark-blue" />}>
                     <AutoCompleteResults chooseAutocompleteResult={handleChooseAutocompleteResult} searchString={form.values.address} getGeocoder={getGeocoder} />

@@ -7,6 +7,7 @@ import { findShortestPath } from "../navMesh/NavigateWithNavMesh.js";
 import { throwGraphQLBadInput } from "../utils/generic.js";
 import { Prisma } from "@prisma/client";
 import { NavigationResult } from "../graphqlSchemaTypes/Navigation.js";
+import { readData, writeData } from "../utils/redisCache.js";
 
 export enum PathfindingMethod {
     Standard = "Standard",
@@ -87,12 +88,16 @@ const loadOrGenerateNavMesh = async (floor: FloorIncludeAreas, pathfindingMethod
         pathfindingMethod === "Standard" ?
             data.navMesh = JSON.parse(JSON.stringify(genNavMesh)) :
             data.voronoiNavMesh = JSON.parse(JSON.stringify(genNavMesh))
-        await prisma.floor.update({
+        const floorWithGeneratedData = await prisma.floor.update({
             where: {
                 id: floor.id
             },
-            data
+            data,
+            include: {
+                areas: true,
+            }
         })
+        await writeData("floor" + floor.id, JSON.stringify(floorWithGeneratedData))
         navMesh = genNavMesh
         walls = genAreaWalls
         floorPerimeterWalls = genFloorPerimeterWalls
@@ -115,14 +120,20 @@ export class NavResolver {
         @Arg('data') data: NavigationInput,
         @Ctx() ctx: Context,
     ): Promise<NavigationResult> {
-        const floor = await ctx.prisma.floor.findUnique({
-            where: {
-                id: data.floorDatabaseId,
-            },
-            include: {
-                areas: true
-            }
-        })
+        const cache = await readData("floor" + data.floorDatabaseId)
+        let floor: Prisma.FloorGetPayload<{ include: { areas: true } }> | null = null;
+        if (!cache) {
+            floor = await ctx.prisma.floor.findUnique({
+                where: {
+                    id: data.floorDatabaseId,
+                },
+                include: {
+                    areas: true
+                }
+            })
+        } else {
+            floor = JSON.parse(cache) as Prisma.FloorGetPayload<{ include: { areas: true } }>
+        }
         if (!floor) throw throwGraphQLBadInput('Floor not found')
 
         const [fromLatLon, fromAreaIgnorableWalls, fromArea] = await getAreaDetails(floor, data.areaFromId, data.locationFromLat, data.locationFromLon);

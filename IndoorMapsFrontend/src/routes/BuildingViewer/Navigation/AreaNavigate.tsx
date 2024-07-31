@@ -13,7 +13,7 @@ import type { Subscription } from "relay-runtime/lib/network/RelayObservable";
 const iconCurrentLocation = <IconCurrentLocation style={{ width: rem(16), height: rem(16) }} />
 const iconLocationShare = <IconLocationShare style={{ width: rem(16), height: rem(16) }} />
 const kmToFeet = 3280.84;
-const gpsChangeCooldown = 5000;
+const gpsChangeCooldown = 8000;
 
 type Props = {
     areaToAreaRouteInfo: AreaToAreaRouteInfo,
@@ -68,9 +68,21 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
 
     const getUserLocaiton = useUserLocation((position: GeolocationPosition) => {
         console.log(autoGPSReloadCooldown.current)
-        if (isUsingCurrentLocationNav.current && !autoGPSReloadCooldown.current) {
-            autoGPSReloadCooldown.current = setTimeout(() => autoGPSReloadCooldown.current = undefined, gpsChangeCooldown)
-            setFromWithGPS([position.coords.latitude, position.coords.longitude]);
+        if (isUsingCurrentLocationNav.current) {
+            if (!autoGPSReloadCooldown.current) {
+                autoGPSReloadCooldown.current = setTimeout(() => autoGPSReloadCooldown.current = undefined, gpsChangeCooldown)
+                setFromWithGPS([position.coords.latitude, position.coords.longitude]);
+            } else {
+                // if the autoGPSReloadCooldown is active, just change the starting point for the path
+                let newPath = areaToAreaRouteInfoRef.current.path;
+                if (newPath !== undefined && newPath.length > 0) {
+                    newPath[0] = new LatLng(position.coords.latitude, position.coords.longitude);
+                    setAreaToAreaRouteInfo({
+                        ...areaToAreaRouteInfoRef.current,
+                        path: [...newPath],
+                    })
+                }
+            }
         }
     }, (errorMessage: string) => {
         setFormError(errorMessage);
@@ -186,6 +198,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                             },
                             distance: data.getNavBetweenAreas.distance
                         })
+                        setFormError("")
                     } else {
                         const newRouteInfo = {
                             ...areaToAreaRouteInfo,
@@ -199,6 +212,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                         newRouteInfo.navMesh = undefined;
                         newRouteInfo.walls = undefined;
                         setAreaToAreaRouteInfo(newRouteInfo)
+                        setFormError("")
                     }
                 }
             });
