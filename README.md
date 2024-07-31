@@ -26,6 +26,7 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
+      [![Video Explaining Indoor Maps](https://img.youtube.com/vi/wRfgbXuqUws/0.jpg)](https://www.youtube.com/watch?v=wRfgbXuqUws)
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
