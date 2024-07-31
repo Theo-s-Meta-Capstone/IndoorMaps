@@ -48,6 +48,9 @@
 ## About The Project
 
 IndoorMaps is the easy way to create useful and accurate maps of any building.
+
+#### Explainer Video:
+
 [![Video Explaining Indoor Maps](https://img.youtube.com/vi/wRfgbXuqUws/0.jpg)](https://www.youtube.com/watch?v=wRfgbXuqUws)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
