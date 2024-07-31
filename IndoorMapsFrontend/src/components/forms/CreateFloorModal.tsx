@@ -65,7 +65,7 @@ const CreateFloorModal = ({ isOpen, closeModal }: Props) => {
         <Modal
             opened={isOpen}
             onClose={() => closeModal()}
-            title={"Create a New Building Map"}
+            title={"Create a New Floor"}
             overlayProps={{
                 backgroundOpacity: 0.55,
                 blur: 3,

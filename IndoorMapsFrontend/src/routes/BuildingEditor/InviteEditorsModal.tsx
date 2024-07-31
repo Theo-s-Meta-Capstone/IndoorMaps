@@ -61,7 +61,7 @@ const InviteEditorsModal = ({ isOpen, closeModal }: Props) => {
         <Modal
             opened={isOpen}
             onClose={() => closeModal()}
-            title={"Create a New Building Map"}
+            title={"Invite a user to edit this building"}
             overlayProps={{
                 backgroundOpacity: 0.55,
                 blur: 3,
