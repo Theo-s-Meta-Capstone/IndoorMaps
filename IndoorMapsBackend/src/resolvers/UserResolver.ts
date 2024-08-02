@@ -148,6 +148,24 @@ export class UserResolver {
         }
     }
 
+    @Mutation(() => LogedInUser)
+    async resendVerifyEmail(@Ctx() ctx: Context) {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            return {
+                id: "LogedInUser",
+                isLogedIn: false
+            }
+        }
+        const verifyEmailToken = await auth.getVerifyEmailToken(user.databaseId);
+        sendVerificationEmail(user.email, verifyEmailToken, user.name)
+        return {
+            id: "LogedInUser",
+            isLogedIn: true,
+            user: user,
+        }
+    }
+
     @FieldResolver((type) => [BuildingGroup]!)
     async buildingGroups(
         @Root() user: User,

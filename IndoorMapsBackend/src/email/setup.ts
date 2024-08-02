@@ -18,7 +18,10 @@ const sendVerificationInput: SendTemplatedEmailCommandInput = {
 
 export const sendVerificationEmail = async (email: string, verificationToken: string, name: string) => {
     // Earily return if no existing aws key
-    if(!process.env.AWS_ACCESS_KEY_ID) return;
+    if(!process.env.AWS_ACCESS_KEY_ID) {
+        console.log("failed to send a verification email")
+        return;
+    };
     sendVerificationInput.TemplateData = JSON.stringify({
         name,
         frontendUrl: process.env.FRONTEND_URL,

@@ -223,6 +223,7 @@ type Mutation {
   inviteEditor(data: InviteEditorInput!): MutationResult!
   modifyArea(data: AreaModifyInput!): NewAreaResult!
   modifyFloor(data: FloorModifyInput!): Floor!
+  resendVerifyEmail: LogedInUser!
   setLocation(data: LiveLocationInput!): MutationResult!
   signOut: SignedOutSuccess!
   signinUser(data: UserLoginInput!): User!

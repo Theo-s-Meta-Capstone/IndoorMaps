@@ -1,6 +1,5 @@
 import "../components/pageSections/style/FixedFooter.css"
 import { PreloadedQuery, graphql, useFragment, useMutation, usePreloadedQuery } from "react-relay";
-import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { Link, useLoaderData, useParams } from "react-router-dom";
 import Footer from "../components/pageSections/Footer";
@@ -11,6 +10,7 @@ import { useState } from "react";
 import { VerifyEmailMutation } from "./__generated__/VerifyEmailMutation.graphql";
 import { VerifyEmailPageFragment$key } from "./__generated__/VerifyEmailPageFragment.graphql";
 import { VerifyEmailQuery } from "./__generated__/VerifyEmailQuery.graphql";
+import { VerifyEmailResendMutation } from "./__generated__/VerifyEmailResendMutation.graphql";
 
 export const VerifyEmailPageQuery = graphql`
     query VerifyEmailQuery {
@@ -78,6 +78,33 @@ const VerifyEmail = () => {
         }
     };
 
+    const [commitResend, isInFlightResend] = useMutation<VerifyEmailResendMutation>(graphql`
+        mutation VerifyEmailResendMutation {
+            resendVerifyEmail {
+                ...ButtonsContainerFragment,
+                ...VerifyEmailPageFragment,
+            }
+        }
+    `);
+
+    const resendEmail = async () => {
+        try {
+            commitResend({
+                variables: {
+                },
+                onCompleted() {
+                    alert("check your email")
+                },
+                onError(error) {
+                    setFormError(error.message);
+                }
+            });
+        } catch (error) {
+            const errorMessage = (error as Error).message;
+            setFormError(errorMessage);
+        }
+    };
+
     return (
         <>
             <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"} />
@@ -92,7 +119,7 @@ const VerifyEmail = () => {
                         {token ? <Button disabled={isInFlight} onClick={() => verifyEmail(token)}>Confirm Verifcation</Button> :
                             <div>
                                 You are signed up under {user.email}<br />
-                                <Button onClick={() => alert("under construction")}>Resend verification email</Button>
+                                <Button disabled={isInFlightResend} onClick={() => resendEmail()}>Resend verification email</Button>
                             </div>
                         }
                         {isInFlight ? "loading..." : null}

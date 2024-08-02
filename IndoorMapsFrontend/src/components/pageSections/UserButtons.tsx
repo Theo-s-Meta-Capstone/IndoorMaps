@@ -1,6 +1,7 @@
 import { Button, Group, HoverCard, Text } from "@mantine/core";
 import { ButtonsContainerFragment$data } from "./__generated__/ButtonsContainerFragment.graphql";
 import FormErrorNotification from "../forms/FormErrorNotification";
+import { useNavigate } from "react-router-dom";
 
 const emailIsNotVerifiedAlertText = "Email is not verified: Verify by clicking the link sent to your inbox"
 
@@ -13,6 +14,7 @@ type Props = {
 }
 
 const UserButtons = ({ user, logout, formError, closeFormError, className }: Props) => {
+    const navigate =  useNavigate();
     if (user == null) return (<div>Error loading User</div>)
 
     return (
@@ -22,7 +24,7 @@ const UserButtons = ({ user, logout, formError, closeFormError, className }: Pro
             {user.isEmailVerified ? null :
                 <HoverCard width={200} position="bottom" withArrow shadow="md">
                     <HoverCard.Target>
-                        <button style={{ border: "none" }} aria-label={emailIsNotVerifiedAlertText} className='NoEmailInformer'>!</button>
+                        <button onClick={() => navigate("/verify")} aria-label={emailIsNotVerifiedAlertText} className='NoEmailInformer'>!</button>
                     </HoverCard.Target>
                     <HoverCard.Dropdown>
                         <Text>{emailIsNotVerifiedAlertText}</Text>
