@@ -37,6 +37,7 @@ const VerifyEmail = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const { token } = useParams();
     const { user } = useFragment<VerifyEmailPageFragment$key>(VerifyEmailFragment, getUserFromCookie);
+    const [hasNewEmailBeenSent, setHasNewEmailBeenSent] = useState(false);
 
     const [commit, isInFlight] = useMutation<VerifyEmailMutation>(graphql`
         mutation VerifyEmailMutation($data: verifyEmailWithTokenInput!) {
@@ -93,7 +94,7 @@ const VerifyEmail = () => {
                 variables: {
                 },
                 onCompleted() {
-                    alert("check your email")
+                    setHasNewEmailBeenSent(true)
                 },
                 onError(error) {
                     setFormError(error.message);
@@ -116,10 +117,13 @@ const VerifyEmail = () => {
                 <>{user ?
                     <>
                         {token ? <Button disabled={isInFlight} onClick={() => verifyEmail(token)}>Confirm Verifcation</Button> :
-                            <div>
-                                You are signed up under {user.email}<br />
-                                <Button disabled={isInFlightResend} onClick={() => resendEmail()}>Resend verification email</Button>
-                            </div>
+                            <>{
+                                !hasNewEmailBeenSent ?
+                                    <div>
+                                        You are signed up under {user.email}<br />
+                                        <Button disabled={isInFlightResend} onClick={() => resendEmail()}>Resend verification email</Button>
+                                    </div>
+                                    : "New email has been sent. Check your email for the link."}</>
                         }
                         {isInFlight ? "loading..." : null}
                     </>
