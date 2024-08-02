@@ -51,7 +51,8 @@ export const verifyAccessToken = (token: string): Promise<[User, string]> => {
                     id: userData.id,
                 },
                 select: {
-                    tokens: true
+                    tokens: true,
+                    isEmailVerified: true
                 }
             })
             if (!tokens) {
@@ -60,6 +61,7 @@ export const verifyAccessToken = (token: string): Promise<[User, string]> => {
             if (!tokens.tokens.includes(token)) {
                 return reject("JWT not valid")
             }
+            userData.isEmailVerified = tokens.isEmailVerified
             resolve([convertToGraphQLUser(userData), token])
         })
     })
