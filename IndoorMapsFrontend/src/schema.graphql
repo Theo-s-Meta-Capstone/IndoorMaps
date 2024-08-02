@@ -228,6 +228,7 @@ type Mutation {
   signinUser(data: UserLoginInput!): User!
   signupUser(data: UserCreateInput!): User!
   updateBuilding(data: BuildingUpdateInput!): Building!
+  verifyUser(data: verifyEmailWithTokenInput!): LogedInUser!
 }
 
 type MutationResult {
@@ -318,4 +319,8 @@ input UserCreateInput {
 input UserLoginInput {
   email: String!
   password: String!
+}
+
+input verifyEmailWithTokenInput {
+  token: String!
 }

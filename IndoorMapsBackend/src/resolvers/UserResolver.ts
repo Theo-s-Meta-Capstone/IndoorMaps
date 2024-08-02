@@ -33,6 +33,12 @@ class UserLoginInput {
     password: string
 }
 
+@InputType()
+class verifyEmailWithTokenInput {
+    @Field()
+    token: string
+}
+
 @Resolver(User)
 export class UserResolver {
     @FieldResolver((type) => [BuildingWithPerms]!)
@@ -105,6 +111,20 @@ export class UserResolver {
         return {
             success: true
         };
+    }
+
+    @Mutation((returns) => LogedInUser)
+    async verifyUser(
+        @Arg('data') data: verifyEmailWithTokenInput,
+        @Ctx() ctx: Context,
+    ): Promise<LogedInUser> {
+        const { userFromDB, accessToken } = await auth.convertVerifyEmailTokenToFullToken(data.token);
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
+        return {
+            id: "LogedInUser",
+            isLogedIn: true,
+            user: convertToGraphQLUser(userFromDB),
+        }
     }
 
     @Query(() => [User])

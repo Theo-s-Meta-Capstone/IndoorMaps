@@ -1,5 +1,3 @@
--- You did not indicate that your sending complies with the AWS Acceptable Use Policy (AUP) ( http://aws.amazon.com/aup/  ) and the AWS Service Terms ( http://aws.amazon.com/serviceterms/  ). It is an SES requirement that you comply with our policies as stated above.
-
 As you get started with Amazon SES, keep in mind that you must:
 
 - Comply with the AWS Acceptable Use Policy ( http://aws.amazon.com/aup/  ) and read the Amazon SES Service Terms (section Amazon Simple Email Service (SES) of http://aws.amazon.com/service-terms/  ).
