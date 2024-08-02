@@ -15,6 +15,7 @@ const ButtonsUserFragment = graphql`
       id
       email
       name
+      isEmailVerified
     }
   }
 `;
