@@ -37,4 +37,10 @@ header {
     align-items: center;
     background-color: rgb(255, 50, 50);
     justify-content: center;
+    transition: transform .5s;
+}
+
+.NoEmailInformer:hover {
+    background-color: rgb(249, 130, 130);
+    transform: translate(3px, 3px);
 }

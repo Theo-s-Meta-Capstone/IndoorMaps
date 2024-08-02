@@ -107,9 +107,8 @@ const VerifyEmail = () => {
 
     return (
         <>
-            <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"} />
+            <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Email Verification Center"} currentPage={"/"} />
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
-            <h2>Verifying Email</h2>
             <p>Find and create maps on the <Link to={"/directory"}>Directory</Link></p>
             {user?.isEmailVerified ?
                 "Thank you for Verifiying your Email"
