@@ -1,0 +1,8 @@
+{
+  "Template": {
+    "TemplateName": "VerifyIndoorMapsEmail",
+    "SubjectPart": "Activate your Indoor Maps account",
+    "HtmlPart": "<h1>Hello {{name}},</h1><p>You can verify your Indoor Maps account by going this link: <a class=\"ulink\" href=\"{{frontendUrl}}/verify/{{verificationToken}}\" target=\"_blank\">{{frontendUrl}}/verify/{{verificationToken}}</a>.<br>The link will expire after 1 hour</p>",
+    "TextPart": "Hello {{name}},\r\nYou can verify your Indoor Maps account by going this link: {{frontendUrl}}/verify/{{verificationToken}}.\r\n(you may need to copy and paste it into your browser)\r\nThe link will expire after 1 hour"
+  }
+}

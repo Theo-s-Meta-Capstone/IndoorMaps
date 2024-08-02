@@ -10,6 +10,7 @@ const accessTokenSecret: string = process.env.ACCESS_TOKEN_SECRET ? process.env.
 export const signAccessToken = (payload: DbUser) => {
     // remove old tokens before creating a new token to reduce token length
     payload.tokens = [];
+    payload.password = null;
     return new Promise<string>((resolve, reject) => {
         jwt.sign({ payload }, accessTokenSecret, {
         }, async (err, token) => {
@@ -100,6 +101,36 @@ export const deleteAccessToken = async (token: string): Promise<void> => {
                 },
             });
             resolve()
+        })
+    })
+}
+
+export const signEmailVerifyToken = (payload: DbUser) => {
+    // remove old tokens before creating a new token to reduce token length
+    payload.tokens = [];
+    payload.password = null;
+    return new Promise<string>((resolve, reject) => {
+        jwt.sign({ payload }, accessTokenSecret, {
+            expiresIn: "1h"
+        }, async (err, token) => {
+            if (err) {
+                reject(" InternalServerError")
+            }
+            await prisma.user.update({
+                where: {
+                    id: payload.id,
+                },
+                data: {
+                    tokens: {
+                        push: token,
+                    },
+                },
+            })
+            if (token == undefined) {
+                reject("Failed to generate Token")
+                return;
+            }
+            resolve(token)
         })
     })
 }

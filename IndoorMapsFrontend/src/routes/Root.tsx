@@ -23,7 +23,7 @@ const Root = () => {
         <>
             <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Welcome to IndoorMaps"} currentPage={"/"} />
             <h2>Welcome To IndoorMaps.</h2>
-            <p>The easiest free way to create searchable and sharable maps of any building | School | University | Convention Center | Airport | Office</p>
+            <p>The easiest free way to create searchable and shareable maps of any building | School | University | Convention Center | Airport | Office</p>
             <p>Find maps on the <Link to={"/directory"}>Directory</Link></p>
             <Footer className="notDeviceHeightPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>

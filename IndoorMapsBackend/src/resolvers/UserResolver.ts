@@ -8,6 +8,7 @@ import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraph
 import { deleteAccessToken } from '../auth/jwt.js'
 import { throwGraphQLBadInput } from '../utils/generic.js'
 import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
+import { sendVerificationEmail } from '../email/setup.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -78,6 +79,8 @@ export class UserResolver {
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
         ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
+        const verifyEmailToken = await auth.getVerifyEmailToken(userFromDB.id);
+        sendVerificationEmail(userFromDB.email, verifyEmailToken, userFromDB.name)
         return convertToGraphQLUser(userFromDB);
     }
     @Mutation((returns) => User)

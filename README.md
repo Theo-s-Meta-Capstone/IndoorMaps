@@ -10,7 +10,7 @@
   <h3 align="center">Indoor Maps</h3>
 
   <p align="center">
-    The easiest free way to create searchable and sharable maps of any building | School | University | Convention Center | Airport | Office
+    The easiest free way to create searchable and shareable maps of any building | School | University | Convention Center | Airport | Office
     <br />
     <a href="https://indoormaps.onrender.com/">View Live</a>
     ·

@@ -29,13 +29,23 @@ class AuthService {
         }
         const checkPassword = bcrypt.compareSync(password, userFromDB.password!)
         if (!checkPassword) throw new Error('Email address or password not valid')
-        userFromDB.password = null
         const accessToken = await signAccessToken(userFromDB)
         return { userFromDB, accessToken }
     }
     static async all() {
         const allUsers = await prisma.user.findMany();
         return allUsers;
+    }
+    static async getVerifyEmailToken(id: number) {
+        const userFromDB = await prisma.user.findUnique({
+            where: {
+                id
+            }
+        });
+        if (!userFromDB) {
+            throw new Error('User registration issue')
+        }
+        return await signAccessToken(userFromDB)
     }
 }
 
