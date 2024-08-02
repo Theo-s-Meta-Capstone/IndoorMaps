@@ -1,10 +1,10 @@
 import "../components/pageSections/style/FixedFooter.css"
 import { PreloadedQuery, graphql, useFragment, useMutation, usePreloadedQuery } from "react-relay";
 import HeaderNav from "../components/pageSections/HeaderNav";
-import { Link, useLoaderData, useParams } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import Footer from "../components/pageSections/Footer";
 import { useMediaQuery } from "@mantine/hooks";
-import { Button, em } from "@mantine/core";
+import { em } from "@mantine/core";
 import FormErrorNotification from "../components/forms/FormErrorNotification";
 import { useState } from "react";
 import { VerifyEmailMutation } from "./__generated__/VerifyEmailMutation.graphql";
