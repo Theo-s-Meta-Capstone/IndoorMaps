@@ -4,7 +4,7 @@ import HeaderNav from "../components/pageSections/HeaderNav";
 import { Link, useLoaderData } from "react-router-dom";
 import Footer from "../components/pageSections/Footer";
 import { useMediaQuery } from "@mantine/hooks";
-import { em } from "@mantine/core";
+import { Button, em } from "@mantine/core";
 import FormErrorNotification from "../components/forms/FormErrorNotification";
 import { useState } from "react";
 import { VerifyEmailMutation } from "./__generated__/VerifyEmailMutation.graphql";
@@ -12,6 +12,7 @@ import { VerifyEmailPageFragment$key } from "./__generated__/VerifyEmailPageFrag
 import { VerifyEmailQuery } from "./__generated__/VerifyEmailQuery.graphql";
 import { VerifyEmailResendMutation } from "./__generated__/VerifyEmailResendMutation.graphql";
 import VerifyEmailPageContent from "./VerifyEmail/VerifyEmailPageContent";
+import { useRefreshUserData } from "../utils/hooks";
 
 export const VerifyEmailPageQuery = graphql`
     query VerifyEmailQuery {
@@ -38,6 +39,7 @@ const VerifyEmail = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const { user } = useFragment<VerifyEmailPageFragment$key>(VerifyEmailFragment, getUserFromCookie);
     const [hasNewEmailBeenSent, setHasNewEmailBeenSent] = useState(false);
+    const refreshUserData = useRefreshUserData();
 
     const [commit, isVerifyInFlight] = useMutation<VerifyEmailMutation>(graphql`
         mutation VerifyEmailMutation($data: verifyEmailWithTokenInput!) {
@@ -119,6 +121,8 @@ const VerifyEmail = () => {
                 isResendInFlight={isResendInFlight}
                 resendEmail={resendEmail}
             />
+            <br />
+            <Button onClick={() => refreshUserData()}>Refresh User data (useful if you verified on another device)</Button>
             <Footer className="notDeviceHeightPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>)
 }

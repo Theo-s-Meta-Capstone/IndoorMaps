@@ -1,10 +1,11 @@
-import { loadQuery, useFragment, useMutation, useRelayEnvironment } from "react-relay";
+import { useFragment, useMutation } from "react-relay";
 import { graphql } from "relay-runtime";
 import { ButtonsContainerMutation } from "./__generated__/ButtonsContainerMutation.graphql";
 import UserButtons from "./UserButtons";
 import AuthButtons from "./AuthButtons";
 import { useState } from "react";
 import { ButtonsContainerFragment$key } from "./__generated__/ButtonsContainerFragment.graphql";
+import { useRefreshUserData } from "../../utils/hooks";
 
 const ButtonsUserFragment = graphql`
   fragment ButtonsContainerFragment on LogedInUser
@@ -20,16 +21,6 @@ const ButtonsUserFragment = graphql`
   }
 `;
 
-// Used in the loadQuery that runs after a change in the user's cookie is expected
-const refreshQuery = graphql`
-  query ButtonsContainerGetUserFromCookieQuery {
-  getUserFromCookie {
-    ...ButtonsContainerFragment,
-    ...ListOfConnectedBuildingsUserDataDisplayFragment,
-    ...VerifyEmailPageFragment,
-  }
-}
-`;
 
 type UserButtonsProps = {
   getUserFromCookie: ButtonsContainerFragment$key;
@@ -39,16 +30,8 @@ type UserButtonsProps = {
 function ButtonsContainer({ getUserFromCookie, className }: UserButtonsProps) {
   const [signOutFormError, setSignOutFormError] = useState<string | null>(null);
   const { isLogedIn, user } = useFragment(ButtonsUserFragment, getUserFromCookie);
-  const environment = useRelayEnvironment();
+  const refreshUserData = useRefreshUserData();
 
-  const refreshUserData = () => {
-    loadQuery(
-      environment,
-      refreshQuery,
-      {},
-      { fetchPolicy: "network-only" }
-    );
-  }
   const [commit] = useMutation<ButtonsContainerMutation>(graphql`
         mutation ButtonsContainerMutation {
             signOut {

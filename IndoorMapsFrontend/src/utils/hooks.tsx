@@ -107,7 +107,32 @@ export const useRefreshRelayCache = () => {
         );
     }
 
-    return {refreshFloorData, refreshBuildingData, refreshUserBuildingGroupsgData} as const;
+    return { refreshFloorData, refreshBuildingData, refreshUserBuildingGroupsgData } as const;
+}
+
+export const useRefreshUserData = () => {
+    const environment = useRelayEnvironment();
+
+    // Used in the loadQuery that runs after a change in the user's cookie is expected
+    const refreshQuery = graphql`
+    query hooksGetUserFromCookieQuery {
+        getUserFromCookie {
+            ...ButtonsContainerFragment,
+            ...ListOfConnectedBuildingsUserDataDisplayFragment,
+            ...VerifyEmailPageFragment,
+        }
+    }
+    `;
+
+    const refreshUserData = () => {
+        loadQuery(
+            environment,
+            refreshQuery,
+            {},
+            { fetchPolicy: "network-only" }
+        );
+    }
+    return refreshUserData
 }
 
 // based on https://www.telerik.com/blogs/how-to-create-custom-debounce-hook-react, I added typing
@@ -176,7 +201,7 @@ export const useUserLocation = (onUserLocationWatch: (position: GeolocationPosit
                 setUserLocationError("Location information is unavailable.")
                 break;
             case error.TIMEOUT:
-                if(alreadyWatching.current) break;
+                if (alreadyWatching.current) break;
                 setUserLocationError("The request to get user location timed out.")
                 break;
             default:
