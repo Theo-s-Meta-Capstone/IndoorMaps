@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import { Prisma } from "@prisma/client";
 import { prisma } from '../utils/context.js'
 import { SignInData } from "../types.js";
-import { signAccessToken, verifyAccessToken } from './jwt.js';
+import { signAccessToken, signEmailVerifyToken, verifyAccessToken } from './jwt.js';
 
 class AuthService {
 
@@ -45,7 +45,7 @@ class AuthService {
         if (!userFromDB) {
             throw new Error('User registration issue')
         }
-        return await signAccessToken(userFromDB)
+        return await signEmailVerifyToken(userFromDB)
     }
     static async convertVerifyEmailTokenToFullToken(emailVerificationToken: string) {
         const [userData,] = await verifyAccessToken(emailVerificationToken);

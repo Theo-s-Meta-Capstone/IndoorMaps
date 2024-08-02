@@ -11,6 +11,7 @@ import { VerifyEmailMutation } from "./__generated__/VerifyEmailMutation.graphql
 import { VerifyEmailPageFragment$key } from "./__generated__/VerifyEmailPageFragment.graphql";
 import { VerifyEmailQuery } from "./__generated__/VerifyEmailQuery.graphql";
 import { VerifyEmailResendMutation } from "./__generated__/VerifyEmailResendMutation.graphql";
+import VerifyEmailPageContent from "./VerifyEmail/VerifyEmailPageContent";
 
 export const VerifyEmailPageQuery = graphql`
     query VerifyEmailQuery {
@@ -35,11 +36,10 @@ const VerifyEmail = () => {
     const { getUserFromCookie } = usePreloadedQuery(VerifyEmailPageQuery, queryReference);
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
     const [formError, setFormError] = useState<string | null>(null);
-    const { token } = useParams();
     const { user } = useFragment<VerifyEmailPageFragment$key>(VerifyEmailFragment, getUserFromCookie);
     const [hasNewEmailBeenSent, setHasNewEmailBeenSent] = useState(false);
 
-    const [commit, isInFlight] = useMutation<VerifyEmailMutation>(graphql`
+    const [commit, isVerifyInFlight] = useMutation<VerifyEmailMutation>(graphql`
         mutation VerifyEmailMutation($data: verifyEmailWithTokenInput!) {
             verifyUser(data: $data) {
                 ...ButtonsContainerFragment,
@@ -79,7 +79,7 @@ const VerifyEmail = () => {
         }
     };
 
-    const [commitResend, isInFlightResend] = useMutation<VerifyEmailResendMutation>(graphql`
+    const [commitResend, isResendInFlight] = useMutation<VerifyEmailResendMutation>(graphql`
         mutation VerifyEmailResendMutation {
             resendVerifyEmail {
                 ...ButtonsContainerFragment,
@@ -111,29 +111,16 @@ const VerifyEmail = () => {
             <HeaderNav showDesktopContent={isNotMobile} getUserFromCookie={getUserFromCookie} pageTitle={"Email Verification Center"} currentPage={"/"} />
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <p>Find and create maps on the <Link to={"/directory"}>Directory</Link></p>
-            {user?.isEmailVerified ?
-                "Thank you for Verifiying your Email"
-                :
-                <>{user ?
-                    <>
-                        {token ? <Button disabled={isInFlight} onClick={() => verifyEmail(token)}>Confirm Verifcation</Button> :
-                            <>{
-                                !hasNewEmailBeenSent ?
-                                    <div>
-                                        You are signed up under {user.email}<br />
-                                        <Button disabled={isInFlightResend} onClick={() => resendEmail()}>Resend verification email</Button>
-                                    </div>
-                                    : "New email has been sent. Check your email for the link."}</>
-                        }
-                        {isInFlight ? "loading..." : null}
-                    </>
-                    :
-                    "not currently logged in"
-                }</>
-            }
+            <VerifyEmailPageContent
+                user={user}
+                hasNewEmailBeenSent={hasNewEmailBeenSent}
+                isVerifyInFlight={isVerifyInFlight}
+                verifyEmail={verifyEmail}
+                isResendInFlight={isResendInFlight}
+                resendEmail={resendEmail}
+            />
             <Footer className="notDeviceHeightPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
-        </>
-    )
+        </>)
 }
 
 export default VerifyEmail;

@@ -111,7 +111,8 @@ export const signEmailVerifyToken = (payload: DbUser) => {
     payload.password = null;
     return new Promise<string>((resolve, reject) => {
         jwt.sign({ payload }, accessTokenSecret, {
-            expiresIn: "1h"
+            expiresIn: "1h",
+            noTimestamp: false
         }, async (err, token) => {
             if (err) {
                 reject(" InternalServerError")
