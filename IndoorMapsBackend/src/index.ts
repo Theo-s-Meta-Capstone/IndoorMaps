@@ -20,39 +20,38 @@ const port = process.env.PORT || 4000;
 
 // This code takes a request on the main port and decides if it should be proxied to the graphql server or to the websocket server.
 const proxyServer = http.createServer((req, res) => {
-    if(!req.url) return;
+    if (!req.url) return;
 
     const pathname = url.parse(req.url).pathname;
-    if(!pathname) return;
+    if (!pathname) return;
 
     for (const [pattern, target] of Object.entries(options)) {
         if (pathname === pattern ||
             pathname.startsWith(pattern + '/')
         ) {
-            proxy.web(req, res, {target});
+            proxy.web(req, res, { target });
         }
     }
 }).listen(port);
 
-
 // Websockets use a different protocal (ws://) so http.createServer doesn't listen to them by default
 proxyServer.on('upgrade', function (req, socket, head) {
-    if(!req.url) return;
+    if (!req.url) return;
 
     const pathname = url.parse(req.url).pathname;
-    if(!pathname) return;
+    if (!pathname) return;
 
     for (const [pattern, target] of Object.entries(options)) {
         if (pathname === pattern ||
             pathname.startsWith(pattern + '/')
         ) {
-            proxy.ws(req, socket, head, {target});
+            proxy.ws(req, socket, head, { target });
         }
     }
 });
 
-await new Promise<void>((resolve) => httpServer.listen({ port:EXPRESS_PORT }, resolve));
-console.log(`🚀 Server ready at http://localhost:${ port }/graphql`);
+await new Promise<void>((resolve) => httpServer.listen({ port: EXPRESS_PORT }, resolve));
+console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
 
 await new Promise<void>((resolve) => server.listen({ port: WEBSOCKET_PORT }, resolve));
-console.log(`🚀 Websocket ready at http://localhost:${ port }/ws`);
+console.log(`🚀 Websocket ready at http://localhost:${port}/ws`);

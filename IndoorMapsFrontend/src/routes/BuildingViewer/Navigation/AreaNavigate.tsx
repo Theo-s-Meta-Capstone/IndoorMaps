@@ -74,7 +74,7 @@ const AreaNavigate = ({ buildingId, areaToAreaRouteInfo, setAreaToAreaRouteInfo,
                 setFromWithGPS([position.coords.latitude, position.coords.longitude]);
             } else {
                 // if the autoGPSReloadCooldown is active, just change the starting point for the path
-                let newPath = areaToAreaRouteInfoRef.current.path;
+                const newPath = areaToAreaRouteInfoRef.current.path;
                 if (newPath !== undefined && newPath.length > 0) {
                     newPath[0] = new LatLng(position.coords.latitude, position.coords.longitude);
                     setAreaToAreaRouteInfo({

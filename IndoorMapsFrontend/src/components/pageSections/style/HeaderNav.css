@@ -24,3 +24,23 @@ header {
 .pageTitleImage {
    height: 1em;
 }
+
+.NoEmailInformer {
+    margin-left: auto;
+    border-radius: 100%;
+    height: 40px;
+    width: 40px;
+    padding: 0px;
+    border-width: 5px;
+    margin-top: -1px;
+    display: flex;
+    align-items: center;
+    background-color: rgb(255, 50, 50);
+    justify-content: center;
+    transition: transform .5s;
+}
+
+.NoEmailInformer:hover {
+    background-color: rgb(249, 130, 130);
+    transform: translate(3px, 3px);
+}

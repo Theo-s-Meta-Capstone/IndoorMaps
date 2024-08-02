@@ -8,6 +8,7 @@ import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraph
 import { deleteAccessToken } from '../auth/jwt.js'
 import { throwGraphQLBadInput } from '../utils/generic.js'
 import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
+import { sendVerificationEmail } from '../email/setup.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 
@@ -30,6 +31,12 @@ class UserLoginInput {
 
     @Field()
     password: string
+}
+
+@InputType()
+class verifyEmailWithTokenInput {
+    @Field()
+    token: string
 }
 
 @Resolver(User)
@@ -78,6 +85,8 @@ export class UserResolver {
     ): Promise<User> {
         const { userFromDB, accessToken } = await auth.register({ name: data.name, email: data.email, password: data.password, isEmailVerified: false });
         ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
+        const verifyEmailToken = await auth.getVerifyEmailToken(userFromDB.id);
+        sendVerificationEmail(userFromDB.email, verifyEmailToken, userFromDB.name)
         return convertToGraphQLUser(userFromDB);
     }
     @Mutation((returns) => User)
@@ -104,6 +113,20 @@ export class UserResolver {
         };
     }
 
+    @Mutation((returns) => LogedInUser)
+    async verifyUser(
+        @Arg('data') data: verifyEmailWithTokenInput,
+        @Ctx() ctx: Context,
+    ): Promise<LogedInUser> {
+        const { userFromDB, accessToken } = await auth.convertVerifyEmailTokenToFullToken(data.token);
+        ctx.res.cookie("jwt", accessToken, { maxAge: oneMonthInMilliseconds, httpOnly: true, sameSite: "none", secure: true });
+        return {
+            id: "LogedInUser",
+            isLogedIn: true,
+            user: convertToGraphQLUser(userFromDB),
+        }
+    }
+
     @Query(() => [User])
     async allUsers(@Ctx() ctx: Context) {
         return (await ctx.prisma.user.findMany()).map((dbUser) => convertToGraphQLUser(dbUser));
@@ -118,6 +141,24 @@ export class UserResolver {
                 isLogedIn: false
             }
         }
+        return {
+            id: "LogedInUser",
+            isLogedIn: true,
+            user: user,
+        }
+    }
+
+    @Mutation(() => LogedInUser)
+    async resendVerifyEmail(@Ctx() ctx: Context) {
+        const user = await validateUser(ctx.cookies);
+        if (!user) {
+            return {
+                id: "LogedInUser",
+                isLogedIn: false
+            }
+        }
+        const verifyEmailToken = await auth.getVerifyEmailToken(user.databaseId);
+        sendVerificationEmail(user.email, verifyEmailToken, user.name)
         return {
             id: "LogedInUser",
             isLogedIn: true,

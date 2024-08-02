@@ -1,0 +1,15 @@
+As you get started with Amazon SES, keep in mind that you must:
+
+- Comply with the AWS Acceptable Use Policy ( http://aws.amazon.com/aup/  ) and read the Amazon SES Service Terms (section Amazon Simple Email Service (SES) of http://aws.amazon.com/service-terms/  ).
+
+- Send only high-quality emails to recipients who expect to hear from you. For more information, see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/tips-and-best-practices.html .
+
+- Set up a process to handle bounces and complaints. For more information, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/bounce-complaint-notifications.html .
+
+- Use your new account to send a different type of email than you are sending from your other account(s), if applicable. For more information, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/multiple-accounts.html .
+
+- Use the Amazon SES mailbox simulator to test your system so that your testing does not adversely impact your account. For more information, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/mailbox-simulator.html .
+
+- Apply for higher sending limits before you need them. For more information, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/manage-sending-limits.html .
+
+- With Amazon SES, you pay only for what you use. There are no contract negotiations and no minimum charges. For more information see: https://aws.amazon.com/ses/pricing/

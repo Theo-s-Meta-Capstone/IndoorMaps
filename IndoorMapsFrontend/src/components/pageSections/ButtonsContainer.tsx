@@ -15,6 +15,7 @@ const ButtonsUserFragment = graphql`
       id
       email
       name
+      isEmailVerified
     }
   }
 `;
@@ -24,7 +25,8 @@ const refreshQuery = graphql`
   query ButtonsContainerGetUserFromCookieQuery {
   getUserFromCookie {
     ...ButtonsContainerFragment,
-    ...ListOfConnectedBuildingsUserDataDisplayFragment
+    ...ListOfConnectedBuildingsUserDataDisplayFragment,
+    ...VerifyEmailPageFragment,
   }
 }
 `;
