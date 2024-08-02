@@ -25,7 +25,8 @@ const refreshQuery = graphql`
   query ButtonsContainerGetUserFromCookieQuery {
   getUserFromCookie {
     ...ButtonsContainerFragment,
-    ...ListOfConnectedBuildingsUserDataDisplayFragment
+    ...ListOfConnectedBuildingsUserDataDisplayFragment,
+    ...VerifyEmailPageFragment,
   }
 }
 `;

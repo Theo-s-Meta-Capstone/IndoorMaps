@@ -1,5 +1,5 @@
 import "../components/pageSections/style/FixedFooter.css"
-import { PreloadedQuery, graphql, useMutation, usePreloadedQuery } from "react-relay";
+import { PreloadedQuery, graphql, useFragment, useMutation, usePreloadedQuery } from "react-relay";
 import { RootQuery } from "./__generated__/RootQuery.graphql";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import { Link, useLoaderData, useParams } from "react-router-dom";
@@ -8,21 +8,41 @@ import { useMediaQuery } from "@mantine/hooks";
 import { Button, em } from "@mantine/core";
 import FormErrorNotification from "../components/forms/FormErrorNotification";
 import { useState } from "react";
-import { RootPageQuery } from "./Root";
 import { VerifyEmailMutation } from "./__generated__/VerifyEmailMutation.graphql";
+import { VerifyEmailPageFragment$key } from "./__generated__/VerifyEmailPageFragment.graphql";
+import { VerifyEmailQuery } from "./__generated__/VerifyEmailQuery.graphql";
+
+export const VerifyEmailPageQuery = graphql`
+    query VerifyEmailQuery {
+    getUserFromCookie {
+        ...ButtonsContainerFragment,
+        ...VerifyEmailPageFragment,
+    }
+}`
+
+const VerifyEmailFragment = graphql`
+    fragment VerifyEmailPageFragment on LogedInUser {
+        id
+        user {
+            isEmailVerified
+            email
+        }
+    }
+`;
 
 const VerifyEmail = () => {
-    const queryReference = useLoaderData() as PreloadedQuery<RootQuery>;
-    const { getUserFromCookie } = usePreloadedQuery(RootPageQuery, queryReference);
+    const queryReference = useLoaderData() as PreloadedQuery<VerifyEmailQuery>;
+    const { getUserFromCookie } = usePreloadedQuery(VerifyEmailPageQuery, queryReference);
     const isNotMobile = useMediaQuery(`(min-width: ${em(750)})`);
     const [formError, setFormError] = useState<string | null>(null);
     const { token } = useParams();
-    const [isEmailVerified, setIsEmailVerified] = useState(false)
+    const { user } = useFragment<VerifyEmailPageFragment$key>(VerifyEmailFragment, getUserFromCookie);
 
     const [commit, isInFlight] = useMutation<VerifyEmailMutation>(graphql`
         mutation VerifyEmailMutation($data: verifyEmailWithTokenInput!) {
             verifyUser(data: $data) {
                 ...ButtonsContainerFragment,
+                ...VerifyEmailPageFragment,
                 user {
                     isEmailVerified
                 }
@@ -47,7 +67,6 @@ const VerifyEmail = () => {
                         setFormError("Email not verified, try again later")
                         return
                     }
-                    setIsEmailVerified(true)
                 },
                 onError(error) {
                     setFormError(error.message);
@@ -65,13 +84,22 @@ const VerifyEmail = () => {
             <FormErrorNotification formError={formError} onClose={() => { setFormError(null) }} />
             <h2>Verifying Email</h2>
             <p>Find and create maps on the <Link to={"/directory"}>Directory</Link></p>
-            {isEmailVerified ?
+            {user?.isEmailVerified ?
                 "Thank you for Verifiying your Email"
                 :
-                <>
-                    {token ? <Button disabled={isInFlight} onClick={() => verifyEmail(token)}>Confirm Verifcation</Button> : "Token not found"}
-                    {isInFlight ? "loading..." : null}
-                </>
+                <>{user ?
+                    <>
+                        {token ? <Button disabled={isInFlight} onClick={() => verifyEmail(token)}>Confirm Verifcation</Button> :
+                            <div>
+                                You are signed up under {user.email}<br />
+                                <Button onClick={() => alert("under construction")}>Resend verification email</Button>
+                            </div>
+                        }
+                        {isInFlight ? "loading..." : null}
+                    </>
+                    :
+                    "not currently logged in"
+                }</>
             }
             <Footer className="notDeviceHeightPage" getUserFromCookie={getUserFromCookie} showDesktopContent={isNotMobile} />
         </>

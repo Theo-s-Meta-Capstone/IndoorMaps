@@ -11,7 +11,7 @@ import { Suspense } from 'react';
 import LoadingPage from './components/pageSections/LoadingPage';
 import { loadQuery } from 'react-relay';
 import { RelayEnvironment } from './RelayEnvironment';
-import VerifyEmail from './routes/VerifyEmail';
+import VerifyEmail, { VerifyEmailPageQuery } from './routes/VerifyEmail';
 
 const router = createBrowserRouter([
   {
@@ -89,7 +89,17 @@ const router = createBrowserRouter([
       <Suspense fallback={<LoadingPage />}><VerifyEmail /></Suspense>,
     loader: async () => loadQuery(
       RelayEnvironment,
-      RootPageQuery,
+      VerifyEmailPageQuery,
+      {},
+    ),
+  },
+  {
+    path: "/verify/",
+    element:
+      <Suspense fallback={<LoadingPage />}><VerifyEmail /></Suspense>,
+    loader: async () => loadQuery(
+      RelayEnvironment,
+      VerifyEmailPageQuery,
       {},
     ),
   },
