@@ -78,7 +78,11 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
   * Get An API Key at [HERE](https://developer.here.com/)
 * REDIS server
   * Spin up a local dev server easily with `docker run -p 6379:6379 -it redis/redis-stack-server:latest`
-
+* AWS account with SES set up
+  * Not an easy process to aquire, not required for any other functionality
+  * If using a new AWS account
+    * Need to upload the email template [IndoorMapsBackend/src/email/verificationTemplate.json](https://github.com/Theo-s-Meta-Capstone/IndoorMaps/blob/main/IndoorMapsBackend/src/email/verificationTemplate.json) to your aws account as VerifyIndoorMapsEmail.
+    * Need to change the source email and aws region to proper values for your account in [IndoorMapsBackend/src/email/setup.ts](https://github.com/Theo-s-Meta-Capstone/IndoorMaps/blob/main/IndoorMapsBackend/src/email/setup.ts)
 ### Installation
 
 1. Clone the repo
@@ -94,14 +98,24 @@ IndoorMaps is the easy way to create useful and accurate maps of any building.
    ```.env
    DATABASE_URL="<A POSTGRES DB>"
    FRONTEND_URL="http://localhost:5173"
-   # If you don't have a here API key most functionality will still work
-   HERE_API_KEY="<Get An API Key at [HERE](https://developer.here.com/)"
-   # All functionality will work without a REDIS cache
+
+   ####################################
+   # Everything below this is optional#
+   ####################################
+
+   # HERE API Key
+   HERE_API_KEY="<Get An API Key at https://developer.here.com/>"
+
+   # REDIS cache
    REDIS_URI="redis://localhost:6379"
-   # you can also connect with a password using
+   # you can also connect with a password using (either use REDIS_URI or REDIS_PASSWORD & REDIS_PORT & REDIS_HOST)
    REDIS_PASSWORD='******'
    REDIS_PORT='6379'
    REDIS_HOST='localhost'
+
+   # To send verification emails with AWS:
+   AWS_ACCESS_KEY_ID="******"
+   AWS_SECRET_ACCESS_KEY="***********"
    ```
 4. Enter your frontend env variables in `IndoorMapsFrontend/.env`
    ```sh
