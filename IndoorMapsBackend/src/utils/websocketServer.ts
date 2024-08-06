@@ -5,7 +5,7 @@ import { getUserOrThrowError } from '../auth/validateUser.js';
 import { pubSub } from '../resolvers/pubSub.js';
 
 // false for only essential logging, true for logging of all data related to connections
-const verbose = false;
+const verbose = true;
 
 // helper funcitons
 function dec2bin(dec: number) {
@@ -16,7 +16,7 @@ const utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
 
 // based on https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
 /**
- * Takes the data recieved from the client and returns the Mask to be used to decode the data.
+ * Takes the data received from the client and returns the Mask to be used to decode the data.
  * @param data - the data that was received from the client
  * @returns {MASKcode: number[], dataLength: number, dataStart: number} - the mask, the length of the data, and the start byte of the data in the buffer.
  * The content of the buffer is between (dataStart, dataStart + dataLength)
@@ -119,27 +119,27 @@ export const server = net.createServer(sock => {
         }
         const OPCODE = (data.readUInt8() & 15);
         if (verbose) console.log("OPCODE = " + OPCODE);
-        // Text Opcode Recieved
+        // Text Opcode Received
         if (OPCODE === 0x1) {
             receiveLocationSocket(data);
             return;
         }
-        // Ping Opcode Recieved
+        // Ping Opcode Received
         if (OPCODE === 0xA) {
-            if (verbose) console.log("Recieved Pong")
+            if (verbose) console.log("Received Pong")
             const decodedText = getTextDataFromBuffer(data);
             if (verbose) console.log("Pong message = " + decodedText)
             return;
         }
-        // Ping Opcode Recieved
+        // Ping Opcode Received
         if (OPCODE === 0x9) {
-            if (verbose) console.log("Recieved Ping")
+            if (verbose) console.log("Received Ping")
             const decodedText = getTextDataFromBuffer(data);
             if (verbose) console.log("Pong message = " + decodedText)
             sendPong(Array.from(decodedText).map((char) => char.charCodeAt(0)));
             return;
         }
-        if (verbose) console.log("Recieved Unhandled Opcode = " + OPCODE);
+        if (verbose) console.log("Received Unhandled Opcode = " + OPCODE);
         try {
             const decodedText = getTextDataFromBuffer(data);
             if (verbose) console.log("Unknown message = " + decodedText)
@@ -175,7 +175,7 @@ export const server = net.createServer(sock => {
         openSockets[wsKey] = {
             jwt: jwtCookie,
             timeCreated: Date.now(),
-            lastRecieved: Date.now(),
+            lastReceived: Date.now(),
         }
 
         if (verbose) console.log("Sec-WebSocket-Accept computed response = " + magicString)
@@ -200,8 +200,8 @@ export const server = net.createServer(sock => {
                 console.error("invalid wsKey")
                 return;
             }
-            openSockets[decodedJson.wsKey].lastRecieved = Date.now();
-            if (verbose) console.log("recieved json:")
+            openSockets[decodedJson.wsKey].lastReceived = Date.now();
+            if (verbose) console.log("received json:")
             if (verbose) console.log(decodedJson);
             const user = await getUserOrThrowError(openSockets[decodedJson.wsKey]);
             pubSub.publish("LIVELOCATIONS", {
