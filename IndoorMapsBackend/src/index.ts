@@ -50,6 +50,10 @@ proxyServer.on('upgrade', function (req, socket, head) {
     }
 });
 
+proxyServer.on('error', function (err: Error)  {
+    console.error(err)
+})
+
 await new Promise<void>((resolve) => httpServer.listen({ port: EXPRESS_PORT }, resolve));
 console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
 
