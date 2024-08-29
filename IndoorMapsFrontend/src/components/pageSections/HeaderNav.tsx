@@ -15,7 +15,7 @@ type HeaderNavProps = {
 const HeaderNav = ({ getUserFromCookie, pageTitle, children, showDesktopContent = true }: HeaderNavProps) => {
     return (<>
         <header>
-            <h1 className="pageTitle">
+            <h1 style={pageTitle.length < 10 ? {} : {fontSize: "1em"}} className="pageTitle">
                 <Link to={"/"}>
                     <img alt={"Home Page"} className="pageTitleImage" src={"/logo.svg"} />
                 </Link>
