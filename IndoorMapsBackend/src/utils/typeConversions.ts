@@ -2,10 +2,11 @@
  * this file containes functions that convert between the database type and the Graphql Types, It is used any time data is sent from the database to the front end
 */
 import { User } from '../graphqlSchemaTypes/User.js'
-import { Building, BuildingGroup, LatLng } from '../graphqlSchemaTypes/Building.js'
+import { Building, LatLng } from '../graphqlSchemaTypes/Building.js'
 import { Building as DbBuilding, Floor as DbFloor, Area as DbArea, User as DbUser, Prisma } from '@prisma/client'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
+import { BuildingGroup } from '../graphqlSchemaTypes/BuildingGroup.js'
 
 type DbBuildingGroup = Prisma.BuildingGroupGetPayload<{
     include: {

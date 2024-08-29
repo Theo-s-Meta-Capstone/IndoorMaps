@@ -31,18 +31,3 @@ export class Building {
   @Field()
   address: string
 }
-
-@ObjectType()
-export class BuildingGroup {
-  @Field((type) => ID)
-  id: string
-
-  @Field(type => Int)
-  databaseId: number
-
-  @Field()
-  name: string
-
-  @Field(type => [Building])
-  buildings: Building[]
-}

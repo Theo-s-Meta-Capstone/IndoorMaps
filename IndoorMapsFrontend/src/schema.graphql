@@ -98,6 +98,11 @@ type BuildingGroup {
   name: String!
 }
 
+input BuildingGroupUniqueInput {
+  buildingSearch: String
+  id: Int!
+}
+
 input BuildingSearchInput {
   searchQuery: String
 }
@@ -277,12 +282,14 @@ enum PathfindingMethod {
 }
 
 type Query {
+  allBuildingGroups(data: BuildingSearchInput!): [BuildingGroup!]!
   allBuildings(data: BuildingSearchInput!): [Building!]!
   allUsers: [User!]!
   areaSearch(data: AreaSearchInput!): [Area!]!
   getArea(data: AreaUniqueInput!): Area!
   getAutocomplete(data: AutocompleteInput!): Autocomplete!
   getBuilding(data: BuildingUniqueInput!): Building!
+  getBuildingGroup(data: BuildingGroupUniqueInput!): BuildingGroup!
   getFloor(data: FloorUniqueInput!): Floor!
   getLocationLookup(data: LocationLookupInput!): LatLng
   getNavBetweenAreas(data: NavigationInput!): NavigationResult!

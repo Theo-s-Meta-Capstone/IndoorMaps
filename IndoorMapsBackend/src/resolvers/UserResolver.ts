@@ -7,8 +7,9 @@ import { validateUser } from '../auth/validateUser.js';
 import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLUser } from '../utils/typeConversions.js'
 import { deleteAccessToken } from '../auth/jwt.js'
 import { throwGraphQLBadInput } from '../utils/generic.js'
-import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
+import { Building } from '../graphqlSchemaTypes/Building.js'
 import { sendVerificationEmail } from '../email/setup.js'
+import { BuildingGroup } from '../graphqlSchemaTypes/BuildingGroup.js'
 
 const oneMonthInMilliseconds = 43800 * 60 * 1000;
 

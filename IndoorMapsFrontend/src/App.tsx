@@ -12,6 +12,7 @@ import LoadingPage from './components/pageSections/LoadingPage';
 import { loadQuery } from 'react-relay';
 import { RelayEnvironment } from './RelayEnvironment';
 import VerifyEmail, { VerifyEmailPageQuery } from './routes/VerifyEmail';
+import BuildingGroup, { BuildingGroupPageQuery } from './routes/BuildingGroup';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,20 @@ const router = createBrowserRouter([
         },
         buildingSearchInput: {
           searchQuery: "",
+        }
+      },
+    ),
+  },
+  {
+    path: "buildingGroup/:buildingGroupId/:buildingGroupName",
+    element: <Suspense fallback={<LoadingPage />}><BuildingGroup /></Suspense>,
+    loader: async ({ params }) => loadQuery(
+      RelayEnvironment,
+      BuildingGroupPageQuery,
+      {
+        data: {
+          id: parseInt(params.buildingGroupId!),
+          buildingSearch: null,
         }
       },
     ),
