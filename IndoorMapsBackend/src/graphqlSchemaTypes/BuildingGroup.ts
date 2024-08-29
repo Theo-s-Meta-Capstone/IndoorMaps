@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from "type-graphql"
-import { Building } from "./Building"
+import { Building } from "./Building.js"
 
 @ObjectType()
 export class BuildingGroup {

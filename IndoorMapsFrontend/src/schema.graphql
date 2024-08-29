@@ -277,6 +277,7 @@ enum PathfindingMethod {
 }
 
 type Query {
+  allBuildingGroups(data: BuildingSearchInput!): [BuildingGroup!]!
   allBuildings(data: BuildingSearchInput!): [Building!]!
   allUsers: [User!]!
   areaSearch(data: AreaSearchInput!): [Area!]!
