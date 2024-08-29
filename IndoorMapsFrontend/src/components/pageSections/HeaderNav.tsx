@@ -19,7 +19,7 @@ const HeaderNav = ({ getUserFromCookie, pageTitle, children, showDesktopContent 
                 <Link to={"/"}>
                     <img alt={"Home Page"} className="pageTitleImage" src={"/logo.svg"} />
                 </Link>
-                <span style={pageTitle.length < 10 || showDesktopContent ? {} : {fontSize: "1em"}}>{pageTitle}</span>
+                <span style={pageTitle.length < 10 || showDesktopContent ? {} : {fontSize: ".5em"}}>{pageTitle}</span>
             </h1>
             {showDesktopContent ?
                 <Group component="nav" className="nav">
