@@ -271,7 +271,7 @@ export class BuildingResolver {
         @Ctx() ctx: Context
     ): Promise<BuildingGroup> {
         let dbBuildingGroup;
-        if(data.buildingSearch != undefined && data.buildingSearch != null) {
+        if(data.buildingSearch != undefined && data.buildingSearch != null && data.buildingSearch.trim().length > 0) {
             const query = formatSearchQuery(data.buildingSearch);
             dbBuildingGroup = await ctx.prisma.buildingGroup.findUnique({
                 where: {

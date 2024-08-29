@@ -1,7 +1,7 @@
 import { em, Group, rem, TextInput } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { graphql, PreloadedQuery, usePreloadedQuery, useRefetchableFragment } from "react-relay";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import HeaderNav from "../components/pageSections/HeaderNav";
 import Footer from "../components/pageSections/Footer";
 import { BuildingGroupQuery } from "./__generated__/BuildingGroupQuery.graphql";
@@ -56,9 +56,11 @@ const Directory = () => {
         return (<BuildingItem key={i} buildingFromParent={building} />)
     })
 
+    const { buildingGroupId } = useParams();
+
     useEffect(() => {
         startTransition(() => {
-            refetch({ buildingSearchInput: {searchQuery: debouncedSearchQuery} }, { fetchPolicy: 'store-or-network' })
+            refetch({ data: {id: parseInt(buildingGroupId!), buildingSearch: debouncedSearchQuery} }, { fetchPolicy: 'store-or-network' })
         });
     }, [debouncedSearchQuery])
     
