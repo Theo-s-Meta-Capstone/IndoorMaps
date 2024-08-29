@@ -50,7 +50,7 @@ const router = createBrowserRouter([
       {
         data: {
           id: parseInt(params.buildingGroupId!),
-          buildingSearch: null,
+          buildingSearch: "",
         }
       },
     ),
