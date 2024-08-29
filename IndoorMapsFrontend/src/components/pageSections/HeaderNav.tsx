@@ -15,11 +15,11 @@ type HeaderNavProps = {
 const HeaderNav = ({ getUserFromCookie, pageTitle, children, showDesktopContent = true }: HeaderNavProps) => {
     return (<>
         <header>
-            <h1 style={pageTitle.length < 10 ? {} : {fontSize: "1em"}} className="pageTitle">
+            <h1 className="pageTitle">
                 <Link to={"/"}>
                     <img alt={"Home Page"} className="pageTitleImage" src={"/logo.svg"} />
                 </Link>
-                {pageTitle}
+                <span style={pageTitle.length < 10 || showDesktopContent ? {} : {fontSize: "1em"}}>{pageTitle}</span>
             </h1>
             {showDesktopContent ?
                 <Group component="nav" className="nav">
