@@ -1,15 +1,16 @@
 import 'reflect-metadata'
-import { Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
+import { Directive, Resolver, Query, Mutation, Arg, Ctx, InputType, Field, FieldResolver, Root, Float, Subscription, Int } from 'type-graphql'
 import { Floor as DbFloor } from '@prisma/client'
 
 import { Context } from '../utils/context.js'
-import { Building, BuildingGroup } from '../graphqlSchemaTypes/Building.js'
+import { Building } from '../graphqlSchemaTypes/Building.js'
 import { convertToGraphQLBuilding, convertToGraphQLBuildingGroup, convertToGraphQLFloor, convertToGraphQlArea, convertToGraphQlAreaWithFloorTitle } from '../utils/typeConversions.js'
 import { checkAuthrizedBuildingEditor, getUserOrThrowError } from '../auth/validateUser.js'
 import { Floor } from '../graphqlSchemaTypes/Floor.js'
 import { MutationResult, throwGraphQLBadInput } from '../utils/generic.js'
 import { LiveLocation, pubSub } from './pubSub.js'
 import { Area } from '../graphqlSchemaTypes/Area.js'
+import { BuildingGroup } from '../graphqlSchemaTypes/BuildingGroup.js'
 
 function formatSearchQuery(query: string) {
     return query.trim().replaceAll(" ", ":*|") + ":*"
@@ -227,6 +228,7 @@ export class BuildingResolver {
         return convertToGraphQLBuilding(dbBuilding);
     }
 
+    @Directive('@deprecated(reason: "Use allBuildingGroups")')
     @Query(() => [Building])
     async allBuildings(
         @Arg('data') data: BuildingSearchInput,
@@ -249,6 +251,34 @@ export class BuildingResolver {
             buildings = await ctx.prisma.building.findMany({});
         }
         return buildings.map((building) => convertToGraphQLBuilding(building))
+    }
+
+    @Query(() => [BuildingGroup])
+    async allBuildingGroups(
+        @Arg('data') data: BuildingSearchInput,
+        @Ctx() ctx: Context
+    ): Promise<BuildingGroup[]> {
+        let buildingGroups;
+        if (data.searchQuery && data.searchQuery.trim().length > 0) {
+            const query = formatSearchQuery(data.searchQuery);
+            buildingGroups = await ctx.prisma.buildingGroup.findMany({
+                where: {
+                    name: {
+                        search: query,
+                    }
+                },
+                include: {
+                    buildings: true,
+                }
+            });
+        } else {
+            buildingGroups = await ctx.prisma.buildingGroup.findMany({
+                include: {
+                    buildings: true,
+                }
+            });
+        }
+        return buildingGroups.map((buildingGroup) => convertToGraphQLBuildingGroup(buildingGroup))
     }
 
     @Mutation((returns) => MutationResult)
