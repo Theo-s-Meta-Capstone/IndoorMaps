@@ -19,7 +19,7 @@ const CreateBuildingGroupModal = ({ isOpen, closeModal }: Props) => {
         mode: 'controlled',
         initialValues: { name: '' },
         validate: {
-            name: hasLength({ min: 1, max: 20 }, 'Building Group name must be between 1 and 20 characters long'),
+            name: hasLength({ min: 1, max: 35 }, 'Building Group name must be between 1 and 35 characters long'),
         },
     });
 
