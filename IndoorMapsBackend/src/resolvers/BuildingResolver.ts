@@ -46,6 +46,15 @@ class BuildingUniqueInput {
 }
 
 @InputType()
+class BuildingGroupUniqueInput {
+    @Field(type => Int)
+    id: number;
+
+    @Field({nullable: true})
+    buildingSearch?: string;
+}
+
+@InputType()
 class BuildingCreateInput {
     @Field()
     title: string;
@@ -254,6 +263,47 @@ export class BuildingResolver {
             throw throwGraphQLBadInput("Building not found");
         }
         return convertToGraphQLBuilding(dbBuilding);
+    }
+
+    @Query((returns) => BuildingGroup)
+    async getBuildingGroup(
+        @Arg("data") data: BuildingGroupUniqueInput,
+        @Ctx() ctx: Context
+    ): Promise<BuildingGroup> {
+        let dbBuildingGroup;
+        if(data.buildingSearch != undefined && data.buildingSearch != null) {
+            const query = formatSearchQuery(data.buildingSearch);
+            dbBuildingGroup = await ctx.prisma.buildingGroup.findUnique({
+                where: {
+                    id: data.id,
+                },
+                include: {
+                    buildings: {
+                        where: {
+                            title: {
+                                search: query
+                            },
+                            address: {
+                                search: query
+                            }
+                        }
+                    }
+                }
+            })
+        } else {
+            dbBuildingGroup = await ctx.prisma.buildingGroup.findUnique({
+                where: {
+                    id: data.id,
+                },
+                include: {
+                    buildings: true
+                }
+            })
+        }
+        if (!dbBuildingGroup) {
+            throw throwGraphQLBadInput("Building Group not found");
+        }
+        return convertToGraphQLBuildingGroup(dbBuildingGroup);
     }
 
     @Directive('@deprecated(reason: "Use allBuildingGroups")')
