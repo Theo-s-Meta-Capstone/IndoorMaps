@@ -180,6 +180,10 @@
     .hideLabelOnMobile .mantine-TextInput-label {
         display: initial;
     }
+
+    .pageTitle {
+        font-size: 2em;
+    }
 }
 
 .buildingTitle {
