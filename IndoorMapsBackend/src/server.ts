@@ -71,9 +71,15 @@ async function main() {
         throw new Error("no frontend url provided")
     }
 
+    const origin = [process.env.FRONTEND_URL, BUILD_PREVIEW_URL];
+
+    if (process.env.FRONTEND_URL_TWO) {
+        origin.push(process.env.FRONTEND_URL_TWO);
+    }
+
     app.use(
         '/graphql',
-        cors<cors.CorsRequest>({ origin: [process.env.FRONTEND_URL, BUILD_PREVIEW_URL], credentials: true }),
+        cors<cors.CorsRequest>({ origin, credentials: true }),
         cookieParser(),
         express.json(),
         expressMiddleware(server, {
