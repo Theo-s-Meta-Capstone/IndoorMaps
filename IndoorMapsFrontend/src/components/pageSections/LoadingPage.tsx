@@ -12,7 +12,7 @@ const LoadingPage = () => {
         <>
             <HeaderNav pageTitle="" currentPage="" showDesktopContent={isNotMobile} />
             <Group align="center" justify="center"><p>Loading From GraphQL</p><Loader color="dark-blue" /></Group>
-            <Group align="center" justify="center"><i>The GraphQL server scales to 0 so initial so the initial cold start will take about 3 minutes</i></Group>
+            <Group align="center" justify="center"><i>The GraphQL server scales to 0 so the initial cold start will take about 3 minutes</i></Group>
             <Footer className="notDeviceHeightPage" showDesktopContent={isNotMobile} />
         </>
     )
