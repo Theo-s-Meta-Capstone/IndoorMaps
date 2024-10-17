@@ -12,7 +12,7 @@ const LoadingPage = () => {
         <>
             <HeaderNav pageTitle="" currentPage="" showDesktopContent={isNotMobile} />
             <Group align="center" justify="center"><p>Loading From GraphQL</p><Loader color="dark-blue" /></Group>
-            <Group align="center" justify="center"><i>The server is hosted on a 2v cpu 2gb ram coolify instance that also hosts the rest of my projects</i></Group>
+            <Group align="center" justify="center"><i>The server is hosted on a 2v cpu Hetzner Coolify instance that also hosts the rest of my projects</i></Group>
             <Footer className="notDeviceHeightPage" showDesktopContent={isNotMobile} />
         </>
     )
