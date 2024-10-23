@@ -3,7 +3,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://indoormaps.onrender.com/">
+  <a href="https://indoormaps.theoh.dev/">
     <img src="https://indoormaps.onrender.com/logoWithBg.svg" alt="Logo" width="80" height="80">
   </a>
 
